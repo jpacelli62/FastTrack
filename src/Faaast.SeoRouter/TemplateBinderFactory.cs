@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.Routing.Template;
 using Microsoft.Extensions.ObjectPool;
 using System.Text.Encodings.Web;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     internal sealed class SimpleTemplateBinderFactory
     {
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
 
         private readonly ObjectPool<UriBuildingContext> _pool;
 

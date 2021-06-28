@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace FastTrack.Metadata
+namespace Faaast.Metadata
 {
     public class DefaultObjectMapper : IObjectMapper
     {

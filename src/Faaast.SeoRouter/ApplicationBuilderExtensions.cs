@@ -1,4 +1,4 @@
-﻿using FastTrack.SeoRouter;
+﻿using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.TryAddSingleton<SimpleTemplateBinderFactory>();
             services.TryAddSingleton<Router>();
-            
+
             return services;
         }
 

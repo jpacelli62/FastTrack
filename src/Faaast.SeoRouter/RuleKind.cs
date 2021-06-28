@@ -1,4 +1,4 @@
-﻿namespace FastTrack.SeoRouter
+﻿namespace Faaast.SeoRouter
 {
     public enum RuleKind
     {

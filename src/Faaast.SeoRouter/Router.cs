@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     public class Router : IRouter
     {
@@ -99,8 +99,8 @@ namespace FastTrack.SeoRouter
             }
 
             return null;
-        } 
-        
+        }
+
         public async Task<RoutingRule> GetVirtualPathRuleAsync(RouteValueDictionary contextValues, IServiceProvider provider)
         {
             var rules = await GetRulesAsync(provider);

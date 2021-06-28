@@ -5,7 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Threading.Tasks;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     class DefaultMvcHandler : IMvcHandler
     {

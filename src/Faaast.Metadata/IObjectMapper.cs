@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace FastTrack.Metadata
+namespace Faaast.Metadata
 {
     public interface IObjectMapper
-	{
+    {
         DtoClass Get(Type type);
     }
 }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace FastTrack.Metadata
+namespace Faaast.Metadata
 {
     public class ReadWriteSync
     {

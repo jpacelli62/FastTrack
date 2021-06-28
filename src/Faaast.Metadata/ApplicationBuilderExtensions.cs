@@ -1,4 +1,4 @@
-﻿using FastTrack.Metadata;
+﻿using Faaast.Metadata;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection

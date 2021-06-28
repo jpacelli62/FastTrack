@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     public class RoutingRules
     {
@@ -115,10 +115,10 @@ namespace FastTrack.SeoRouter
                 {
                     if (rule.MatchDynamic(pathString, out RouteValueDictionary requestValues))
                     {
-                        if(!_indexByUrl.TryGetValue(baseUrl, out var items))
+                        if (!_indexByUrl.TryGetValue(baseUrl, out var items))
                             _indexByUrl[baseUrl] = items = new List<RoutingRule>();
 
-                        if(!items.Contains(rule))
+                        if (!items.Contains(rule))
                             items.Add(rule);
 
                         values = requestValues;
@@ -144,7 +144,7 @@ namespace FastTrack.SeoRouter
             {
                 foreach (var rule in rules)
                 {
-                    if(rule.MatchConstraints(values, RouteDirection.UrlGeneration))
+                    if (rule.MatchConstraints(values, RouteDirection.UrlGeneration))
                     {
                         return rule;
                     }

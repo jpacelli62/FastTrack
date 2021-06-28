@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Routing;
 using System.Threading.Tasks;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     public interface IMvcHandler
     {

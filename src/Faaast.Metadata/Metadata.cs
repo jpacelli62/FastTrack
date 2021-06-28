@@ -1,4 +1,4 @@
-﻿namespace FastTrack.Metadata
+﻿namespace Faaast.Metadata
 {
     public class Metadata
     {

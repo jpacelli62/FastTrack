@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace FastTrack.SeoRouter
+namespace Faaast.SeoRouter
 {
     [DebuggerDisplay("{Kind}:{Url}")]
     public class RoutingRule
@@ -92,7 +92,7 @@ namespace FastTrack.SeoRouter
                     vpdConstraints[item.Key] = item.Value;
                 }
             }
-         
+
             _matchVirtualPathConstraints = BuildContraints(services, vpdConstraints);
         }
 
