@@ -7,7 +7,7 @@
     <Version>0.0.1-alpha</Version>
     <Authors>Jérôme Pacelli</Authors>
     <Company />
-    <Description>A simple and efficient MVC router alowing complex rules and SEO-friendly Url generation</Description>
+    <Description>A set of classes used to represent a database structure</Description>
     <Copyright>Jérôme Pacelli</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
@@ -18,24 +18,8 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageTags>mvc;seo;url;route;routing</PackageTags>
+    <PackageTags>database;db;modeling;sql;orm</PackageTags>
   </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
-  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\LICENSE">
@@ -46,6 +30,11 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
   </ItemGroup>
 
 </Project>

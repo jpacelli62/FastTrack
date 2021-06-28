@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
@@ -7,7 +7,7 @@
     <Version>0.0.1-alpha</Version>
     <Authors>Jérôme Pacelli</Authors>
     <Company />
-    <Description>A simple and efficient MVC router alowing complex rules and SEO-friendly Url generation</Description>
+    <Description>A Dapper.FluentMap.Dommel bridge for loading/exporting mapping</Description>
     <Copyright>Jérôme Pacelli</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
@@ -18,23 +18,17 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageTags>mvc;seo;url;route;routing</PackageTags>
+    <PackageTags>dapper;fluentmap;dommel;database;db;sql;orm</PackageTags>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+  <ItemGroup>
+    <PackageReference Include="Dapper.FluentMap" Version="2.0.0" />
+    <PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
+    <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
+    <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
   </ItemGroup>
 
   <ItemGroup>
