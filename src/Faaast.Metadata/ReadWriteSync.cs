@@ -5,6 +5,9 @@ namespace Faaast.Metadata
 {
     public class ReadWriteSync
     {
+
+        public int DefaultTimeout { get; set; } = 10000;
+
         public sealed class SyncToken : IDisposable
         {
             private Action OnRelease { get; set; }
@@ -27,21 +30,24 @@ namespace Faaast.Metadata
             SyncObject = new ReaderWriterLock();
         }
 
-        public SyncToken ReadAccess(int timeout)
+        public SyncToken ReadAccess(int? timeout = null)
         {
-            this.SyncObject.AcquireReaderLock(timeout);
+            timeout = timeout ?? DefaultTimeout;
+            this.SyncObject.AcquireReaderLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.ReleaseReaderLock());
         }
 
-        public SyncToken WriteAccess(int timeout)
+        public SyncToken WriteAccess(int? timeout = null)
         {
-            this.SyncObject.AcquireWriterLock(timeout);
+            timeout = timeout ?? DefaultTimeout;
+            this.SyncObject.AcquireWriterLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.ReleaseWriterLock());
         }
 
-        public SyncToken UpgradeToWriteAccess(int timeout)
+        public SyncToken UpgradeToWriteAccess(int? timeout = null)
         {
-            var token = this.SyncObject.UpgradeToWriterLock(timeout);
+            timeout = timeout ?? DefaultTimeout;
+            var token = this.SyncObject.UpgradeToWriterLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.DowngradeFromWriterLock(ref token));
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Faaast.DatabaseModel;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm
 {
     public static class ColumnExtensions
     {
@@ -45,8 +46,8 @@ namespace Faaast.DatabaseModel
                 List<Column> columns = new List<Column>();
                 foreach (var column in table.Columns)
                 {
-                    if (column.Value.PrimaryKey)
-                        columns.Add(column.Value);
+                    if (column.PrimaryKey)
+                        columns.Add(column);
                 }
 
                 pk = columns.ToArray();

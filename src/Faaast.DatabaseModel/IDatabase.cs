@@ -6,6 +6,6 @@ namespace Faaast.DatabaseModel
     {
         ConnectionSettings Connexion { get; set; }
 
-        IDictionary<string, Table> Tables { get; set; }
+        ICollection<Table> Tables { get; set; }
     }
 }

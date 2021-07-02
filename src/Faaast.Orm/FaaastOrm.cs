@@ -1,5 +1,6 @@
 ﻿using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using Faaast.Orm.Mapping;
 using Faaast.Orm.Reader;
 using Faaast.Orm.Resolver;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,6 +19,10 @@ namespace Faaast.Orm
 
         public IDbConnection DbConnection { get; set; }
 
+        internal MappedDatabase Database { get; set; }
+
+        
+
         private ConcurrentDictionary<Type, ObjectReader> Parsers { get; set; }
 
         public FaaastOrm(IServiceProvider services)
@@ -31,9 +36,8 @@ namespace Faaast.Orm
         {
             return Parsers.GetOrAdd(type, x =>
             {
-                DtoClass definition = Mapper.Get(type);
-                var table = definition.Get(Meta.MappedTable);
-                return new ObjectReader(table.Columns.Values, definition);
+                var mapping = Database.TypeToMapping[type];
+                return new ObjectReader(mapping.Table.Columns, mapping);
             });
         }
 

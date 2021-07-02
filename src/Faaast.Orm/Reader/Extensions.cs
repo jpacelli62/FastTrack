@@ -1,9 +1,8 @@
-﻿using Faaast.DatabaseModel;
-using Faaast.Metadata;
-using Faaast.Orm.Resolver;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using Faaast.DatabaseModel;
+using Faaast.Metadata;
 
 namespace Faaast.Orm.Reader
 {
@@ -55,25 +54,15 @@ namespace Faaast.Orm.Reader
             return TypeMap[type];
         }
 
-        public static IDatabase Automap(this IDatabase database, ITypeResolver resolver, IObjectMapper mapper)
+        public static IDatabase Initialize(this IDatabase database, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
         {
-            foreach (var table in database.Tables)
+            foreach (var mapping in mappings)
             {
-                var type = resolver.GetModel(table.Value);
-                if (type != null)
+                var dto = mapper.Get(mapping.Type);
+                mapping.Table.ObjectClass = dto;
+                foreach (var columnMap in mapping.Table.ColumnMappings)
                 {
-                    var map = mapper.Get(type);
-                    map.Set(Meta.MappedTable, table.Value);
-                    table.Value.Set(Meta.PocoObject, map);
-                    foreach (var column in table.Value.Columns)
-                    {
-                        var member = resolver.GetMember(table.Value, column.Value);
-                        if (member != null)
-                        {
-                            column.Value.Set(Meta.PocoProperty, map[member.Name]);
-                            map[member.Name].Set(Meta.MappedColumn, column.Value);
-                        }
-                    }
+                    columnMap.Property = dto[columnMap.Member.Name];
                 }
             }
 

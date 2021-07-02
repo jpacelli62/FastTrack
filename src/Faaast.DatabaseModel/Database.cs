@@ -4,16 +4,16 @@ using System.Collections.Generic;
 
 namespace Faaast.DatabaseModel
 {
-    public class Database : MetaModel, IDatabase
+    public class Database : MetaModel<Database>, IDatabase
     {
         public ConnectionSettings Connexion { get; set; }
 
-        public IDictionary<string, Table> Tables { get; set; }
+        public ICollection<Table> Tables { get; set; }
 
         public Database(ConnectionSettings connexion)
         {
             this.Connexion = connexion;
-            this.Tables = new Dictionary<string, Table>(StringComparer.OrdinalIgnoreCase);
+            this.Tables = new List<Table>();
         }
     }
 }

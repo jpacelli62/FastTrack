@@ -4,20 +4,22 @@ using Faaast.Orm.Resolver;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using Faaast.Orm;
+using Faaast.Orm.Mapping;
 
 namespace Faaast.Orm.Reader
 {
     public struct ObjectReader
     {
-        public DtoClass Model;
+        public TableMapping Model;
         public ColumnReader[] ColumnsReaders;
         public string[] ColumnsNames;
         public Func<object> Activator;
 
-        public ObjectReader(ICollection<Column> columns, DtoClass model)
+        public ObjectReader(ICollection<Column> columns, TableMapping model)
         {
             this.Model = model;
-            this.Activator = model.Activator;
+            this.Activator = model.ObjectClass.Activator;
             this.ColumnsReaders = null;
             this.ColumnsNames = null;
             if (columns != null)
@@ -27,7 +29,8 @@ namespace Faaast.Orm.Reader
                 int index = 0;
                 foreach (var column in columns)
                 {
-                    this.ColumnsReaders[index] = new ColumnReader(column.Get(Meta.PocoProperty), column);
+                    
+                    this.ColumnsReaders[index] = new ColumnReader(model.ColumnToProperty[column], column);
                     this.ColumnsNames[index] = column.Name;
                     index++;
                 }

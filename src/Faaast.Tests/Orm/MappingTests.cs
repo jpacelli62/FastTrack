@@ -18,38 +18,39 @@ namespace Faaast.Tests.Orm
 
         public MappingTests()
         {
-            ServiceCollection services = new ServiceCollection();
+            //ServiceCollection services = new ServiceCollection();
 
-            services.AddFaaastOrm(convention => convention
-                .Match(name => !name.Contains("sys."))
-                .RemoveTablePrefixes("tbl_", "joi_")
-                .AddSuffixToName("Dto"));
+            //services.AddFaaastOrm(convention => convention
+            //    .Match(name => !name.Contains("sys."))
+            //    .RemoveTablePrefixes("tbl_", "joi_")
+            //    .AddSuffixToName("Dto"));
 
-            var provider = services.BuildServiceProvider();
+            //var provider = services.BuildServiceProvider();
 
-            SampleTable = new Table
-            {
-                Name = "tbl_Sample-Model",
-                Schema = "dbo",
-                Columns = new Dictionary<string, Column>
-                {
-                    { nameof(SampleModelDto.IntMember), new Column(nameof(SampleModelDto.IntMember)).IsIdentity().IsPrimaryKey() },
-                    { nameof(SampleModelDto.ReadWriteProperty), new Column(nameof(SampleModelDto.ReadWriteProperty)) },
-                    { nameof(SampleModelDto.NullableBoolProperty), new Column(nameof(SampleModelDto.NullableBoolProperty)).IsNullable()},
-                    { nameof(SampleModelDto.PrivateSetProperty), new Column(nameof(SampleModelDto.PrivateSetProperty)) }
-                }
-            };
+            //SampleTable = new Table
+            //{
+            //    Name = "tbl_Sample-Model",
+            //    Schema = "dbo",
+            //    Columns = new Dictionary<string, Column>
+            //    {
+            //        { nameof(SampleModelDto.IntMember), new Column(nameof(SampleModelDto.IntMember)).IsIdentity().IsPrimaryKey() },
+            //        { nameof(SampleModelDto.ReadWriteProperty), new Column(nameof(SampleModelDto.ReadWriteProperty)) },
+            //        { nameof(SampleModelDto.NullableBoolProperty), new Column(nameof(SampleModelDto.NullableBoolProperty)).IsNullable()},
+            //        { nameof(SampleModelDto.PrivateSetProperty), new Column(nameof(SampleModelDto.PrivateSetProperty)) }
+            //    }
+            //};
 
-            SampleDb = new Database(new ConnectionSettings("site", SqlEngine.SQLServer, "sampleConnexionString"));
-            SampleDb.Tables[SampleTable.Name] = SampleTable;
-            provider.UseDatabase(() => SampleDb);
+            //SampleDb = new Database(new ConnectionSettings("site", SqlEngine.SQLServer, "sampleConnexionString"));
+            //SampleDb.Tables[SampleTable.Name] = SampleTable;
+            //provider.UseDatabase(() => SampleDb);
         }
 
         [Fact]
         public void Mapping_has_been_done()
         {
-            var definition = SampleTable.Get(Meta.PocoObject);
-            Assert.NotNull(definition);
+            Assert.True(false);
+            //var definition = SampleTable.Get(Meta.PocoObject);
+            //Assert.NotNull(definition);
         }
     }
 }

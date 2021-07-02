@@ -5,10 +5,11 @@ using Dapper.FluentMap.Mapping;
 using Faaast.DatabaseModel;
 using Faaast.Metadata;
 using Faaast.Orm.Resolver;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Linq;
 
-namespace Microsoft.Extensions.DependencyInjection
+namespace Faaast
 {
     public static partial class ApplicationBuilderExtensions
     {

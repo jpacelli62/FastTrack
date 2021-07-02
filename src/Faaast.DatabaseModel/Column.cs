@@ -2,7 +2,7 @@
 
 namespace Faaast.DatabaseModel
 {
-    public class Column : MetaModel
+    public class Column : MetaModel<Column>
     {
         public string Name { get; set; }
 

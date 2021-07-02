@@ -4,10 +4,12 @@ using System.Collections.Generic;
 
 namespace Faaast.DatabaseModel
 {
-    public class Table : MetaModel
+    public class Table : MetaModel<Table>
     {
         public virtual string Name { get; set; }
+
         public virtual string Schema { get; set; }
-        public IDictionary<string, Column> Columns { get; set; } = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
+
+        public ICollection<Column> Columns { get; set; } = new List<Column>();
     }
 }

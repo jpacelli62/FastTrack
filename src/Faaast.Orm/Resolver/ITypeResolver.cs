@@ -6,8 +6,6 @@ namespace Faaast.Orm.Resolver
 {
     public interface ITypeResolver
     {
-        Type GetModel(Table table);
-
-        MemberInfo GetMember(Table table, Column column);
+        Mapping GetMapping(Type type);
     }
 }
