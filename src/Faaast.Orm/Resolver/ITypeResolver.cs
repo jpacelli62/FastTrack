@@ -6,6 +6,6 @@ namespace Faaast.Orm.Resolver
 {
     public interface ITypeResolver
     {
-        Mapping GetMapping(Type type);
+        TableMapping GetMapping(Type type);
     }
 }

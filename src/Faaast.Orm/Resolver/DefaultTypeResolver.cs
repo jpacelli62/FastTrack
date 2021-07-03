@@ -29,20 +29,48 @@
 //            return (MemberInfo)model.GetProperty(memberName, flags) ?? model.GetField(memberName, flags);
 //        }
 
-//        public Type GetModel(Table table)
-//        {
-//            if (!_cache.ContainsKey(table))
-//            {
-//                var candidateName = NamingConvention.Format(table.Name);
-//                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-//                {
-//                    Type target = assembly.GetType(candidateName);
-//                    if (target != null)
-//                    {
-//                        _cache[table] = target;
-//                        return target;
-//                    }
-//                }
+        //public Type GetModel(Table table)
+        //{
+        //    if (!_cache.ContainsKey(table))
+        //    {
+        //        var candidateName = NamingConvention.Format(table.Name);
+        //        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        //        {
+        //            if (new string[] { "System", "Microsoft", "netstandard","Newtonsoft.Json","visualstudio", "xunit" }.Any(x => assembly.FullName.IndexOf(x, StringComparison.OrdinalIgnoreCase) > -1))
+        //                continue;
+
+        //            if (!assembly.IsDynamic)
+        //            {
+        //                Type[] exportedTypes = null;
+        //                try
+        //                {
+        //                    exportedTypes = assembly.GetExportedTypes();
+        //                }
+        //                catch (ReflectionTypeLoadException e)
+        //                {
+        //                    exportedTypes = e.Types;
+        //                }
+
+        //                if (exportedTypes != null)
+        //                {
+        //                    foreach (var type in exportedTypes)
+        //                    {
+        //                        if (type.Name.Equals(candidateName, StringComparison.OrdinalIgnoreCase))
+        //                        {
+        //                            _cache[table] = type;
+        //                            return type;
+        //                        }
+        //                    }
+        //                }
+        //            }
+        //            //string assemblyName = assembly.FullName;
+        //            //Type target = assembly.GetType(candidateName, false, true);
+        //            //if (target != null)
+        //            //{
+        //            //    _cache[table] = target;
+        //            //    return target;
+        //            //}
+        //        }
 
 //                _cache[table] = null;
 //            }

@@ -19,6 +19,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.TypeDiscovery", "Faa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.OAuth2Server", "Faaast.OAuth2Server\Faaast.OAuth2Server.csproj", "{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.Authentication.OAuth2", "Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj", "{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,6 +61,14 @@ Global
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,6 @@
 ﻿using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -10,8 +11,13 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddSeoRouter(this IServiceCollection services)
         {
+            services.Configure<RouteOptions>(options =>
+            {
+                options.LowercaseUrls = true;
+            });  
+
             services.AddRouting();
-            //services.TryAddTransient<IInlineConstraintResolver, DefaultInlineConstraintResolver>();
+            services.TryAddTransient<IInlineConstraintResolver, DefaultInlineConstraintResolver>();
             services.AddHttpContextAccessor();
 
 #if NETSTANDARD2_0
@@ -24,7 +30,6 @@ namespace Microsoft.Extensions.DependencyInjection
 #endif
 
             services.TryAddSingleton<IMvcHandler, DefaultMvcHandler>();
-
             services.TryAddSingleton<SimpleTemplateBinderFactory>();
             services.TryAddSingleton<Router>();
 

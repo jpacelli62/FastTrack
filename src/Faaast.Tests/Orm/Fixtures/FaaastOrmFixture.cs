@@ -8,29 +8,24 @@ namespace Faaast.Tests.Orm.Fixtures
 {
     public class FaaastOrmFixture
     {
-        public FaaastOrmFixture()
-        {
+        //public FaaastOrm GetOrm(out ServiceProvider provider)
+        //{
+            //ServiceCollection services = new ServiceCollection();
 
-        }
+            //services.AddFaaastOrm(convention => convention
+            //    .Match(name => !name.Contains("sys."))
+            //    .RemoveTablePrefixes("tbl_", "joi_")
+            //    .AddSuffixToName("Dto"));
 
-        public FaaastOrm GetOrm(out ServiceProvider provider)
-        {
-            ServiceCollection services = new ServiceCollection();
+            //provider = services.BuildServiceProvider();
+            //provider.WithDommelFluentMap(
+            //    new ConnectionSettings("site", SqlEngine.SQLServer, "sampleConnexionString"),
+            //    config => config.AddMap(new SimpleModelDommelMap())
+            //);
 
-            services.AddFaaastOrm(convention => convention
-                .Match(name => !name.Contains("sys."))
-                .RemoveTablePrefixes("tbl_", "joi_")
-                .AddSuffixToName("Dto"));
-
-            provider = services.BuildServiceProvider();
-            provider.WithDommelFluentMap(
-                new ConnectionSettings("site", SqlEngine.SQLServer, "sampleConnexionString"),
-                config => config.AddMap(new SimpleModelDommelMap())
-            );
-
-            var dbset = new FaaastOrm(provider);
-            return dbset;
-        }
+            //var dbset = new FaaastOrm(provider);
+            //return dbset;
+        //}
 
         public FakeDbConnection CreateFakeConnection()
         {

@@ -1,14 +1,32 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.2" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+
+    
+    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -23,11 +41,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj" />
     <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
     <ProjectReference Include="..\Faaast.Orm.Dapper\Faaast.Orm.Dapper.FluentMap.Dommel.csproj" />
+    <ProjectReference Include="..\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj" />
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
     <ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
+    <ProjectReference Include="..\Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj" />
   </ItemGroup>
 
 </Project>

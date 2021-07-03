@@ -1,13 +1,15 @@
 ﻿using Faaast.Metadata;
+using Faaast.Tests.Orm.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections;
 using Xunit;
 
 namespace Faaast.Tests.Metadata
 {
     public class MappingTests
     {
-        private static readonly Metadata<bool?> IsAmazing = new Metadata<bool?>(nameof(IsAmazing));
+        private static readonly Metadata<DtoProperty, bool?> IsAmazing = new Metadata<DtoProperty, bool?>(nameof(IsAmazing));
 
         IObjectMapper Mapper { get; set; }
 
@@ -148,6 +150,28 @@ namespace Faaast.Tests.Metadata
             Assert.Null(property.Read(SampleModelDto));
             property.Write(SampleModelDto, new SampleModelDto());
             Assert.NotNull(property.Read(SampleModelDto));
+        }
+
+        [Fact]
+        public void Can_enumerate_properties()
+        {
+            int nbProps = 0;
+            foreach (var prop in Dto)
+            {
+                nbProps++;
+            }
+            Assert.Equal(9, nbProps);
+        }
+
+        [Fact]
+        public void Can_enumerate_properties_default_enumerator()
+        {
+            int nbProps = 0;
+            foreach (var prop in ((IEnumerable)Dto))
+            {
+                nbProps++;
+            }
+            Assert.Equal(9, nbProps);
         }
     }
 }

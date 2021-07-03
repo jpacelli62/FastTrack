@@ -7,7 +7,7 @@ namespace Faaast.TypeDiscovery
     {
         public string Usage { get; private set; }
 
-        public DiscoveryAttribute(string usage)
+        public DiscoveryAttribute(string usage = "Default")
         {
             this.Usage = usage;
         }
