@@ -51,95 +51,131 @@ namespace Faaast.Orm
             {
                 dbCommand.Prepare();
             }
-         
+
             return Task.CompletedTask;
+        }
+
+        internal static Task TryCloseAsync(this DbConnection connection, CancellationToken cancellationToken)
+        {
+#if NET_5
+            return connection.CloseAsync(cancellationToken);
+#else
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                connection.Close();
+            }
+
+            return Task.CompletedTask;
+#endif
         }
 
         internal static IEnumerable<T> Read<T>(this FaaastCommand command)
         {
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (command.Connection)
             {
-                var type = typeof(T);
-                dbCommand.Prepare();
-                ObjectReader rowParsers = command.GetRowParser(type);
-                var dbReader = dbCommand.ExecuteReader(CommandBehavior.SequentialAccess);
-                int[] indices = ResolveColumnOrder(dbReader, rowParsers);
-                while (dbReader.Read())
+                command.Connection.Open();
+                using (DbCommand dbCommand = command.SetupCommand())
                 {
-                    yield return (T)rowParsers.Read(dbReader, indices, 0);
+                    var type = typeof(T);
+                    dbCommand.Prepare();
+                    ObjectReader rowParsers = command.GetRowParser(type);
+                    var dbReader = dbCommand.ExecuteReader(CommandBehavior.SequentialAccess);
+                    int[] indices = ResolveColumnOrder(dbReader, rowParsers);
+                    while (dbReader.Read())
+                    {
+                        yield return (T)rowParsers.Read(dbReader, indices, 0);
+                    }
                 }
+                command.Connection.Close();
             }
+
         }
 
         internal static IEnumerable<object[]> Read(this FaaastCommand command, params Type[] types)
         {
-            using (IDbCommand dbCommand = command.SetupCommand())
+            using (command.Connection)
             {
-                dbCommand.Prepare();
-                ObjectReader[] rowParsers = new ObjectReader[types.Length];
-                for (int i = 0; i < types.Length; i++)
+                command.Connection.Open();
+                using (IDbCommand dbCommand = command.SetupCommand())
                 {
-                    rowParsers[i] = command.GetRowParser(types[i]);
-                }
-                var dbReader = dbCommand.ExecuteReader(CommandBehavior.SequentialAccess);
-                int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
-
-                while (dbReader.Read())
-                {
-                    object[] results = new object[types.Length];
-                    int start = 0;
+                    dbCommand.Prepare();
+                    ObjectReader[] rowParsers = new ObjectReader[types.Length];
                     for (int i = 0; i < types.Length; i++)
                     {
-                        results[i] = rowParsers[i].Read(dbReader, indexes, start);
-                        start += rowParsers[i].ColumnsReaders.Length;
+                        rowParsers[i] = command.GetRowParser(types[i]);
                     }
+                    var dbReader = dbCommand.ExecuteReader(CommandBehavior.SequentialAccess);
+                    int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
 
-                    yield return results;
+                    while (dbReader.Read())
+                    {
+                        object[] results = new object[types.Length];
+                        int start = 0;
+                        for (int i = 0; i < types.Length; i++)
+                        {
+                            results[i] = rowParsers[i].Read(dbReader, indexes, start);
+                            start += rowParsers[i].ColumnsReaders.Length;
+                        }
+
+                        yield return results;
+                    }
                 }
+                command.Connection.Close();
             }
         }
 
         internal static async IAsyncEnumerable<T> ReadAsync<T>(this FaaastCommand command)
         {
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (command.Connection)
             {
-                var type = typeof(T);
-                await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
-                ObjectReader rowParsers = command.GetRowParser(type);
-                var dbReader = await dbCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, command.CancellationToken).ConfigureAwait(false);
-                int[] indices = ResolveColumnOrder(dbReader, rowParsers);
-                while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
+                await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
+                using (DbCommand dbCommand = command.SetupCommand())
                 {
-                    yield return (T)rowParsers.Read(dbReader, indices, 0);
+                    var type = typeof(T);
+                    await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
+                    ObjectReader rowParsers = command.GetRowParser(type);
+                    var dbReader = await dbCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, command.CancellationToken).ConfigureAwait(false);
+                    int[] indices = ResolveColumnOrder(dbReader, rowParsers);
+                    while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
+                    {
+                        yield return (T)rowParsers.Read(dbReader, indices, 0);
+                    }
                 }
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
             }
         }
 
         internal static async IAsyncEnumerable<object[]> ReadAsync(this FaaastCommand command, params Type[] types)
         {
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (command.Connection)
             {
-                await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
-                ObjectReader[] rowParsers = new ObjectReader[types.Length];
-                for (int i = 0; i < types.Length; i++)
+                await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
+                using (DbCommand dbCommand = command.SetupCommand())
                 {
-                    rowParsers[i] = command.GetRowParser(types[i]);
-                }
-                var dbReader = await dbCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, command.CancellationToken).ConfigureAwait(false);
-                int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
-
-                while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
-                {
-                    object[] results = new object[types.Length];
-                    int start = 0;
+                    await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
+                    ObjectReader[] rowParsers = new ObjectReader[types.Length];
                     for (int i = 0; i < types.Length; i++)
                     {
-                        results[i] = rowParsers[i].Read(dbReader, indexes, start);
-                        start += rowParsers[i].ColumnsReaders.Length;
+                        rowParsers[i] = command.GetRowParser(types[i]);
                     }
+                    var dbReader = await dbCommand.ExecuteReaderAsync(CommandBehavior.SequentialAccess, command.CancellationToken).ConfigureAwait(false);
+                    int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
 
-                    yield return results;
+                    while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
+                    {
+                        object[] results = new object[types.Length];
+                        int start = 0;
+                        for (int i = 0; i < types.Length; i++)
+                        {
+                            results[i] = rowParsers[i].Read(dbReader, indexes, start);
+                            start += rowParsers[i].ColumnsReaders.Length;
+                        }
+
+                        yield return results;
+                    }
                 }
+
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -246,7 +282,7 @@ namespace Faaast.Orm
 
         public static async Task<T> FirstOrDefaultAsync<T>(this FaaastCommand command)
         {
-            await foreach(var item in ReadAsync<T>(command).ConfigureAwait(false))
+            await foreach (var item in ReadAsync<T>(command).ConfigureAwait(false))
             {
                 return item;
             }
@@ -258,7 +294,7 @@ namespace Faaast.Orm
         {
             int row = 0;
             T result = default;
-            await foreach(var item in ReadAsync<T>(command).ConfigureAwait(false))
+            await foreach (var item in ReadAsync<T>(command).ConfigureAwait(false))
             {
                 result = item;
                 row++;
@@ -288,7 +324,7 @@ namespace Faaast.Orm
         {
             int row = 0;
             object[] result = default;
-            await foreach(var item in ReadAsync(command, types).ConfigureAwait(false))
+            await foreach (var item in ReadAsync(command, types).ConfigureAwait(false))
             {
                 result = item;
                 row++;

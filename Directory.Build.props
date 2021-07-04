@@ -17,46 +17,52 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-
+    <DebugType>full</DebugType>
     <DebugSymbols>true</DebugSymbols>
     <LangVersion>9.0</LangVersion>
-    <Version>0.0.4-alpha</Version>
+    <Version>0.0.5-alpha</Version>
     <Configurations>Debug;Release;Publish</Configurations>
 
     <PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>
     <IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
-    <IsPublish>'$(Configuration)' == 'Publish' AND '$(IsTestProject)' != 'true'</IsPublish>
+    <!--<IsPack>'$(IsTestProject)' == 'false' AND $(Configuration) != 'Debug'</IsPack>-->
+    <!--<IsPublish>$(IsPack) == 'true' AND $(Configuration) == 'Publish'</IsPublish>-->
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Release' AND '$(IsTestProject)' != 'true'">
+
+  <PropertyGroup Condition="'$(IsTestProject)' == 'false' AND '$(Configuration)'!='Debug'">
+    <IsPack>true</IsPack>
+  </PropertyGroup>
+  
+  <PropertyGroup Condition="'$(IsTestProject)' != 'true' AND '$(Configuration)'=='Publish'">
+    <IsPublish>true</IsPublish>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsPack)' == 'true'">
+    <Optimize>true</Optimize>
     <PackageIcon>icon.png</PackageIcon>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)' == 'Publish' AND '$(IsTestProject)' != 'true'">
-    <Optimize>true</Optimize>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(Configuration)' == 'Publish'">
-    <PackageReference Include="SS.NuGet.Publish" Version="1.0.1912.22">
+  <ItemGroup Condition="'$(IsPack)' == 'true'">
+    
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-
-  <ItemGroup Condition="'$(IsTestProject)' != 'true'">
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-*" PrivateAssets="All"/>
+    
     <None Include="..\..\icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-
+  
+  <ItemGroup Condition="'$(IsPublish)' == 'true'">
+    <PackageReference Include="SS.NuGet.Publish" Version="1.0.1912.22">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
 </Project>
