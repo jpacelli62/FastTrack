@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Faaast.DatabaseModel
 {
-    public class Database : MetaModel<Database>, IDatabase
+    public class Database : MetaModel<IDatabase>, IDatabase
     {
         public ConnectionSettings Connexion { get; set; }
 

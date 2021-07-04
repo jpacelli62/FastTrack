@@ -1,9 +1,6 @@
-﻿using System;
+﻿using Faaast.DatabaseModel;
+using System;
 using System.Linq.Expressions;
-using Faaast.DatabaseModel;
-using Faaast.Orm;
-using Faaast.Orm.Mapping;
-using Faaast.Orm.Resolver;
 
 namespace Faaast.Orm
 {
@@ -27,6 +24,14 @@ namespace Faaast.Orm
                     Name = name,
                     Schema = schema
                 }
+            };
+        }
+
+        public void ToTable(Table table)
+        {
+            Table = new TableMapping
+            {
+                Table = table
             };
         }
 

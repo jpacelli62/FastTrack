@@ -54,21 +54,6 @@ namespace Faaast.Orm.Reader
             return TypeMap[type];
         }
 
-        public static IDatabase Initialize(this IDatabase database, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
-        {
-            foreach (var mapping in mappings)
-            {
-                var dto = mapper.Get(mapping.Type);
-                mapping.Table.ObjectClass = dto;
-                foreach (var columnMap in mapping.Table.ColumnMappings)
-                {
-                    columnMap.Property = dto[columnMap.Member.Name];
-                }
-            }
-
-            return database;
-        }
-
         public static string Sanitize(this string name)
         {
             if (!string.IsNullOrEmpty(name))
@@ -84,7 +69,5 @@ namespace Faaast.Orm.Reader
 
             return name;
         }
-
-
     }
 }

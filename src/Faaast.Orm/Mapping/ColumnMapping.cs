@@ -14,7 +14,12 @@ namespace Faaast.Orm
 
         public Column ToColumn(string name)
         {
-            this.Column = new Column(name);
+            return To(new Column(name));
+        }
+
+        public Column To(Column column)
+        {
+            this.Column = column;
             return this.Column;
         }
     }

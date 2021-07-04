@@ -2,9 +2,19 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="temp\Resolver\**" />
+    <EmbeddedResource Remove="temp\Resolver\**" />
+    <None Remove="temp\Resolver\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="temp\DefaultTypeResolver.cs" />
+    <Compile Remove="temp\ITypeResolver.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
@@ -25,9 +35,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-    <ProjectReference Include="..\Faaast.Orm.Dapper\Faaast.Orm.Dapper.FluentMap.Dommel.csproj" />
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
     <ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="temp\" />
   </ItemGroup>
 
 </Project>

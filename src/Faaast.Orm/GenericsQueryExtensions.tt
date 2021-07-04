@@ -1,0 +1,118 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".cs" #>
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Faaast.Orm.Reader;
+
+namespace Faaast.Orm
+{
+<#
+List<string> letters = new List<string>();
+foreach(int i in Enumerable.Range(0, 16))
+{
+    int charIndex = ((int)'A') + i;
+    char charLetter = (char)charIndex;
+    letters.Add(charLetter.ToString());
+    if(charLetter == 'A')
+        continue;
+#>
+    public class FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>
+    {
+<#
+        foreach(var letter in letters)
+        {
+#>
+        public T<#= letter #> <#= letter #> { get; set; }
+<#
+        }
+#>
+        public FaaastTuple(<#= string.Join(", ", letters.Select(x=> "T" + x + " " + x).ToArray()) #>)
+        {
+<#
+        foreach(var letter in letters)
+        {
+#>
+            this.<#= letter #> = <#= letter #>;
+<#
+        }
+#>
+        }
+    }
+
+    public static partial class QueryExtensions
+    {
+        public static IEnumerable<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            foreach (var row in command.Read(<#= string.Join(", ", letters.Select(x=> $"typeof(T{x})").ToArray()) #>))
+            {
+                yield return new FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(<#= string.Join(", ", letters.Select((x,i)=> $"(T{x})row[{i}]").ToArray()) #>);
+            }
+        }
+
+        public static FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> FirstOrDefault<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            foreach (var item in command.Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
+            {
+                return item;
+            }
+
+            return default;
+        }
+
+        public static FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> Single<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            int row = 0;
+            FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> result = default;
+            foreach (var item in command.Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
+            {
+                result = item;
+                row++;
+                if (row > 1)
+                    throw new InvalidOperationException("Seqence contains more than one element");
+            }
+
+            return result;
+        }
+
+        public static async IAsyncEnumerable<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            await foreach (var row in command.ReadAsync(<#= string.Join(", ", letters.Select(x=> $"typeof(T{x})").ToArray()) #>))
+            {
+                yield return new FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(<#= string.Join(", ", letters.Select((x,i)=> $"(T{x})row[{i}]").ToArray()) #>);
+            }
+        }
+
+        public static async Task<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> FirstOrDefaultAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            await foreach (var item in command.FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
+            {
+                return item;
+            }
+
+            return default;
+        }
+
+        public static async Task<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> SingleAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
+        {
+            int row = 0;
+            FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> result = default;
+            await foreach (var item in command.FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
+            {
+                result = item;
+                row++;
+                if (row > 1)
+                    throw new InvalidOperationException("Seqence contains more than one element");
+            }
+
+            return result;
+        }
+    }
+<#
+}
+#>
+}

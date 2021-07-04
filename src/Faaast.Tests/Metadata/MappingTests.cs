@@ -7,7 +7,7 @@ namespace Faaast.Tests.Metadata
 {
     public class MappingTests
     {
-        private static readonly Metadata<bool?> IsAmazing = new Metadata<bool?>(nameof(IsAmazing));
+        private static readonly Metadata<DtoProperty, bool?> IsAmazing = new Metadata<DtoProperty, bool?>(nameof(IsAmazing));
 
         IObjectMapper Mapper { get; set; }
 

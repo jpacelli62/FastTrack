@@ -1,11 +1,7 @@
 ﻿using Faaast.DatabaseModel;
-using Faaast.Metadata;
-using Faaast.Orm.Resolver;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using Faaast.Orm;
-using Faaast.Orm.Mapping;
 
 namespace Faaast.Orm.Reader
 {

@@ -1,9 +1,9 @@
 ﻿using Faaast.DatabaseModel;
-using Faaast.Orm.Resolver;
-using Faaast.Tests.Metadata;
-using Microsoft.Extensions.DependencyInjection;
+using Faaast.Orm;
+using Faaast.Orm.Reader;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace Faaast.Tests.Orm
@@ -48,9 +48,45 @@ namespace Faaast.Tests.Orm
         [Fact]
         public void Mapping_has_been_done()
         {
+            List<string> letters = new List<string>();
+            foreach(int i in Enumerable.Range(0, 15))
+            {
+                int charIndex = ((int)'A') + i;
+                char letter = (char)charIndex;
+                letters.Add(letter.ToString());
+
+            }
+
             Assert.True(false);
             //var definition = SampleTable.Get(Meta.PocoObject);
             //Assert.NotNull(definition);
+        }
+
+        public static IEnumerable<FaaastTuple<TA,TB>> Fetch<TA,TB>(FaaastCommand command)
+        {
+            foreach (var row in command.Read(typeof(TA), typeof(TB)))
+            {
+                yield return new FaaastTuple<TA, TB>(
+                    (TA)row[0],
+                    (TB)row[1]
+                    );
+            }
+        }
+
+        public class FaaastTuple<TA, TB>
+        {
+            public TA A { get; set; }
+            public TB B { get; set; }
+
+            public FaaastTuple(TA A, TB B)
+            {
+                this.A = A;
+                this.B = B;
+            }
+
+            public FaaastTuple(object[] values) : this((TA)values[0], (TB)values[1])
+            {
+            }
         }
     }
 }

@@ -3,58 +3,75 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Metadata", "Faaast.Metadata\Faaast.Metadata.csproj", "{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Metadata", "src\Faaast.Metadata\Faaast.Metadata.csproj", "{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.SeoRouter", "Faaast.SeoRouter\Faaast.SeoRouter.csproj", "{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.SeoRouter", "src\Faaast.SeoRouter\Faaast.SeoRouter.csproj", "{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.DatabaseModel", "Faaast.DatabaseModel\Faaast.DatabaseModel.csproj", "{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.DatabaseModel", "src\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj", "{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm", "Faaast.Orm\Faaast.Orm.csproj", "{FA61BF4A-1329-4738-B759-E4410C56EFD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm", "src\Faaast.Orm\Faaast.Orm.csproj", "{FA61BF4A-1329-4738-B759-E4410C56EFD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.Dapper.FluentMap.Dommel", "Faaast.Orm.Dapper\Faaast.Orm.Dapper.FluentMap.Dommel.csproj", "{2BE11F41-F733-4085-873D-729E91B49C3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "src\Faaast.Tests\Faaast.Tests.csproj", "{C4FC5438-4041-4625-81D8-9EBB6E4294C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "Faaast.Tests\Faaast.Tests.csproj", "{C4FC5438-4041-4625-81D8-9EBB6E4294C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.TypeDiscovery", "src\Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.TypeDiscovery", "Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "src\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{961EC79F-F3A0-4280-A47A-85B9E49E35DC}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Faaast.pfx = Faaast.pfx
+		icon.png = icon.png
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
+		Publish|Any CPU = Publish|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5E725FD-C68C-4BD9-9223-9B2C1B419DF0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{34F6C66B-E1AD-45A6-8F1B-87BAC1E07A7B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7F9467B2-7D40-412E-8B92-164A3A3CE1F7}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Publish|Any CPU.ActiveCfg = Release|Any CPU
 		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Publish|Any CPU.ActiveCfg = Publish|Any CPU
+		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

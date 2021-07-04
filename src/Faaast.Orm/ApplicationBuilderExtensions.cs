@@ -1,19 +1,14 @@
 ﻿using Faaast;
-using Faaast.DatabaseModel;
-using Faaast.Metadata;
-using Faaast.Orm.Reader;
-using Faaast.Orm.Resolver;
-using System;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
     public static partial class ApplicationBuilderExtensions
     {
-        public static IServiceCollection AddFaaastOrm(this IServiceCollection services, Action<NamingConvention> convention)
+        public static IServiceCollection AddFaaastOrm(this IServiceCollection services)
         {
             services.AddMetadata();
             services.AddDatabaseModel();
-            services.AddConventionMapping(convention);
+            //services.AddConventionMapping(convention);
             return services;
         }
 

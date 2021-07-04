@@ -1,39 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
-    <LangVersion>9</LangVersion>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.1-alpha</Version>
-    <Authors>Jérôme Pacelli</Authors>
-    <Company />
     <Description>A simple and extensible high performance Micro-ORM supporting SQL Server, PostgreSQL, SQLite, MySQL etc..</Description>
-    <Copyright>Jérôme Pacelli</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/jpacelli62/Faaast</RepositoryUrl>
-    <PackageIcon>icon.png</PackageIcon>
-    <RepositoryType>git</RepositoryType>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PackageTags>database;db;sql;orm</PackageTags>
+    <NuGetPublishType>remote</NuGetPublishType>
+    <NuGetPublishLocation>https://api.nuget.org/v3/index.json</NuGetPublishLocation>
   </PropertyGroup>
-
+  
   <ItemGroup>
     <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-    <None Include="..\icon.png">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
+    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="GenericsQueryExtensions.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>GenericsQueryExtensions.cs</LastGenOutput>
     </None>
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="GenericsQueryExtensions.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>GenericsQueryExtensions.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
 
 </Project>

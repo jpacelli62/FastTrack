@@ -1,6 +1,8 @@
-﻿using System.Data;
-using System.Threading;
+﻿using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using System.Data;
+using System.Data.Common;
+using System.Threading;
 
 namespace Faaast.Orm.Reader
 {
@@ -8,36 +10,39 @@ namespace Faaast.Orm.Reader
     {
         public string CommandText { get; }
         public object Parameters { get; }
-        public IDbTransaction Transaction { get; }
+        public DbTransaction Transaction { get; }
         public int? CommandTimeout { get; }
         public CommandType? CommandType { get; }
         public CancellationToken CancellationToken { get; }
-        public IDbConnection Connection { get; }
+        public DbConnection Connection { get; }
         public IObjectMapper Mapper { get; }
+        public IDatabase Database { get; }
 
         public FaaastCommand(
+            IDatabase database,
             IObjectMapper mapper,
-            IDbConnection connection,
+            DbConnection connection,
             string commandText,
             object parameters = null,
-            IDbTransaction transaction = null,
+            DbTransaction transaction = null,
             int? commandTimeout = null,
             CommandType? commandType = null,
             CancellationToken cancellationToken = default)
         {
+            this.Database = database;
             this.Mapper = mapper;
-            Connection = connection;
-            CommandText = commandText;
-            Parameters = parameters;
-            Transaction = transaction;
-            CommandTimeout = commandTimeout;
-            CommandType = commandType;
-            CancellationToken = cancellationToken;
+            this.Connection = connection;
+            this.CommandText = commandText;
+            this.Parameters = parameters;
+            this.Transaction = transaction;
+            this.CommandTimeout = commandTimeout;
+            this.CommandType = commandType;
+            this.CancellationToken = cancellationToken;
         }
 
-        internal IDbCommand SetupCommand()
+        internal DbCommand SetupCommand()
         {
-            var cmd = Connection.CreateCommand();
+            var cmd = (DbCommand)Connection.CreateCommand();
             cmd.CommandText = CommandText;
 
             if (Transaction != null)
