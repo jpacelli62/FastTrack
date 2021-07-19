@@ -9,7 +9,6 @@
     <Company />
     <Description>A simple and extensible SQL query builder</Description>
     <Copyright>Jérôme Pacelli</Copyright>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jpacelli62/Faaast</RepositoryUrl>
     <PackageIcon>icon.png</PackageIcon>

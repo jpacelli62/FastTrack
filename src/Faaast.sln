@@ -15,13 +15,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.Dapper.FluentMap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "Faaast.Tests\Faaast.Tests.csproj", "{C4FC5438-4041-4625-81D8-9EBB6E4294C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.TypeDiscovery", "Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.TypeDiscovery", "Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.OAuth2Server", "Faaast.OAuth2Server\Faaast.OAuth2Server.csproj", "{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth2Server", "Faaast.OAuth2Server\Faaast.Authentication.OAuth2Server.csproj", "{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Faaast.Authentication.OAuth2", "Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj", "{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth2", "Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj", "{A5B8C8A3-6765-4A08-BE85-BE1653AF112A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

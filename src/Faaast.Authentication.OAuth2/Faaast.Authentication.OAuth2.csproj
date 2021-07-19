@@ -1,7 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <!--<TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>-->
+    <!--<TargetFramework>netstandard2.0</TargetFramework>-->
+    <TargetFramework>net5.0</TargetFramework>
+
     <LangVersion>9</LangVersion>
     <PackageTags>aspnetcore;authentication;security</PackageTags>
   </PropertyGroup>
@@ -11,9 +14,12 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="System.Text.Json" Version="5.0.2" />
-  </ItemGroup>
- 
 
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
   
   <ItemGroup>
     <Compile Update="Resources.Designer.cs">
