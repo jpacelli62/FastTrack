@@ -20,7 +20,9 @@ namespace Faaast.Orm
 
         public virtual DbConnection CreateConnection()
         {
-            return Connection.Engine.Create();
+            var connection =  Connection.Engine.Create();
+            connection.ConnectionString = Connection.ConnectionString(Connection);
+            return connection;
         }
 
         protected FaaastDb()
@@ -64,9 +66,11 @@ namespace Faaast.Orm
                 tableMaps.Add(mapping.Table);
             }
 
-            DatabaseMapping dbMap = new DatabaseMapping();
-            dbMap.Source = database;
-            dbMap.Mappings = tableMaps;
+            DatabaseMapping dbMap = new DatabaseMapping
+            {
+                Source = database,
+                Mappings = tableMaps
+            };
             database.Set(Meta.Mapping, dbMap);
         }
     }

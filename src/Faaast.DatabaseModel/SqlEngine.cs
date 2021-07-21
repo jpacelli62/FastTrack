@@ -6,8 +6,8 @@ namespace Faaast.DatabaseModel
 {
     public abstract class SqlEngine
     {
-        public string FriendlyName { get; set; }
+        public abstract string FriendlyName { get; }
 
-        public Func<DbConnection> Create { get; }
+        public abstract Func<DbConnection> Create { get; }
     }
 }
