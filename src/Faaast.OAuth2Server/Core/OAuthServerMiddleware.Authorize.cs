@@ -94,22 +94,10 @@ namespace Faaast.Authentication.OAuth2Server.Core
             if (!validateScopesContext.IsValidated)
                 return validateScopesContext;
 
-            string jti = Guid.NewGuid().ToString("N").ToUpper();
-            string accessToken = JwtFormat.GenerateToken(
-                authorization.AuthenticationTicket.Principal,
-                jti,
-                Options.Issuer,
-                context.Client.Audience,
-                context.Scope,
-                context.Client.ClientId,
-                context.Client.ClientSecret,
-                Options.AccessTokenExpireTimeSpan);
-
-            await CreateJwt(context, accessToken, "refreshtoken");
+            await CreateJwt(context, authorization.AuthenticationTicket);
 
             await stageContext.ValidateAsync();
             return stageContext;
         }
-
     }
 }

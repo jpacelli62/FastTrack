@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Net.Http;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -18,7 +20,7 @@ namespace Faaast.Authentication.OAuth2
     /// <summary>
     /// Authentication handler for FaaastOauth based authentication.
     /// </summary>
-    public class FaaastOauthHandler : OAuthHandler<FaaastOauthOptions>
+    public class FaaastOauthHandler : OAuthHandler<FaaastOauthOptions>, IAuthenticationSignOutHandler
     {
         /// <summary>
         /// Initializes a new instance of <see cref="FaaastOauthHandler"/>.
@@ -31,12 +33,13 @@ namespace Faaast.Authentication.OAuth2
         /// <inheritdoc />
         protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
         {
-            var endpoint = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, "access_token", tokens.AccessToken!);
-            if (Options.SendAppSecretProof)
+            properties.StoreTokens(new AuthenticationToken[]
             {
-                endpoint = QueryHelpers.AddQueryString(endpoint, "appsecret_proof", GenerateAppSecretProof(tokens.AccessToken!));
-            }
+                new AuthenticationToken  { Name = nameof(OAuthTokenResponse.AccessToken), Value = tokens.AccessToken },
+                new AuthenticationToken  { Name = nameof(OAuthTokenResponse.RefreshToken), Value = tokens.RefreshToken }
+            });
 
+            var endpoint = QueryHelpers.AddQueryString(Options.UserInformationEndpoint, "access_token", tokens.AccessToken!);
             var response = await Backchannel.GetAsync(endpoint, Context.RequestAborted);
             if (!response.IsSuccessStatusCode)
             {
@@ -57,19 +60,17 @@ namespace Faaast.Authentication.OAuth2
 #endif
         }
 
-        private string GenerateAppSecretProof(string accessToken)
+        public async Task SignOutAsync(AuthenticationProperties properties)
         {
-            using (var algorithm = new HMACSHA256(Encoding.ASCII.GetBytes(Options.ClientSecret)))
+            properties ??= new AuthenticationProperties();
+            var parameters = new Dictionary<string, string>
             {
-                var hash = algorithm.ComputeHash(Encoding.ASCII.GetBytes(accessToken));
-                var builder = new StringBuilder();
-                for (int i = 0; i < hash.Length; i++)
-                {
-                    builder.Append(hash[i].ToString("x2", CultureInfo.InvariantCulture));
-                }
+                { "redirect_uri", BuildRedirectUri(properties.RedirectUri ?? "/") }
+            };
 
-                return builder.ToString();
-            }
+            var endpoint = QueryHelpers.AddQueryString(Options.SignOutEndpoint, parameters);
+            await Context.SignOutAsync(Options.SignOutScheme, properties);
+            Response.Redirect(endpoint);
         }
     }
 }

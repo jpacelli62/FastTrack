@@ -31,5 +31,11 @@ namespace Faaast.Authentication.OAuth2
         /// The endpoint that is used to gather additional user information.
         /// </summary>      
         public static readonly string UserInformationEndpoint = "/oauth/user";
+
+        /// <summary>
+        /// The endpoint that is used to sign out.
+        /// </summary>     
+        public static readonly string SignOutEndpoint = "/oauth/logout";
+
     }
 }

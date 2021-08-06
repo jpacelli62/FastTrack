@@ -18,8 +18,7 @@ namespace Faaast.Authentication.OAuth2
         /// </summary>
         public FaaastOauthOptions()
         {
-            CallbackPath = new PathString("/signin-oauth");
-            SendAppSecretProof = true;
+            CallbackPath = new PathString("/faaastoauth/signin");
             Scope.Add("identity");
             ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
             ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
@@ -67,11 +66,16 @@ namespace Faaast.Authentication.OAuth2
             base.Validate();
         }
 
-        /// <summary>
-        /// Gets or sets if the <c>appsecret_proof</c> should be generated and sent with calls.
-        /// </summary>
-        /// <value>Defaults to <see langword="true"/>.</value>
-        public bool SendAppSecretProof { get; set; }
+        //
+        // Résumé :
+        //     Gets or sets the authentication scheme corresponding to the middleware responsible
+        //     of persisting user's identity after a successful authentication. This value typically
+        //     corresponds to a cookie middleware registered in the Startup class. When omitted,
+        //     Microsoft.AspNetCore.Authentication.AuthenticationOptions.DefaultSignInScheme
+        //     is used as a fallback value.
+        public string SignOutScheme { get; set; }
+        public string SignOutEndpoint{ get; set; }
+
 
         private string _oauthServerUri;
         public string OauthServerUri { 
@@ -82,6 +86,7 @@ namespace Faaast.Authentication.OAuth2
                 AuthorizationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.AuthorizationEndpoint);
                 TokenEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.TokenEndpoint);
                 UserInformationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.UserInformationEndpoint);
+                SignOutEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.SignOutEndpoint);
             }
         }
     }

@@ -9,7 +9,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
             StageValidationContext stage = await ValidateClientCredentialsAsync(context, provider, true);
             if(stage.IsValidated)
             {
-                await CreateJwt(stage, "at", "rt");
+                await CreateJwt(stage, new Microsoft.AspNetCore.Authentication.AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "Default"));
             }
             return stage;
         }

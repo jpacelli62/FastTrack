@@ -1,11 +1,14 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -35,7 +38,12 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
             if (string.IsNullOrEmpty(options.LoginPath))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.Issuer)), nameof(OAuthServerOptions.Issuer));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.LoginPath)), nameof(OAuthServerOptions.LoginPath));
+            }
+
+            if (string.IsNullOrEmpty(options.LogoutPath))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.LogoutPath)), nameof(OAuthServerOptions.LogoutPath));
             }
 
             if (string.IsNullOrEmpty(options.UserConsentPath))
@@ -78,7 +86,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 RequireAudience = true,
                 ValidateAudience = true,
                 RequireExpirationTime = true,
-                ValidAudience = client.Audience,
+                ValidAudience = client.ClientId,
                 ClockSkew = TimeSpan.Zero,
                 ValidateLifetime = true,
                 ValidateIssuer = true,
@@ -100,8 +108,31 @@ namespace Faaast.Authentication.OAuth2Server.Core
             }
         }
 
-        private async Task CreateJwt(ValidationContext validation, string accessToken, string refreshToken)
+        private async Task CreateJwt(ValidationContext validation, AuthenticationTicket ticket)
         {
+            var securityKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(validation.Client.ClientSecret));
+            var signingCredentials = new SigningCredentials(
+                securityKey,
+                SecurityAlgorithms.HmacSha256);
+
+            Dictionary<string, object> claims = new();
+            foreach (var claim in ticket.Principal.Claims)
+            {
+                claims.Add(claim.Type, claim.Value);
+            }
+            claims.Add("scope", string.Join(" ", validation.Scope));
+
+            DateTime utcNow = DateTime.UtcNow;
+            var token = this.TokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor()
+            {
+                Audience = validation.Client.ClientId,
+                Issuer = Options.Issuer,
+                SigningCredentials = signingCredentials,
+                IssuedAt = utcNow,
+                Expires = utcNow + Options.AccessTokenExpireTimeSpan,
+                Claims = claims
+            });
+
             var options = new JsonWriterOptions
             {
                 Indented = true
@@ -112,9 +143,9 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 using (var writer = new Utf8JsonWriter(stream, options))
                 {
                     writer.WriteStartObject();
-                    writer.WriteString("access_token", accessToken);
+                    writer.WriteString("access_token", this.TokenHandler.WriteToken(token));
                     writer.WriteString("token_type", "bearer");
-                    writer.WriteString("refresh_token", refreshToken);
+                    writer.WriteString("refresh_token", "");
                     writer.WriteNumber("expires_in", Options.AccessTokenExpireTimeSpan.TotalSeconds);
                     writer.WriteEndObject();
                 }
@@ -140,6 +171,8 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 return HandleAuthorizeEndPointRequestAsync(endpointValidation, provider);
             else if (path.Equals(Options.UserEndpointPath))
                 return HandleUserEndPointRequestAsync(endpointValidation, provider);
+            else if (path.Equals(Options.LogoutPath))
+                return HandleLogOutAsync(endpointValidation, provider);
             else
                 return Task.FromResult<StageValidationContext>(null);
         }
@@ -161,10 +194,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
             JwtSecurityToken token = new JwtSecurityToken(stage.AccessToken);
             var payload = token.Payload;
-            if(!payload.TryGetValue("clientId", out object clientIdObj))
+            string audience = payload.Aud?.FirstOrDefault();
+            if(string.IsNullOrWhiteSpace(audience))
                 return await stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
 
-            var client = await provider.ValidateCredentialsAsync(clientIdObj?.ToString());
+            var client = await provider.ValidateCredentialsAsync(audience);
             if(client == null)
                 return await stage.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_InvalidClient);
 
@@ -173,20 +207,30 @@ namespace Faaast.Authentication.OAuth2Server.Core
             if (principal == null)
                 return await stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
 
-            //StageValidationContext validateClientContext = await ValidateClientCredentialsAsync(context, provider, false);
-            //if (!validateClientContext.IsValidated)
-            //    return validateClientContext;
+            var options = new JsonWriterOptions
+            {
+                Indented = true
+            };
 
-            //BuildValidationParameters
-            //if (!string.Equals(Options.Issuer, payload.Iss) ||
-            //    payload.ValidTo < DateTime.UtcNow || 
-            //    payload.
-            //    )
-            //    return stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
-            //if()
+            using (var stream = new MemoryStream())
+            {
+                using (var writer = new Utf8JsonWriter(stream, options))
+                {
+                    writer.WriteStartObject();
+                    writer.WriteString("id", principal.FindFirst(x=> x.Type == ClaimTypes.NameIdentifier)?.Value);
+                    writer.WriteString("email", principal.FindFirst(x => x.Type == ClaimTypes.Email)?.Value);
+                    writer.WriteString("name", principal.FindFirst(x => x.Type == ClaimTypes.Name)?.Value);
+                    writer.WriteString("first_name", principal.FindFirst(x => x.Type == ClaimTypes.GivenName)?.Value);
+                    writer.WriteString("last_name", principal.FindFirst(x => x.Type == ClaimTypes.Surname)?.Value);
+                    writer.WriteEndObject();
+                }
 
-
-            throw new NotImplementedException();
+                string json = Encoding.UTF8.GetString(stream.ToArray());
+                await context.HttpContext.Response.WriteAsync(json);
+            }
+            
+            await stage.ValidateAsync();
+            return stage;
         }
 
         protected virtual Task<StageValidationContext> HandleRefreshAsync(ValidationContext context, IOauthServerProvider provider)
@@ -246,19 +290,13 @@ namespace Faaast.Authentication.OAuth2Server.Core
             return sourceUrl.ToString();
         }
 
-        private string GenerateAppSecretProof(string accessToken, ClientCredential client)
+        protected virtual async Task<StageValidationContext> HandleLogOutAsync(StageValidationContext context, IOauthServerProvider provider)
         {
-            using (var algorithm = new HMACSHA256(Encoding.ASCII.GetBytes(client.ClientSecret)))
-            {
-                var hash = algorithm.ComputeHash(Encoding.ASCII.GetBytes(accessToken));
-                var builder = new StringBuilder();
-                for (int i = 0; i < hash.Length; i++)
-                {
-                    builder.Append(hash[i].ToString("x2", CultureInfo.InvariantCulture));
-                }
-
-                return builder.ToString();
-            }
+            StageValidationContext stage = new StageValidationContext(context);
+            await stage.ValidateAsync();
+            await context.HttpContext.SignOutAsync();
+            context.HttpContext.Response.Redirect(stage.RedirectUri);
+            return stage;
         }
     }
 }

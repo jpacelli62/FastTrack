@@ -21,5 +21,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public string UserConsentPath { get; set; } = "/oauth/user-consent";
 
         public string LoginPath { get; set; } = "/oauth/login";
+
+        public string LogoutPath { get; set; } = "/oauth/logout";
     }
 }

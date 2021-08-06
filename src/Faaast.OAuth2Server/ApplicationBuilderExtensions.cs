@@ -21,7 +21,7 @@ namespace Faaast.OAuth2Server
 
         private static bool IsValidRequest(HttpContext context, OAuthServerOptions options)
         {
-            return IsAuthorizeRequest(context, options) || IsValidTokenRequest(context, options) || IsUserRequest(context, options);
+            return IsAuthorizeRequest(context, options) || IsValidTokenRequest(context, options) || IsUserRequest(context, options) || IsLogOutRequest(context, options);
         }
 
         private static bool IsValidTokenRequest(HttpContext context, OAuthServerOptions options)
@@ -30,6 +30,7 @@ namespace Faaast.OAuth2Server
                    context.Request.ContentType == xFormUrlEncoded &&
                    options.TokenEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
         }
+
         private static bool IsAuthorizeRequest(HttpContext context, OAuthServerOptions options)
         {
             return context.Request.Method == HttpMethods.Get &&
@@ -42,5 +43,10 @@ namespace Faaast.OAuth2Server
                    options.UserEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
         }
 
+        private static bool IsLogOutRequest(HttpContext context, OAuthServerOptions options)
+        {
+            return context.Request.Method == HttpMethods.Get &&
+                   options.LogoutPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
