@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Faaast.Authentication.OAuth2Server.Core
 {
@@ -9,7 +11,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
             StageValidationContext stage = await ValidateClientCredentialsAsync(context, provider, true);
             if(stage.IsValidated)
             {
-                await CreateJwt(stage, new Microsoft.AspNetCore.Authentication.AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(), "Default"));
+                List<Claim> claims = new List<Claim>();
+                claims.Add(new Claim(ClaimTypes.NameIdentifier, "-1"));
+                claims.Add(new Claim(ClaimTypes.Role, context.ClientId));
+                var identity = new ClaimsIdentity(claims, "identity.application");
+                await CreateJwt(stage, new Microsoft.AspNetCore.Authentication.AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(identity), "Default"), provider);
             }
             return stage;
         }

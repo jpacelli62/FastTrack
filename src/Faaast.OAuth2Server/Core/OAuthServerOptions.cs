@@ -11,6 +11,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public bool AllowInsecureHttp { get; set; }
 
         public TimeSpan AccessTokenExpireTimeSpan { get; set; } = TimeSpan.FromMinutes(15);
+        public TimeSpan RefreshTokenExpireTimeSpan { get; set; } = TimeSpan.FromDays(1);
 
         public string TokenEndpointPath { get; set; } = "/oauth/token";
 

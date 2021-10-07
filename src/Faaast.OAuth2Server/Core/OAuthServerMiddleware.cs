@@ -71,15 +71,12 @@ namespace Faaast.Authentication.OAuth2Server.Core
             options.AuthorizeEndpointPath = options.AuthorizeEndpointPath.ToLower();
             this.TokenHandler = new JwtSecurityTokenHandler();
 
-            //TokenHandler.TokenLifetimeInMinutes = options.AccessTokenExpireTimeSpan.TotalMinutes;
-
         }
 
         private TokenValidationParameters BuildValidationParameters(ClientCredential client)
         {
             byte[] keybytes = Encoding.ASCII.GetBytes(client.ClientSecret);
             SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
-            //SigningCredentials signingCredentials =new SigningCredentials(securityKey,SecurityAlgorithms.HmacSha256Signature);
 
             return new TokenValidationParameters
             {
@@ -108,28 +105,51 @@ namespace Faaast.Authentication.OAuth2Server.Core
             }
         }
 
-        private async Task CreateJwt(ValidationContext validation, AuthenticationTicket ticket)
+        private async Task CreateJwt(ValidationContext validation, AuthenticationTicket ticket, IOauthServerProvider provider)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(validation.Client.ClientSecret));
-            var signingCredentials = new SigningCredentials(
-                securityKey,
-                SecurityAlgorithms.HmacSha256);
-
+            var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             Dictionary<string, object> claims = new();
-            foreach (var claim in ticket.Principal.Claims)
+            string[] excludeList = new[] { "iat", "exp", "iss", "nbf", "scope", "aud" };
+            var groups = ticket.Principal.Claims.GroupBy(x => x.Type);
+            foreach (var claimGroup in groups)
             {
-                claims.Add(claim.Type, claim.Value);
+                bool add = true;
+                foreach (string claimToExclude in excludeList)
+                {
+                    if (string.Equals(claimToExclude, claimGroup.Key))
+                    {
+                        add = false;
+                        break;
+                    }
+                }
+
+                if (add)
+                {
+                    if (claimGroup.Count() == 1)
+                    {
+                        var claim = claimGroup.First();
+                        claims.Add(claim.Type, claim.Value);
+                    }
+                    else
+                    {
+                        var claim = claimGroup.First();
+                        claims.Add(claim.Type, claimGroup.Select(x => x.Value).ToArray());
+                    }
+                }
+
             }
             claims.Add("scope", string.Join(" ", validation.Scope));
 
             DateTime utcNow = DateTime.UtcNow;
-            var token = this.TokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor()
+            DateTime expires = utcNow + Options.AccessTokenExpireTimeSpan;
+            var jwtToken = this.TokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor()
             {
                 Audience = validation.Client.ClientId,
                 Issuer = Options.Issuer,
                 SigningCredentials = signingCredentials,
                 IssuedAt = utcNow,
-                Expires = utcNow + Options.AccessTokenExpireTimeSpan,
+                Expires = expires,
                 Claims = claims
             });
 
@@ -138,15 +158,32 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 Indented = true
             };
 
+            string accessToken = this.TokenHandler.WriteToken(jwtToken);
             using (var stream = new MemoryStream())
             {
                 using (var writer = new Utf8JsonWriter(stream, options))
                 {
+
                     writer.WriteStartObject();
-                    writer.WriteString("access_token", this.TokenHandler.WriteToken(token));
+                    writer.WriteString("access_token", accessToken);
                     writer.WriteString("token_type", "bearer");
-                    writer.WriteString("refresh_token", "");
                     writer.WriteNumber("expires_in", Options.AccessTokenExpireTimeSpan.TotalSeconds);
+
+                    if (validation.GrantType != Parameters.ClientCredentials)
+                    {
+                        string refreshToken = CodeGenerator.GenerateRandomNumber(32);
+                        writer.WriteString("refresh_token", refreshToken);
+
+                        await provider.StoreAsync(new Token
+                        {
+                            AccessToken = accessToken,
+                            AccessTokenExpiresUtc = expires,
+                            RefreshToken = refreshToken,
+                            RefreshTokenExpiresUtc = utcNow + Options.RefreshTokenExpireTimeSpan,
+                            NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value
+                        });
+
+                    }
                     writer.WriteEndObject();
                 }
 
@@ -169,8 +206,6 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 return HandleTokenEndPointRequestAsync(endpointValidation, provider);
             else if (path.Equals(Options.AuthorizeEndpointPath))
                 return HandleAuthorizeEndPointRequestAsync(endpointValidation, provider);
-            else if (path.Equals(Options.UserEndpointPath))
-                return HandleUserEndPointRequestAsync(endpointValidation, provider);
             else if (path.Equals(Options.LogoutPath))
                 return HandleLogOutAsync(endpointValidation, provider);
             else
@@ -186,61 +221,66 @@ namespace Faaast.Authentication.OAuth2Server.Core
             _ => context.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_InvalidGrantType)
         };
 
-        protected virtual async Task<StageValidationContext> HandleUserEndPointRequestAsync(StageValidationContext context, IOauthServerProvider provider)
+        protected virtual async Task<StageValidationContext> HandleRefreshAsync(ValidationContext context, IOauthServerProvider provider)
         {
-            StageValidationContext stage = new StageValidationContext(context);
-            if (string.IsNullOrWhiteSpace(stage.AccessToken))
-                return await stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            StageValidationContext validateClientContext = await ValidateClientCredentialsAsync(new StageValidationContext(context), provider, false);
+            if (!validateClientContext.IsValidated)
+                return validateClientContext;
 
-            JwtSecurityToken token = new JwtSecurityToken(stage.AccessToken);
-            var payload = token.Payload;
-            string audience = payload.Aud?.FirstOrDefault();
-            if(string.IsNullOrWhiteSpace(audience))
-                return await stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            StageValidationContext validateRefreshTokenContext = new StageValidationContext(validateClientContext);
+            if (string.IsNullOrWhiteSpace(validateRefreshTokenContext.RefreshToken))
+                return await validateRefreshTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
 
-            var client = await provider.ValidateCredentialsAsync(audience);
-            if(client == null)
-                return await stage.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_InvalidClient);
+            var token = await provider.OnRefreshReceivedAsync(validateRefreshTokenContext.RefreshToken);
+            if (token == null)
+                return await validateRefreshTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
 
-            var validation = BuildValidationParameters(client);
-            var principal = this.TokenHandler.ValidateToken(context.AccessToken, validation, out var ValidatedToken);
+            StageValidationContext validateAccessTokenContext = new StageValidationContext(validateRefreshTokenContext);
+            var validationParams = BuildValidationParameters(validateAccessTokenContext.Client);
+            validationParams.ValidateLifetime = false;
+            var principal = this.TokenHandler.ValidateToken(token.AccessToken, validationParams, out var ValidatedToken);
             if (principal == null)
-                return await stage.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+                return await validateAccessTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
 
-            var options = new JsonWriterOptions
+            principal = await provider.OnRefreshPrincipaldAsync(principal);
+            if (principal == null)
+                return await validateAccessTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+
+            JwtSecurityToken jwtToken = new JwtSecurityToken(token.AccessToken);
+            validateAccessTokenContext.Scope = jwtToken.Payload["scope"].ToString().Split(' ');
+            var authTicket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, "Default");
+
+            await CreateJwt(validateAccessTokenContext, authTicket, provider);
+            await validateAccessTokenContext.ValidateAsync();
+            return validateAccessTokenContext;
+        }
+
+        protected virtual async Task<StageValidationContext> HandlePasswordAsync(ValidationContext context, IOauthServerProvider provider)
+        {
+            StageValidationContext validateClientContext = await ValidateClientCredentialsAsync(new StageValidationContext(context), provider, true);
+            if (!validateClientContext.IsValidated)
+                return validateClientContext;
+
+            StageValidationContext validateClientUriContext = await ValidateRedirectUriAsync(validateClientContext, context.Client, provider);
+            if (!validateClientUriContext.IsValidated)
+                return validateClientUriContext;
+
+            StageValidationContext validateScopesContext = await ValidateScopeAsync(validateClientUriContext, context.Client, provider);
+            if (!validateScopesContext.IsValidated)
+                return validateScopesContext;
+
+            StageValidationContext validateAccountContext = new StageValidationContext(validateScopesContext);
+            var principal = await provider.PasswordSigningAsync(context.UserName, context.Password);
+            if (principal != null)
             {
-                Indented = true
-            };
+                var authTicket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, "Default");
 
-            using (var stream = new MemoryStream())
-            {
-                using (var writer = new Utf8JsonWriter(stream, options))
-                {
-                    writer.WriteStartObject();
-                    writer.WriteString("id", principal.FindFirst(x=> x.Type == ClaimTypes.NameIdentifier)?.Value);
-                    writer.WriteString("email", principal.FindFirst(x => x.Type == ClaimTypes.Email)?.Value);
-                    writer.WriteString("name", principal.FindFirst(x => x.Type == ClaimTypes.Name)?.Value);
-                    writer.WriteString("first_name", principal.FindFirst(x => x.Type == ClaimTypes.GivenName)?.Value);
-                    writer.WriteString("last_name", principal.FindFirst(x => x.Type == ClaimTypes.Surname)?.Value);
-                    writer.WriteEndObject();
-                }
-
-                string json = Encoding.UTF8.GetString(stream.ToArray());
-                await context.HttpContext.Response.WriteAsync(json);
+                await CreateJwt(validateAccountContext, authTicket, provider);
+                await validateAccountContext.ValidateAsync();
+                return validateAccountContext;
             }
-            
-            await stage.ValidateAsync();
-            return stage;
-        }
 
-        protected virtual Task<StageValidationContext> HandleRefreshAsync(ValidationContext context, IOauthServerProvider provider)
-        {
-            throw new NotImplementedException();
-        }
-
-        protected virtual Task<StageValidationContext> HandlePasswordAsync(ValidationContext context, IOauthServerProvider provider)
-        {
-            throw new NotImplementedException();
+            return await validateAccountContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
         }
 
         protected virtual Task<StageValidationContext> ValidateScopeAsync(StageValidationContext context, ClientCredential client, IOauthServerProvider provider)

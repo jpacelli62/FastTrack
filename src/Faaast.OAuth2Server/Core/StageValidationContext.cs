@@ -43,6 +43,8 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
 
         public override string AccessToken => Source.AccessToken;
+        public override string RefreshToken => Source.RefreshToken;
+
         public override string AppSecretProof => Source.AppSecretProof;
 
         public Task<StageValidationContext> ValidateAsync()

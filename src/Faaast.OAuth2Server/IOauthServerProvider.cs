@@ -1,5 +1,6 @@
-﻿using Faaast.Authentication.OAuth2Server.Core;
+﻿using System.Security.Claims;
 using System.Threading.Tasks;
+using Faaast.Authentication.OAuth2Server.Core;
 
 namespace Faaast.Authentication.OAuth2Server
 {
@@ -13,9 +14,16 @@ namespace Faaast.Authentication.OAuth2Server
 
         Task<bool> RequireUserConsentAsync(StageValidationContext context, ClientCredential client);
 
-        Task StoreAsync(Authorization code);
+        Task OnCreateAuthorizationCode(Authorization code);
 
-        Task<Authorization> RetrieveAsync(string authorizationCode);
+        Task StoreAsync(Token token);
 
+        Task<Authorization> OnExchangeAuthorizationCode(string authorizationCode);
+
+        Task<Token> OnRefreshReceivedAsync(string refreshToken);
+
+        Task<ClaimsPrincipal> OnRefreshPrincipaldAsync(ClaimsPrincipal principal);
+
+        Task<ClaimsPrincipal> PasswordSigningAsync(string login, string password);
     }
 }

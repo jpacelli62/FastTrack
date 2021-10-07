@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +11,26 @@ namespace Faaast.Authentication.OAuth2
     /// </summary>
     public class FaaastOauthOptions : OAuthOptions
     {
+
+
+        private string _oauthServerUri;
+        public string OauthServerUri
+        {
+            get => _oauthServerUri;
+            set
+            {
+                _oauthServerUri = value.TrimEnd('/');
+                AuthorizationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.AuthorizationEndpoint);
+                TokenEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.TokenEndpoint);
+                UserInformationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.UserInformationEndpoint);
+                SignOutEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.SignOutEndpoint);
+            }
+        }
+
+        public string SignOutEndpoint { get; set; }
+
+        public bool UseUserInformationEndpoint { get; set; }
+
         /// <summary>
         /// Initializes a new <see cref="FaaastOauthOptions"/>.
         /// </summary>
@@ -20,11 +38,13 @@ namespace Faaast.Authentication.OAuth2
         {
             CallbackPath = new PathString("/faaastoauth/signin");
             Scope.Add("identity");
-            ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-            ClaimActions.MapJsonKey(ClaimTypes.Email, "email");
-            ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-            ClaimActions.MapJsonKey(ClaimTypes.GivenName, "first_name");
-            ClaimActions.MapJsonKey(ClaimTypes.Surname, "last_name");
+            ClaimActions.MapAll();
+            SaveTokens = true;
+        }
+
+        public override void Validate(string scheme)
+        {
+            base.Validate(scheme);
         }
 
         /// <summary>
@@ -66,28 +86,5 @@ namespace Faaast.Authentication.OAuth2
             base.Validate();
         }
 
-        //
-        // Résumé :
-        //     Gets or sets the authentication scheme corresponding to the middleware responsible
-        //     of persisting user's identity after a successful authentication. This value typically
-        //     corresponds to a cookie middleware registered in the Startup class. When omitted,
-        //     Microsoft.AspNetCore.Authentication.AuthenticationOptions.DefaultSignInScheme
-        //     is used as a fallback value.
-        public string SignOutScheme { get; set; }
-        public string SignOutEndpoint{ get; set; }
-
-
-        private string _oauthServerUri;
-        public string OauthServerUri { 
-            get => _oauthServerUri;
-            set 
-            {
-                _oauthServerUri = value.TrimEnd('/');
-                AuthorizationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.AuthorizationEndpoint);
-                TokenEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.TokenEndpoint);
-                UserInformationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.UserInformationEndpoint);
-                SignOutEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.SignOutEndpoint);
-            }
-        }
     }
 }

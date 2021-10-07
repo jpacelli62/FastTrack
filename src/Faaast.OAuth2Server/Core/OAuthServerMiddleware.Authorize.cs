@@ -44,11 +44,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
             properties.IssuedUtc = DateTime.UtcNow;
             properties.ExpiresUtc = DateTime.UtcNow + TimeSpan.FromMinutes(5);
             properties.SetString("Scope", string.Join(" ", context.Scope));
-            await provider.StoreAsync(new Authorization
+            await provider.OnCreateAuthorizationCode(new Authorization
             {
                 AuthorizationCode = code,
                 AuthenticationTicket = new AuthenticationTicket(context.HttpContext.User, properties, "Default")
-            });;
+            });
 
             context.HttpContext.Response.Redirect(sourceUrl.ToString());
             return null;
@@ -76,7 +76,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 return validateClientContext;
 
             StageValidationContext ValidateAuthorizationContext = new StageValidationContext(context);
-            Authorization authorization = await provider.RetrieveAsync(context.Code);
+            Authorization authorization = await provider.OnExchangeAuthorizationCode(context.Code);
             if (authorization == null)
                 return await ValidateAuthorizationContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidCode);
 
@@ -94,7 +94,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
             if (!validateScopesContext.IsValidated)
                 return validateScopesContext;
 
-            await CreateJwt(context, authorization.AuthenticationTicket);
+            await CreateJwt(context, authorization.AuthenticationTicket, provider);
 
             await stageContext.ValidateAsync();
             return stageContext;

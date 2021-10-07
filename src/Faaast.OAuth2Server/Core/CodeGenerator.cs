@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace Faaast.Authentication.OAuth2Server.Core
 {
@@ -34,6 +35,16 @@ namespace Faaast.Authentication.OAuth2Server.Core
         private static string GenerateRandomCodeImpl(int length)
         {
             return string.Concat(Enumerable.Range(0, length).Select(x => AllowedChars[rnd.Next(0, AllowedChars.Length)]).ToArray());
+        }
+
+        public static string GenerateRandomNumber(int length)
+        {
+            var randomNumber = new byte[length];
+            using (var rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(randomNumber);
+                return Convert.ToBase64String(randomNumber);
+            }
         }
     }
 }

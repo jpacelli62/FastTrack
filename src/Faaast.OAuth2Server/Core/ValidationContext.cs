@@ -33,10 +33,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public virtual string RedirectUri { get; private set; }
 
         public virtual string AccessToken { get; private set; }
+        public virtual string RefreshToken { get; private set; }
         public virtual string AppSecretProof { get; private set; }
 
-        
-            
+
+
 
         public virtual ClientCredential Client { get; set; }
 
@@ -45,7 +46,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
             if (HttpMethods.IsPost(context.Request.Method))
             {
                 var requestForm = context.Request.Form;
-                var validationContext =  new ValidationContext
+                var validationContext = new ValidationContext
                 {
                     GrantType = requestForm[Parameters.GrantType].FirstOrDefault(),
                     ClientId = requestForm[Parameters.ClientId].FirstOrDefault(),
@@ -55,20 +56,19 @@ namespace Faaast.Authentication.OAuth2Server.Core
                     Code = requestForm[Parameters.Code].FirstOrDefault(),
                     Scope = (requestForm[Parameters.Scope].FirstOrDefault()?.Split(' ') ?? new string[0]),
                     RedirectUri = requestForm[Parameters.RedirectUri].FirstOrDefault(),
+                    RefreshToken = requestForm[Parameters.RefreshToken].FirstOrDefault(),
+                    AccessToken = requestForm[Parameters.AccessToken].FirstOrDefault(),
                     HttpContext = context
                 };
 
                 var basic = context.Request.Headers["Authorization"].FirstOrDefault();
-                if (!string.IsNullOrWhiteSpace(basic))
+                if (!string.IsNullOrWhiteSpace(basic) && basic.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (basic.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
+                    string[] credentials = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(basic.Substring(6))).Split(':');
+                    if (credentials.Length == 2)
                     {
-                        string[] credentials = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(basic.Substring(6))).Split(':');
-                        if (credentials.Length == 2)
-                        {
-                            validationContext.ClientId = credentials[0];
-                            validationContext.ClientSecret = credentials[1];
-                        }
+                        validationContext.ClientId = credentials[0];
+                        validationContext.ClientSecret = credentials[1];
                     }
                 }
 

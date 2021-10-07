@@ -1,6 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication;
-using System;
-using System.Security.Claims;
 
 namespace Faaast.Authentication.OAuth2Server.Core
 {
