@@ -11,13 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.DatabaseModel", "Faa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm", "Faaast.Orm\Faaast.Orm.csproj", "{FA61BF4A-1329-4738-B759-E4410C56EFD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.Dapper.FluentMap.Dommel", "Faaast.Orm.Dapper\Faaast.Orm.Dapper.FluentMap.Dommel.csproj", "{2BE11F41-F733-4085-873D-729E91B49C3F}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "Faaast.Tests\Faaast.Tests.csproj", "{C4FC5438-4041-4625-81D8-9EBB6E4294C0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.TypeDiscovery", "Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth2Server", "Faaast.OAuth2Server\Faaast.Authentication.OAuth2Server.csproj", "{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}"
 EndProject
@@ -45,22 +39,10 @@ Global
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FA61BF4A-1329-4738-B759-E4410C56EFD6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2BE11F41-F733-4085-873D-729E91B49C3F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{40AF8435-D5E2-48EA-BF2A-27F1644B5E17}.Release|Any CPU.ActiveCfg = Release|Any CPU
