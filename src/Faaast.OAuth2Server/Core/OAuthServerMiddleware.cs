@@ -180,7 +180,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                             AccessTokenExpiresUtc = expires,
                             RefreshToken = refreshToken,
                             RefreshTokenExpiresUtc = utcNow + Options.RefreshTokenExpireTimeSpan,
-                            NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value
+                            NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
                         });
 
                     }

@@ -58,6 +58,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                     RedirectUri = requestForm[Parameters.RedirectUri].FirstOrDefault(),
                     RefreshToken = requestForm[Parameters.RefreshToken].FirstOrDefault(),
                     AccessToken = requestForm[Parameters.AccessToken].FirstOrDefault(),
+                    Audience = requestForm[Parameters.Audience].FirstOrDefault(),
                     HttpContext = context
                 };
 

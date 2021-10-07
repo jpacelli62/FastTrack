@@ -73,7 +73,7 @@ namespace Faaast.Tests.Authentication
                 {"client_id", clientId ?? Fixture.ClientId},
                 {"scope", string.Join(' ', scopes ?? Fixture.DefaultOptions.Scope) },
                 {"response_type", "code" },
-                {"redirect_uri", redirectUri ?? $"https://{Fixture.ClientHost}/signin-oauth" },
+                {"redirect_uri", redirectUri ?? $"https://{Fixture.ClientHost}/faaastoauth/signin" },
                 { "state", state ?? "CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb"}
             };
             string uri = string.Concat(
@@ -119,7 +119,7 @@ namespace Faaast.Tests.Authentication
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
             Assert.Single(queryDictionary);
             Assert.Equal(
-                $"https://sso.mycompany.com/oauth/authorize?client_id=myAppId&scope=identity&response_type=code&redirect_uri=https://{Fixture.ClientHost}/signin-oauth&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb", 
+                $"https://sso.mycompany.com/oauth/authorize?client_id=myAppId&scope=identity&response_type=code&redirect_uri=https://{Fixture.ClientHost}/faaastoauth/signin&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb", 
                 System.Web.HttpUtility.UrlDecode(queryDictionary["returnUrl"]));
         }
 
@@ -140,7 +140,7 @@ namespace Faaast.Tests.Authentication
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
             Assert.Single(queryDictionary);
             Assert.Equal(
-                $"https://sso.mycompany.com/oauth/authorize?client_id=myAppId&scope=identity&response_type=code&redirect_uri=https://{Fixture.ClientHost}/signin-oauth&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb",
+                $"https://sso.mycompany.com/oauth/authorize?client_id=myAppId&scope=identity&response_type=code&redirect_uri=https://{Fixture.ClientHost}/faaastoauth/signin&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb",
                 System.Web.HttpUtility.UrlDecode(queryDictionary["returnUrl"]));
         }
 
@@ -166,7 +166,7 @@ namespace Faaast.Tests.Authentication
             string redirectPath = transaction.Response.Headers.Location.OriginalString;
             var uri = new UriBuilder(redirectPath);
             Assert.Equal(Fixture.ClientHost, uri.Host);
-            Assert.Equal("/signin-oauth", uri.Path);
+            Assert.Equal("/faaastoauth/signin", uri.Path);
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
             Assert.Equal(2, queryDictionary.Count);
             Assert.Equal("CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb", queryDictionary["state"]);

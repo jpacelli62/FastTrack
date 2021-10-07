@@ -209,14 +209,17 @@ namespace Faaast.Tests.Authentication
             return transaction;
         }
 
+
+        private Token _token;
         public Task StoreAsync(Token token)
         {
-            throw new NotImplementedException();
+            _token = token;
+            return Task.CompletedTask;
         }
 
         public Task<Token> OnRefreshReceivedAsync(string refreshToken)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(_token);
         }
 
         public Task<ClaimsPrincipal> OnRefreshPrincipaldAsync(ClaimsPrincipal principal)
@@ -247,7 +250,7 @@ namespace Faaast.Tests.Authentication
 
         public Task<bool> ValidateRedirectUriAsync(StageValidationContext context, Client client)
         {
-            if ($"https://{ClientHost}/signin-oauth".Equals(context.RedirectUri ?? string.Empty, StringComparison.OrdinalIgnoreCase))
+            if ($"https://{ClientHost}/faaastoauth/signin".Equals(context.RedirectUri ?? string.Empty, StringComparison.OrdinalIgnoreCase))
                 return Task.FromResult(true);
 
             return Task.FromResult(false);

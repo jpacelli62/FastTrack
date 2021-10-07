@@ -57,7 +57,6 @@ namespace Faaast.Authentication.OAuth2
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OauthServerUri)), nameof(OauthServerUri));
             }
 
-
             if (string.IsNullOrEmpty(AuthorizationEndpoint))
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(AuthorizationEndpoint)), nameof(AuthorizationEndpoint));

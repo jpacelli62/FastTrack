@@ -30,7 +30,8 @@ namespace Faaast.Authentication.OAuth2Server.Core
             else
                 client = await provider.ValidateCredentialsAsync(context.ClientId);
 
-            if (client == null)
+
+            if (client == null || client.Audience != stage.Audience)
             {
                 return await stage.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_InvalidClient);
             }
