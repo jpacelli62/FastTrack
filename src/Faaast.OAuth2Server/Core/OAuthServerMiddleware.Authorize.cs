@@ -54,7 +54,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
             return null;
         }
 
-        protected virtual async Task<StageValidationContext> ValidateRedirectUriAsync(StageValidationContext context, ClientCredential client, IOauthServerProvider provider)
+        protected virtual async Task<StageValidationContext> ValidateRedirectUriAsync(StageValidationContext context, Client client, IOauthServerProvider provider)
         {
             StageValidationContext redirectUriContext = new StageValidationContext(context);
             bool isValidated = await provider.ValidateRedirectUriAsync(redirectUriContext, client);

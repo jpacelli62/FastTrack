@@ -24,7 +24,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
         {
             StageValidationContext stage = new StageValidationContext(context);
 
-            ClientCredential client = null;
+            Client client = null;
             if (validateSecret)
                 client = await provider.ValidateCredentialsAsync(context.ClientId, context.ClientSecret);
             else

@@ -1,4 +1,4 @@
-﻿namespace Faaast.Authentication.OAuth2Server.Core
+﻿namespace Faaast.Authentication.OAuth2Server
 {
     /// <summary>
     /// Standard errors

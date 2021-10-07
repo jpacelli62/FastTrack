@@ -34,7 +34,7 @@ namespace Faaast.Tests.Authentication
         public async Task NormalRequestPassesThrough()
         {
             var server = Fixture.CreateClientApp(Fixture.DefaultConfigure);
-            var response = await server.CreateClient().GetAsync("https://example.com/");
+            var response = await server.CreateClient().GetAsync($"https://{Fixture.ClientHost}/");
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         }
 
@@ -42,7 +42,7 @@ namespace Faaast.Tests.Authentication
         public async Task ProtectedPathReturnsUnauthorized()
         {
             var server = Fixture.CreateClientApp(Fixture.DefaultConfigure);
-            var response = await server.CreateClient().GetAsync("https://example.com/unauthorized");
+            var response = await server.CreateClient().GetAsync($"https://{Fixture.ClientHost}/unauthorized");
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
@@ -50,7 +50,7 @@ namespace Faaast.Tests.Authentication
         public async Task ForbiddenPathReturnsForbiddenStatus()
         {
             var server = Fixture.CreateClientApp(Fixture.DefaultConfigure);
-            var response = await server.CreateClient().GetAsync("https://example.com/forbidden");
+            var response = await server.CreateClient().GetAsync($"https://{Fixture.ClientHost}/forbidden");
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
             Assert.Equal("/Account/AccessDenied?ReturnUrl=%2Fforbidden", response.Headers.Location.PathAndQuery);
         }
@@ -59,7 +59,7 @@ namespace Faaast.Tests.Authentication
         public async Task ChallengePathRedirectToAuthorizationServer()
         {
             var server = Fixture.CreateClientApp(Fixture.DefaultConfigure);
-            var response = await server.CreateClient().GetAsync("https://example.com/challenge");
+            var response = await server.CreateClient().GetAsync($"https://{Fixture.ClientHost}/challenge");
             Assert.Equal(HttpStatusCode.Redirect, response.StatusCode);
             string redirectPath = response.Headers.Location.OriginalString;
             var uri = new UriBuilder(redirectPath);
@@ -68,7 +68,7 @@ namespace Faaast.Tests.Authentication
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
             Assert.Equal(Fixture.ClientId, queryDictionary["client_id"]);
             Assert.Equal("identity", queryDictionary["scope"]);
-            Assert.Equal("https://example.com/signin-oauth", System.Web.HttpUtility.UrlDecode(queryDictionary["redirect_uri"]));
+            Assert.Equal($"https://{Fixture.ClientHost}/faaastoauth/signin", System.Web.HttpUtility.UrlDecode(queryDictionary["redirect_uri"]));
             Assert.False(string.IsNullOrWhiteSpace(queryDictionary["state"]));
             Assert.Equal(5, queryDictionary.Count);
         }

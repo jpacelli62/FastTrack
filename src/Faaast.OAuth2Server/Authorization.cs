@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 
-namespace Faaast.Authentication.OAuth2Server.Core
+namespace Faaast.Authentication.OAuth2Server
 {
     public class Authorization
     {

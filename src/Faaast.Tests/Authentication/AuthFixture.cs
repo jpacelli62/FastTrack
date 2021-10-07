@@ -19,11 +19,11 @@ using System.Net.Http;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Xml.Linq;
-using Authorization = Faaast.Authentication.OAuth2Server.Core.Authorization;
+using Authorization = Faaast.Authentication.OAuth2Server.Authorization;
 
 namespace Faaast.Tests.Authentication
 {
-    public class AuthFixture: IOauthServerProvider
+    public class AuthFixture : IOauthServerProvider
     {
         public static readonly string Audience = "testApp";
         public readonly string ClientId = "myAppId";
@@ -45,7 +45,7 @@ namespace Faaast.Tests.Authentication
             options.OauthServerUri = $"https://{ServerHost}";
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
         }
-        private ClientCredential Credential { get; set; }
+        private Client Credential { get; set; }
 
         public AuthFixture()
         {
@@ -53,11 +53,10 @@ namespace Faaast.Tests.Authentication
             DefaultOptions = new FaaastOauthOptions();
             DefaultConfigure(DefaultOptions);
 
-            Credential = new ClientCredential
+            Credential = new Client
             {
                 ClientId = DefaultOptions.ClientId,
                 ClientSecret = DefaultOptions.ClientSecret,
-                Audience = Audience,
                 Scopes = new[] { "identity" },
             };
         }
@@ -162,10 +161,11 @@ namespace Faaast.Tests.Authentication
         public TestServer CreateMixedApp(Action<FaaastOauthOptions> clientConfig, Action<OAuthServerOptions> serverConfig, Uri baseAddress = null)
         {
             return CreateApp(
-                app => {
+                app =>
+                {
                     ConfigureClientApp(app);
                     ConfigureServerApp(serverConfig, app);
-                }, 
+                },
                 services =>
                 {
                     ConfigureClientServices(clientConfig, services);
@@ -180,6 +180,13 @@ namespace Faaast.Tests.Authentication
             var content = new FormUrlEncodedContent(values.Select(x => new KeyValuePair<string, string>(x.Key, x.Value)));
             request.Content = content;
             return await SendAsync(server, request);
+        }
+        public class Transaction
+        {
+            public HttpRequestMessage Request { get; set; }
+            public HttpResponseMessage Response { get; set; }
+            public string ResponseText { get; set; }
+            public XElement ResponseElement { get; set; }
         }
 
         public async Task<Transaction> SendAsync(TestServer server, HttpRequestMessage request)
@@ -202,31 +209,43 @@ namespace Faaast.Tests.Authentication
             return transaction;
         }
 
-        public class Transaction
+        public Task StoreAsync(Token token)
         {
-            public HttpRequestMessage Request { get; set; }
-            public HttpResponseMessage Response { get; set; }
-            public string ResponseText { get; set; }
-            public XElement ResponseElement { get; set; }
+            throw new NotImplementedException();
         }
 
-        public Task<ClientCredential> ValidateCredentialsAsync(string clientId)
+        public Task<Token> OnRefreshReceivedAsync(string refreshToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ClaimsPrincipal> OnRefreshPrincipaldAsync(ClaimsPrincipal principal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ClaimsPrincipal> PasswordSigningAsync(string login, string password)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<Client> ValidateCredentialsAsync(string clientId)
         {
             if (Credential.ClientId == clientId)
                 return Task.FromResult(Credential);
 
-            return Task.FromResult<ClientCredential>(null);
+            return Task.FromResult<Client>(null);
         }
 
-        public Task<ClientCredential> ValidateCredentialsAsync(string clientId, string clientSecret)
+        public Task<Client> ValidateCredentialsAsync(string clientId, string clientSecret)
         {
             if (Credential.ClientId == clientId && Credential.ClientSecret == clientSecret)
                 return Task.FromResult(Credential);
 
-            return Task.FromResult<ClientCredential>(null);
+            return Task.FromResult<Client>(null);
         }
 
-        public Task<bool> ValidateRedirectUriAsync(StageValidationContext context, ClientCredential client)
+        public Task<bool> ValidateRedirectUriAsync(StageValidationContext context, Client client)
         {
             if ($"https://{ClientHost}/signin-oauth".Equals(context.RedirectUri ?? string.Empty, StringComparison.OrdinalIgnoreCase))
                 return Task.FromResult(true);
@@ -234,23 +253,23 @@ namespace Faaast.Tests.Authentication
             return Task.FromResult(false);
         }
 
-        public Task<bool> RequireUserConsentAsync(StageValidationContext context, ClientCredential client)
+        public Task<bool> RequireUserConsentAsync(StageValidationContext context, Client client)
         {
             return Task.FromResult(context.HttpContext.Request.Headers.ContainsKey("fakeRequireConsent"));
         }
 
-        public Task StoreAsync(Authorization code)
+        public Task OnCreateAuthorizationCode(Authorization code)
         {
             Authorizations.Add(code.AuthorizationCode, code);
             return Task.CompletedTask;
         }
 
-        public Task<Authorization> RetrieveAsync(string authorizationCode)
-        {
-            if (Authorizations.ContainsKey(authorizationCode))
-                return Task.FromResult(Authorizations[authorizationCode]);
+    public Task<Authorization> OnExchangeAuthorizationCode(string authorizationCode)
+    {
+        if (Authorizations.ContainsKey(authorizationCode))
+            return Task.FromResult(Authorizations[authorizationCode]);
 
-            return Task.FromResult<Authorization>(null);
-        }
+        return Task.FromResult<Authorization>(null);
     }
+}
 }

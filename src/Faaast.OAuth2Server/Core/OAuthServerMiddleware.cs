@@ -73,7 +73,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
         }
 
-        private TokenValidationParameters BuildValidationParameters(ClientCredential client)
+        private TokenValidationParameters BuildValidationParameters(Client client)
         {
             byte[] keybytes = Encoding.ASCII.GetBytes(client.ClientSecret);
             SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
@@ -187,6 +187,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                     writer.WriteEndObject();
                 }
 
+                
                 string json = Encoding.UTF8.GetString(stream.ToArray());
                 await validation.HttpContext.Response.WriteAsync(json);
             }
@@ -283,7 +284,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
             return await validateAccountContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
         }
 
-        protected virtual Task<StageValidationContext> ValidateScopeAsync(StageValidationContext context, ClientCredential client, IOauthServerProvider provider)
+        protected virtual Task<StageValidationContext> ValidateScopeAsync(StageValidationContext context, Client client, IOauthServerProvider provider)
         {
             StageValidationContext stageContext = new StageValidationContext(context);
             foreach (var contextScope in context.Scope)

@@ -32,7 +32,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
         public override string Audience => Source.Audience;
 
-        public override ClientCredential Client { get => Source.Client; set => Source.Client = value; }
+        public override Client Client { get => Source.Client; set => Source.Client = value; }
 
         public bool IsValidated { get; private set; }
 

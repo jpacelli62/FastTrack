@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Faaast.Authentication.OAuth2;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace Microsoft.AspNetCore.Authentication
 {
@@ -38,7 +39,7 @@ namespace Microsoft.AspNetCore.Authentication
             {
                 var result = await httpResult.Content.ReadAsStringAsync();
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
                 return OAuthTokenResponse.Success(JObject.Parse(result));
 #elif NET5_0
                 return OAuthTokenResponse.Success(JsonDocument.Parse(result));

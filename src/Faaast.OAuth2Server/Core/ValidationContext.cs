@@ -39,7 +39,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
 
 
-        public virtual ClientCredential Client { get; set; }
+        public virtual Client Client { get; set; }
 
         public static ValidationContext Create(HttpContext context)
         {

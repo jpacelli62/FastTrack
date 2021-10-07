@@ -4,7 +4,7 @@
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
     <LangVersion>9</LangVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>0.0.1-alpha</Version>
+    <Version>0.0.2-alpha</Version>
     <Authors>Jérôme Pacelli</Authors>
     <Company />
     <Description>A simple and efficient framework agnostic Oauth2 server</Description>
@@ -18,7 +18,7 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <PackageTags>meta;object;class;property;il;lambda;mapping</PackageTags>
+    <PackageTags>aspnetcore;authentication;security;oauth</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

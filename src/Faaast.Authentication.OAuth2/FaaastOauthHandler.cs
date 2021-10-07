@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 
 namespace Faaast.Authentication.OAuth2
 {
@@ -121,7 +122,7 @@ namespace Faaast.Authentication.OAuth2
                 userInfos = BuildUserPayload(identity);
             }
 
-#if NETSTANDARD2_0
+#if NETSTANDARD2_0 || NET461
             var payload = JObject.Parse(userInfos);
             var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, Context, Scheme, Options, Backchannel, tokens, payload);
             await Events.CreatingTicket(context);
