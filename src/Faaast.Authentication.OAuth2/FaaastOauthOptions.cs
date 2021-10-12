@@ -28,6 +28,7 @@ namespace Faaast.Authentication.OAuth2
         }
 
         public string SignOutEndpoint { get; set; }
+        public string SignOutScheme { get; set; }
 
         public bool UseUserInformationEndpoint { get; set; }
 

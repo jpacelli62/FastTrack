@@ -56,6 +56,10 @@ namespace Faaast.Authentication.OAuth2
                         if (expire <= DateTime.Now)
                         {
                             var oAuthToken = await Context.CallRefreshTokenAsync(result, Options);
+                            if(oAuthToken == null)
+                            {
+                                return AuthenticateResult.Fail("Invalid refresh token");
+                            }
                             ClaimsPrincipal principal = ReadPrincipalFromToken(oAuthToken.AccessToken);
 
                             var newTicket = await CreateTicketAsync(principal.Identity as ClaimsIdentity, ticket.Properties, oAuthToken);
@@ -193,15 +197,15 @@ namespace Faaast.Authentication.OAuth2
         public async Task SignOutAsync(AuthenticationProperties properties)
         {
             properties ??= new AuthenticationProperties();
+            string redirectUri = BuildRedirectUri(properties.RedirectUri ?? "/");
             var parameters = new Dictionary<string, string>
             {
-                { "redirect_uri", BuildRedirectUri(properties.RedirectUri ?? "/") }
+                { "redirect_uri", redirectUri }
             };
-
-            var schemeProvider = Context.RequestServices.GetRequiredService<IAuthenticationSchemeProvider>();
             var endpoint = QueryHelpers.AddQueryString(Options.SignOutEndpoint, parameters);
-            await Context.SignOutAsync((await schemeProvider.GetDefaultSignOutSchemeAsync()).Name, properties);
-            Response.Redirect(endpoint);
+
+            properties.RedirectUri = endpoint;
+            await Context.SignOutAsync(Options.SignOutScheme ?? Options.SignInScheme, properties);
         }
     }
 }
