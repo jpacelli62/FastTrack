@@ -1,37 +1,31 @@
 <Project>
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
-    <Authors>Jérôme Pacelli</Authors>
     <OutputType>Library</OutputType>
+    <Configurations>Debug;Release;Publish</Configurations>
+    <Authors>Jérôme Pacelli</Authors>
     <Copyright>Jérôme Pacelli</Copyright>
     <Company />
     <LangVersion>9</LangVersion>
 
+    <Version>0.0.8-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jpacelli62/Faaast</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <IncludeSymbols>true</IncludeSymbols>
-    <!--<EmbedAllSources>true</EmbedAllSources>-->
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <!--<GenerateDocumentationFile>true</GenerateDocumentationFile>-->
-    <!--<DebugType>full</DebugType>-->
-    <!--<LangVersion>9.0</LangVersion>-->
-    <Version>0.0.7-alpha</Version>
-    <Configurations>Debug;Release;Publish</Configurations>
-    <!--<PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>-->
-  </PropertyGroup>
-  <PropertyGroup>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
     <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <DebugType>embedded</DebugType>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <!--<PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>-->
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Publish'">
-    <!--<Optimize>true</Optimize>-->
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Optimize>true</Optimize>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
   
