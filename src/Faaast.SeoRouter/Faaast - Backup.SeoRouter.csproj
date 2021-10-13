@@ -4,7 +4,6 @@
     <LangVersion>9</LangVersion>
     <Description>A simple and efficient MVC router alowing complex rules and SEO-friendly Url generation</Description>
     <PackageTags>mvc;seo;url;route;routing</PackageTags>
-
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
