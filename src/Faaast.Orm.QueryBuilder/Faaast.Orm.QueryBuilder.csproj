@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
     <Description>A simple and extensible SQL query builder</Description>
+    <RootNamespace>Faaast.Orm</RootNamespace>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -12,4 +13,16 @@
   <PropertyGroup Condition="'$(Configuration)'=='Publish'">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
+  
+  <ItemGroup>
+    <Compile Remove="Sql\**" />
+    <EmbeddedResource Remove="Sql\**" />
+    <None Remove="Sql\**" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
+    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
+    <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
+  </ItemGroup>
 </Project>

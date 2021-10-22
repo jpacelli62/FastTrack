@@ -11,5 +11,6 @@ namespace Faaast.Tests.Orm.Fixtures
         public long? V6 { get; set; }
         public DateTime V3 { get; set; }
         public double? V7 { get; set; }
+        public bool V8 { get; set; }
     }
 }

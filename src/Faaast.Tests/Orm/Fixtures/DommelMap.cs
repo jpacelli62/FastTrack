@@ -14,6 +14,7 @@ namespace Faaast.Tests.Orm.Fixtures
             Map(x => x.V5).ToColumn("V5");
             Map(x => x.V6).ToColumn("V6");
             Map(x => x.V7).ToColumn("V7");
+            Map(x => x.V8).ToColumn("V8");
         }
     }
 }

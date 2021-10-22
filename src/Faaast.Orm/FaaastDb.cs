@@ -14,7 +14,7 @@ namespace Faaast.Orm
 
         internal virtual IDatabaseStore DbStore { get; set; }
 
-        protected virtual DatabaseMapping Mappings { get; set; }
+        public virtual DatabaseMapping Mappings { get; set; }
 
         public abstract ConnectionSettings Connection { get; }
 
