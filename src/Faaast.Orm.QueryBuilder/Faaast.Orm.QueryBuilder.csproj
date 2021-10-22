@@ -15,14 +15,12 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <Compile Remove="Sql\**" />
-    <EmbeddedResource Remove="Sql\**" />
-    <None Remove="Sql\**" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+    <PackageReference Include="SqlKata" Version="2.3.7" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
-    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
   </ItemGroup>
 </Project>
