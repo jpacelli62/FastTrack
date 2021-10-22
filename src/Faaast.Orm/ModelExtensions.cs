@@ -14,6 +14,13 @@ namespace Faaast.Orm
         public static Column IsIdentity(this Column column, bool isIdentity = true)
         {
             column.Identity = isIdentity;
+            column.Computed |= isIdentity;
+            return column;
+        }
+
+        public static Column IsComputed(this Column column, bool isComputed = true)
+        {
+            column.Computed = isComputed;
             return column;
         }
 

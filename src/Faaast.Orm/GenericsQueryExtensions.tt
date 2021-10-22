@@ -56,10 +56,9 @@ foreach(int i in Enumerable.Range(0, 16))
 
         public static FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> FirstOrDefault<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
         {
-            foreach (var item in command.Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
-            {
-                return item;
-            }
+            var enumerator = command.Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>().GetEnumerator();
+            if (enumerator.MoveNext())
+                return enumerator.Current;
 
             return default;
         }
@@ -70,10 +69,10 @@ foreach(int i in Enumerable.Range(0, 16))
             FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> result = default;
             foreach (var item in command.Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
             {
+                if (row++ > 1)
+                    throw new InvalidOperationException("Sequence contains more than one element");
+
                 result = item;
-                row++;
-                if (row > 1)
-                    throw new InvalidOperationException("Seqence contains more than one element");
             }
 
             return result;
@@ -89,9 +88,11 @@ foreach(int i in Enumerable.Range(0, 16))
 
         public static async Task<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> FirstOrDefaultAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
         {
-            await foreach (var item in command.FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
+            var enumerator = command.FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>()
+                .GetAsyncEnumerator(command.CancellationToken);
+            if(await enumerator.MoveNextAsync())
             {
-                return item;
+                return enumerator.Current;
             }
 
             return default;
@@ -103,10 +104,10 @@ foreach(int i in Enumerable.Range(0, 16))
             FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>> result = default;
             await foreach (var item in command.FetchAsync<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>())
             {
+                if (row++ > 1)
+                    throw new InvalidOperationException("Sequence contains more than one element");
+
                 result = item;
-                row++;
-                if (row > 1)
-                    throw new InvalidOperationException("Seqence contains more than one element");
             }
 
             return result;

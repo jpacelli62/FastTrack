@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace Faaast.Metadata
 {
+    [DebuggerDisplay("{Name} ({Type.FullName})")]
     public class DtoProperty : MetaModel<DtoProperty>
     {
         public string Name { get; internal set; }

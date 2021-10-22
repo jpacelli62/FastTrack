@@ -13,8 +13,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm", "src\Faaast.Or
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "src\Faaast.Tests\Faaast.Tests.csproj", "{C4FC5438-4041-4625-81D8-9EBB6E4294C0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.TypeDiscovery", "src\Faaast.TypeDiscovery\Faaast.TypeDiscovery.csproj", "{6EF912CC-B0D4-4895-8247-0F111C1BF903}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "src\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Config", "Config", "{961EC79F-F3A0-4280-A47A-85B9E49E35DC}"
@@ -63,11 +61,6 @@ Global
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Publish|Any CPU.Build.0 = Publish|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C4FC5438-4041-4625-81D8-9EBB6E4294C0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Publish|Any CPU.ActiveCfg = Release|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6EF912CC-B0D4-4895-8247-0F111C1BF903}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A49B3B9-0254-490D-B787-8C327CCC91CA}.Publish|Any CPU.ActiveCfg = Publish|Any CPU

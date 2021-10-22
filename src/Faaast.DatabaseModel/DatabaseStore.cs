@@ -1,12 +1,13 @@
 ﻿using Faaast.Metadata;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace Faaast.DatabaseModel
 {
     public class DatabaseStore : IDatabaseStore
     {
-        private Dictionary<string, IDatabase> Databases { get; set; } = new Dictionary<string, IDatabase>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, IDatabase> Databases { get; set; } = new ConcurrentDictionary<string, IDatabase>(StringComparer.OrdinalIgnoreCase);
 
         public IDatabase this[string name]
         {
@@ -17,7 +18,7 @@ namespace Faaast.DatabaseModel
             }
             set
             {
-                Databases[name] = value;
+                Databases.AddOrUpdate(name, value, (a, b) => value);
             }
         }
     }

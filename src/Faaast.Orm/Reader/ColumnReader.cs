@@ -24,7 +24,7 @@ namespace Faaast.Orm.Reader
             }
             else
             {
-                Call = this.Column.Get(DbMeta.Nullable) ? ReadNullable : ReadNonNullable;
+                Call = !this.Column.Has(DbMeta.Nullable) || this.Column.Get(DbMeta.Nullable) ? ReadNullable : ReadNonNullable;
             }
         }
 

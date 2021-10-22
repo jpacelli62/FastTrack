@@ -17,6 +17,11 @@ namespace Faaast.Metadata
             return result;
         }
 
+        public bool Has<T>(Metadata<TModel, T> metadata)
+        {
+            return this.Metadata.ContainsKey(metadata.Name);
+        }
+
         public void Set<T>(Metadata<TModel, T> metadata, T value)
         {
             Metadata[metadata.Name] = value;

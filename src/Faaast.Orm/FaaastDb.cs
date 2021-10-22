@@ -14,12 +14,13 @@ namespace Faaast.Orm
 
         internal virtual IDatabaseStore DbStore { get; set; }
 
-        internal virtual DatabaseMapping Mappings { get; set; }
+        protected virtual DatabaseMapping Mappings { get; set; }
 
         public abstract ConnectionSettings Connection { get; }
 
         public virtual DbConnection CreateConnection()
         {
+            this.InitMappings();
             var connection =  Connection.Engine.Create();
             connection.ConnectionString = Connection.ConnectionString(Connection);
             return connection;
@@ -35,23 +36,26 @@ namespace Faaast.Orm
         {
             this.Mapper = services.GetRequiredService<IObjectMapper>();
             this.DbStore = services.GetRequiredService<IDatabaseStore>();
-            if(this.Mappings == null)
+            this.InitMappings();
+        }
+
+        protected void InitMappings()
+        {
+            if (this.Mappings == null && Connection != null)
             {
-                this.Mappings = this.DbStore[Connection.Name].Get(Meta.Mapping);
-                if(this.Mappings == null)
+                var database = this.DbStore[Connection.Name];
+                if (database == null)
                 {
-                    Database db = new Database(Connection);
-                    foreach (var mapping in Initialize(db, Mapper, GetMappings()))
-                    {
-                        db.Tables.Add(mapping.Table.Table);
-                    }
-                    DbStore[Connection.Name] = db;
+                    database = Initialize(Connection, Mapper, GetMappings());
+                    DbStore[Connection.Name] = database;
                 }
+                this.Mappings = database.Get(Meta.Mapping);
             }
         }
 
-        internal static IEnumerable<SimpleTypeMapping> Initialize(IDatabase database, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
+        internal static Database Initialize(ConnectionSettings connection, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
         {
+            Database db = new Database(connection);
             List<TableMapping> tableMaps = new List<TableMapping>();
             foreach (var mapping in mappings)
             {
@@ -61,17 +65,20 @@ namespace Faaast.Orm
                 {
                     columnMap.Property = dto[columnMap.Member.Name];
                 }
+                mapping.Table.Init();
 
-                yield return mapping;
+                db.Tables.Add(mapping.Table.Table);
                 tableMaps.Add(mapping.Table);
             }
 
             DatabaseMapping dbMap = new DatabaseMapping
             {
-                Source = database,
+                Source = db,
                 Mappings = tableMaps
             };
-            database.Set(Meta.Mapping, dbMap);
+
+            db.Set(Meta.Mapping, dbMap);
+            return db;
         }
     }
 }

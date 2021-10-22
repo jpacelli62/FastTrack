@@ -1,5 +1,6 @@
 ﻿using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -17,7 +18,7 @@ namespace Faaast.Orm.Reader
         public DbConnection Connection { get; }
         public IObjectMapper Mapper { get; }
         public IDatabase Database { get; }
-
+        public CommandBehavior CommandBehavior { get; set; }
         public FaaastCommand(
             IDatabase database,
             IObjectMapper mapper,
@@ -38,6 +39,7 @@ namespace Faaast.Orm.Reader
             this.CommandTimeout = commandTimeout;
             this.CommandType = commandType;
             this.CancellationToken = cancellationToken;
+            this.CommandBehavior = CommandBehavior.Default;
         }
 
         internal DbCommand SetupCommand()
@@ -56,15 +58,36 @@ namespace Faaast.Orm.Reader
 
             if (Parameters != null)
             {
-                DtoClass map = Mapper.Get(Parameters.GetType());
-                foreach (var property in map)
+                if(Parameters is IDictionary dictionary)
                 {
-                    var parameter = cmd.CreateParameter();
-                    parameter.Value = property.Read(Parameters);
-                    parameter.ParameterName = property.Name.Sanitize();
-                    parameter.DbType = property.Type.ToDbType();
-                    parameter.Direction = ParameterDirection.Input;
+                    foreach (var key in dictionary.Keys)
+                    {
+                        var value = dictionary[key];
+                        var parameter = cmd.CreateParameter();
+                        parameter.Value = value;
+                        parameter.ParameterName = key.ToString().Sanitize();
+                        if(value != null)
+                        {
+                            parameter.DbType = value.GetType().ToDbType();
+                        }
+                        parameter.Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add(parameter);
+                    }
                 }
+                else
+                {
+                    DtoClass map = Mapper.Get(Parameters.GetType());
+                    foreach (var property in map)
+                    {
+                        var parameter = cmd.CreateParameter();
+                        parameter.Value = property.Read(Parameters);
+                        parameter.ParameterName = property.Name.Sanitize();
+                        parameter.DbType = property.Type.ToDbType();
+                        parameter.Direction = ParameterDirection.Input;
+                        cmd.Parameters.Add(parameter);
+                    }
+                }
+
             }
 
             return cmd;

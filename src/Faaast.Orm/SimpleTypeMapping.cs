@@ -1,5 +1,6 @@
 ﻿using Faaast.DatabaseModel;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Faaast.Orm
@@ -47,7 +48,13 @@ namespace Faaast.Orm
         {
         }
 
-        public ColumnMapping Map<TProperty>(Expression<Func<TClass, TProperty>> member)
+
+        public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, string columnName)
+        {
+            return Map<TProperty>(member, new Column(columnName));
+        }
+
+        public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, Column column)
         {
             var exp = member.Body as MemberExpression;
             if(exp == null)
@@ -57,8 +64,12 @@ namespace Faaast.Orm
 
             ColumnMapping mapping = new ColumnMapping();
             mapping.Member = exp.Member;
-            Table.ColumnMappings.Add(mapping);
-            return mapping;
+            mapping.Column = column;
+            var mappings = Table.ColumnMappings ?? new List<ColumnMapping>();
+            mappings.Add(mapping);
+            Table.ColumnMappings = mappings;
+            Table.Table.Columns.Add(column);
+            return mapping.Column;
         }
     }
 }

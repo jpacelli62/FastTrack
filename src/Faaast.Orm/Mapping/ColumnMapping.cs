@@ -11,16 +11,5 @@ namespace Faaast.Orm
         public MemberInfo Member { get; set; }
 
         public Column Column { get; set; }
-
-        public Column ToColumn(string name)
-        {
-            return To(new Column(name));
-        }
-
-        public Column To(Column column)
-        {
-            this.Column = column;
-            return this.Column;
-        }
     }
 }
