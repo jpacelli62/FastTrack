@@ -29,7 +29,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB>> Fetch<TA, TB>(this FaaastCommand command)
         {
@@ -120,7 +120,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC>> Fetch<TA, TB, TC>(this FaaastCommand command)
         {
@@ -215,7 +215,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD>> Fetch<TA, TB, TC, TD>(this FaaastCommand command)
         {
@@ -314,7 +314,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE>> Fetch<TA, TB, TC, TD, TE>(this FaaastCommand command)
         {
@@ -417,7 +417,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF>> Fetch<TA, TB, TC, TD, TE, TF>(this FaaastCommand command)
         {
@@ -524,7 +524,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG>> Fetch<TA, TB, TC, TD, TE, TF, TG>(this FaaastCommand command)
         {
@@ -635,7 +635,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH>(this FaaastCommand command)
         {
@@ -750,7 +750,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI>(this FaaastCommand command)
         {
@@ -869,7 +869,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>(this FaaastCommand command)
         {
@@ -992,7 +992,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>(this FaaastCommand command)
         {
@@ -1119,7 +1119,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>(this FaaastCommand command)
         {
@@ -1250,7 +1250,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>(this FaaastCommand command)
         {
@@ -1385,7 +1385,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>(this FaaastCommand command)
         {
@@ -1524,7 +1524,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>(this FaaastCommand command)
         {
@@ -1667,7 +1667,7 @@ namespace Faaast.Orm
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>> Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>(this FaaastCommand command)
         {

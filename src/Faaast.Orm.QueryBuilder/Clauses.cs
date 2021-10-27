@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Text;
 
 namespace Faaast.Orm
 {
@@ -9,12 +7,27 @@ namespace Faaast.Orm
     {
     }
 
-    public class ConstantClause : AbstractClause
+    public class UnaryClause : AbstractClause
     {
-        public object Value { get; set; }
+
+    }
+    public class OperationClause : UnaryClause
+    {
+        public string Function { get; set; }
+
+        public PropertyClause Clause { get; set; }
     }
 
-    public class NegateClause : AbstractClause
+    public class ConstantClause : UnaryClause
+    {
+        public object Value { get; set; }
+        public ConstantClause(object value)
+        {
+            this.Value = value;
+        }
+    }
+
+    public class NegateClause : UnaryClause
     {
         public AbstractClause Clause { get; set; }
     }
@@ -26,7 +39,7 @@ namespace Faaast.Orm
         public AbstractClause Right { get; set; }
     }
 
-    public class PropertyClause : AbstractClause
+    public class PropertyClause : UnaryClause
     {
         public Type ObjectType { get; set; }
 

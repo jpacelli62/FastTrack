@@ -12,10 +12,10 @@ namespace Faaast.Orm
             var member = Expression.Convert(expression, typeof(object));
             var lambda = Expression.Lambda<Func<object>>(member);
             var getter = lambda.Compile();
-            return new ConstantClause { Value = getter()};
+            return new ConstantClause(getter());
         }
 
-        internal static ConstantClause Value(this ConstantExpression expression) => new ConstantClause { Value = expression.Value };
+        internal static ConstantClause Value(this ConstantExpression expression) => new ConstantClause(expression.Value);
 
         internal static AbstractClause Value(this MemberExpression expression)
         {
@@ -28,13 +28,26 @@ namespace Faaast.Orm
                     Property = expression.Member.Name,
                     References = ((ParameterExpression)expression.Expression).Name
                 };
-            } 
+            }
             else if (expression.NodeType == ExpressionType.MemberAccess)
             {
+                var expType = expression.Expression.Type;
+                if (expType == typeof(string))
+                {
+                    if (string.Equals(expression.Member.Name, "Length"))
+                    {
+                        return new OperationClause
+                        {
+                            Clause = Value(expression.Expression as MemberExpression) as PropertyClause,
+                            Function = "LEN({0})"
+                        };
+                    }
+                }
+
                 var member = Expression.Convert(expression, typeof(object));
                 var lambda = Expression.Lambda<Func<object>>(member);
                 var getter = lambda.Compile();
-                return new ConstantClause { Value = getter() };
+                return new ConstantClause(getter());
             }
 
             throw new NotImplementedException();

@@ -14,34 +14,33 @@ namespace Faaast.Orm
 
         internal virtual IDatabaseStore DbStore { get; set; }
 
-        public virtual DatabaseMapping Mappings { get; set; }
+        public virtual Lazy<DatabaseMapping> Mappings { get; }
 
         public abstract ConnectionSettings Connection { get; }
 
         public virtual DbConnection CreateConnection()
         {
-            this.InitMappings();
             var connection =  Connection.Engine.Create();
             connection.ConnectionString = Connection.ConnectionString(Connection);
             return connection;
         }
 
-        protected FaaastDb()
+        private FaaastDb()
         {
         }
 
         protected abstract IEnumerable<SimpleTypeMapping> GetMappings();
 
-        public FaaastDb(IServiceProvider services) : this()
+        protected FaaastDb(IServiceProvider services) : this()
         {
             this.Mapper = services.GetRequiredService<IObjectMapper>();
             this.DbStore = services.GetRequiredService<IDatabaseStore>();
-            this.InitMappings();
+            this.Mappings = new Lazy<DatabaseMapping>(InitMapping, true);
         }
 
-        protected void InitMappings()
+        protected DatabaseMapping InitMapping()
         {
-            if (this.Mappings == null && Connection != null)
+            if (Connection != null)
             {
                 var database = this.DbStore[Connection.Name];
                 if (database == null)
@@ -49,8 +48,10 @@ namespace Faaast.Orm
                     database = Initialize(Connection, Mapper, GetMappings());
                     DbStore[Connection.Name] = database;
                 }
-                this.Mappings = database.Get(Meta.Mapping);
+                return database.Get(Meta.Mapping);
             }
+
+            throw new ArgumentException(nameof(Connection));
         }
 
         internal static Database Initialize(ConnectionSettings connection, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)

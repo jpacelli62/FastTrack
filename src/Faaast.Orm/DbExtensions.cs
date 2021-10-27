@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Faaast.Orm
 {
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         private static readonly ConcurrentDictionary<Type, ObjectReader> Parsers = new ConcurrentDictionary<Type, ObjectReader>();
 

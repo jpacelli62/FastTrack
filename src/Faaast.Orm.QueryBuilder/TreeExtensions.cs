@@ -86,27 +86,38 @@ namespace Faaast.Orm
 				throw new ArgumentException("Contains-expression should contain exactly one argument.", nameof(expression));
 			}
 
-			var value = VisitExpression(expression.Arguments[0]);
-			string txtOperator;
+			ConstantClause value = (ConstantClause) VisitExpression(expression.Arguments[0]);
 			switch (textSearch)
             {
                 case "contains":
-					txtOperator = "contains";
-					break;
+					return new BinaryColumnClause()
+					{
+						Left = column,
+						Operation = "LIKE",
+						Right = new ConstantClause(string.Concat("%", value.Value, "%"))
+					};
 
-                case "StartsWith":
-					txtOperator = "starts";
-					break;
+                case "startswith":
+					return new BinaryColumnClause()
+					{
+						Left = column,
+						Operation = "LIKE",
+						Right = new ConstantClause(string.Concat(value.Value, "%"))
+					};
 
-                case "EndsWith":
-					txtOperator = "ends";
-					break;
+                case "endswith":
+					return new BinaryColumnClause()
+					{
+						Left = column,
+						Operation = "LIKE",
+						Right = new ConstantClause(string.Concat("%", value.Value))
+					};
 
-                default:
+				default:
 					throw new ArgumentOutOfRangeException($"Invalid TextSearch value '{textSearch}'.", nameof(textSearch));
             }
 
-			return null;
+			throw new NotImplementedException();
 		}
 
 

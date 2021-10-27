@@ -44,7 +44,7 @@ foreach(int i in Enumerable.Range(0, 16))
         }
     }
 
-    public static partial class QueryExtensions
+    public static partial class DbExtensions
     {
         public static IEnumerable<FaaastTuple<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>> Fetch<<#= string.Join(", ", letters.Select(x=> "T" + x).ToArray()) #>>(this FaaastCommand command)
         {
