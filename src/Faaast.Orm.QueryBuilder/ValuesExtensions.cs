@@ -31,15 +31,15 @@ namespace Faaast.Orm
             }
             else if (expression.NodeType == ExpressionType.MemberAccess)
             {
-                var expType = expression.Expression.Type;
+                var expType = expression.Expression?.Type;
                 if (expType == typeof(string))
                 {
-                    if (string.Equals(expression.Member.Name, "Length"))
+                    if (string.Equals(expression.Member.Name, "Length", StringComparison.OrdinalIgnoreCase))
                     {
                         return new OperationClause
                         {
                             Clause = Value(expression.Expression as MemberExpression) as PropertyClause,
-                            Function = "LEN({0})"
+                            Function = "LEN([{0}])"
                         };
                     }
                 }

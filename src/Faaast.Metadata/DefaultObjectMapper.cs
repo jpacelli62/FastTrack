@@ -72,6 +72,10 @@ namespace Faaast.Metadata
 
         public static Func<object> GenerateActivator(Type type, ConstructorInfo constructor)
         {
+            if(constructor == null)
+            {
+                return () => throw new InvalidOperationException($"No parameterless constructor on type \"{type.FullName}\"");
+            }
             var callNew = Expression.New(constructor);
             var cast = Expression.Convert(callNew, typeof(object));
             var exp = (Func<object>)Expression.Lambda(cast).Compile();

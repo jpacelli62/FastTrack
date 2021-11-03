@@ -3,6 +3,7 @@ using Faaast.Metadata;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
+using System.Text;
 using System.Threading;
 
 namespace Faaast.Orm.Reader
@@ -39,7 +40,7 @@ namespace Faaast.Orm.Reader
             this.CommandTimeout = commandTimeout;
             this.CommandType = commandType;
             this.CancellationToken = cancellationToken;
-            this.CommandBehavior = CommandBehavior.Default;
+            this.CommandBehavior = CommandBehavior.SequentialAccess;
         }
 
         internal DbCommand SetupCommand()
@@ -69,6 +70,10 @@ namespace Faaast.Orm.Reader
                         if(value != null)
                         {
                             parameter.DbType = value.GetType().ToDbType();
+                            if(parameter.DbType == DbType.String)
+                            {
+                                parameter.Size = ((string)value).Length;
+                            }
                         }
                         parameter.Direction = ParameterDirection.Input;
                         cmd.Parameters.Add(parameter);
@@ -87,7 +92,6 @@ namespace Faaast.Orm.Reader
                         cmd.Parameters.Add(parameter);
                     }
                 }
-
             }
 
             return cmd;

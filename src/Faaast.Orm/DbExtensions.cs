@@ -1,11 +1,13 @@
 ﻿using Faaast.DatabaseModel;
 using Faaast.Metadata;
 using Faaast.Orm.Reader;
+using Faaast.Reader;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,21 +15,6 @@ namespace Faaast.Orm
 {
     public static partial class DbExtensions
     {
-        private static readonly ConcurrentDictionary<Type, ObjectReader> Parsers = new ConcurrentDictionary<Type, ObjectReader>();
-
-        public static ObjectReader GetRowParser(this FaaastCommand command, Type type)
-        {
-            return Parsers.GetOrAdd(type, x =>
-            {
-                var db = ((MetaModel<IDatabase>)command.Database).Get(Meta.Mapping);
-                if (!db.TypeToMapping.ContainsKey(type))
-                    throw new ArgumentException($"No mapping found for type \"{type.FullName}\"");
-
-                var mapping = db.TypeToMapping[type];
-                return new ObjectReader(mapping.Table.Columns, mapping);
-            });
-        }
-
         public static FaaastCommand Query(this FaaastDb db, string sql, object parameters = null,
             DbConnection connection = null,
             DbTransaction transaction = null,
@@ -96,14 +83,13 @@ namespace Faaast.Orm
                 command.Connection.Open();
                 using (DbCommand dbCommand = command.SetupCommand())
                 {
-                    var type = typeof(T);
                     dbCommand.Prepare();
-                    ObjectReader rowParsers = command.GetRowParser(type);
                     var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                    int[] indices = ResolveColumnOrder(dbReader, rowParsers);
+                    CompositeReader composite = new CompositeReader(command, dbReader, typeof(T));
+
                     while (dbReader.Read())
                     {
-                        yield return (T)rowParsers.Read(dbReader, indices, 0);
+                        yield return (T)composite.Read(dbReader)[0];
                     }
                 }
                 command.Connection.Close();
@@ -119,25 +105,12 @@ namespace Faaast.Orm
                 using (IDbCommand dbCommand = command.SetupCommand())
                 {
                     dbCommand.Prepare();
-                    ObjectReader[] rowParsers = new ObjectReader[types.Length];
-                    for (int i = 0; i < types.Length; i++)
-                    {
-                        rowParsers[i] = command.GetRowParser(types[i]);
-                    }
                     var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                    int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
+                    CompositeReader composite = new CompositeReader(command, dbReader, types);
 
                     while (dbReader.Read())
                     {
-                        object[] results = new object[types.Length];
-                        int start = 0;
-                        for (int i = 0; i < types.Length; i++)
-                        {
-                            results[i] = rowParsers[i].Read(dbReader, indexes, start);
-                            start += rowParsers[i].ColumnsReaders.Length;
-                        }
-
-                        yield return results;
+                        yield return composite.Read(dbReader);
                     }
                 }
                 command.Connection.Close();
@@ -151,14 +124,13 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
                 using (DbCommand dbCommand = command.SetupCommand())
                 {
-                    var type = typeof(T);
                     await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
-                    ObjectReader rowParsers = command.GetRowParser(type);
                     var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
-                    int[] indices = ResolveColumnOrder(dbReader, rowParsers);
+                    CompositeReader composite = new CompositeReader(command, dbReader, typeof(T));
+
                     while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
                     {
-                        yield return (T)rowParsers.Read(dbReader, indices, 0);
+                        yield return (T)composite.Read(dbReader)[0];
                     }
                 }
                 await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
@@ -173,25 +145,12 @@ namespace Faaast.Orm
                 using (DbCommand dbCommand = command.SetupCommand())
                 {
                     await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
-                    ObjectReader[] rowParsers = new ObjectReader[types.Length];
-                    for (int i = 0; i < types.Length; i++)
-                    {
-                        rowParsers[i] = command.GetRowParser(types[i]);
-                    }
                     var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
-                    int[] indexes = ResolveColumnOrder(dbReader, rowParsers);
+                    CompositeReader composite = new CompositeReader(command, dbReader, types);
 
                     while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
                     {
-                        object[] results = new object[types.Length];
-                        int start = 0;
-                        for (int i = 0; i < types.Length; i++)
-                        {
-                            results[i] = rowParsers[i].Read(dbReader, indexes, start);
-                            start += rowParsers[i].ColumnsReaders.Length;
-                        }
-
-                        yield return results;
+                        yield return composite.Read(dbReader);
                     }
                 }
 
@@ -199,41 +158,83 @@ namespace Faaast.Orm
             }
         }
 
-        internal static int[] ResolveColumnOrder(IDataReader reader, params ObjectReader[] objects)
-        {
-            int startingindex = 0;
-            int fieldCount = reader.FieldCount;
-            int[] order = new int[fieldCount];
-            for (int i = 0; i < fieldCount; i++)//3
-            {
-                order[i] = -1;
-            }
+        //internal static Dictionary<string, Action> ResolveColumnOrder(IDataReader reader, params ObjectReader[] objects)
+        //{
+        //    var readers = new Dictionary<string, Action>();
+        //    if (objects.Length == 1)
+        //    {
+        //        var objReader = objects[0];
+        //        var columnNames = objReader.ColumnsNames;
+        //        for (int readerIndex = 0; readerIndex < reader.FieldCount; readerIndex++)
+        //        {
+        //            string dataName = reader.GetName(readerIndex);
+        //            for (int j = 0; j < columnNames.Length; j++)
+        //            {
+        //                if (columnNames[j].Equals(dataName, StringComparison.OrdinalIgnoreCase))
+        //                {
+        //                    readers.Add(dataName, () => objReader.Columns[j].Read(reader, readerIndex, objReader.Instance));
+        //                    break;
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        throw new NotImplementedException();
+        //    }
+        //    return readers;
 
-            foreach (var columns in objects)
-            {
-                int columnsCount = columns.ColumnsNames.Length;
-                int nextIndex = startingindex + columnsCount;
-                for (int i = startingindex; i < nextIndex; i++)
-                {
-                    string name = reader.GetName(i);
-                    for (int j = 0; j < columnsCount; j++)
-                    {
-                        if (columns.ColumnsNames[j].Equals(name, StringComparison.OrdinalIgnoreCase))
-                        {
-                            order[j + startingindex] = i;
-                            break;
-                        }
-                    }
-                }
 
-                startingindex += columnsCount;
-            }
 
-            if (startingindex != fieldCount)
-                throw new InvalidOperationException("columns count different than expected");
+        //    //for (int i = 0; i < objects.Length; i++)
+        //    //{
+        //    //    var c = objects[i];
+        //    //    ResolveSingleObject(
+        //    //        startingindex, 
+        //    //        objects.Length == 1 ? 0 : startingindex, 
+        //    //        i == objects.Length - 1 ? reader.FieldCount : c.ColumnsNames.Length,
+        //    //        count, 
+        //    //        IDataReader reader, string[] columnNames, int[] order)
+        //    //}
+        //    //foreach (var columns in objects)
+        //    //{
+        //    //int columnsCount = columns.ColumnsNames.Length;
+        //    //int nextIndex = startingindex + columnsCount;
+        //    //for (int i = startingindex; i < nextIndex; i++)
+        //    //{
+        //    //    string name = reader.GetName(i);
+        //    //    for (int j = 0; j < columnsCount; j++)
+        //    //    {
+        //    //        if (columns.ColumnsNames[j].Equals(name, StringComparison.OrdinalIgnoreCase))
+        //    //        {
+        //    //            order[j + startingindex] = i;
+        //    //            break;
+        //    //        }
+        //    //    }
+        //    //}
 
-            return order;
-        }
+        //    //    startingindex += columnsCount;
+        //    //}
+
+        //    //return order;
+        //}
+
+        //internal static void ResolveSingleObject(int start, int count, IDataReader reader, string[] columnNames, int[] order)
+        //{
+        //    int nextIndex = start + count;
+        //    for (int i = start; i < nextIndex; i++)
+        //    {
+        //        string name = reader.GetName(i);
+        //        for (int j = 0; j < columnNames.Length; j++)
+        //        {
+        //            if (columnNames[j].Equals(name, StringComparison.OrdinalIgnoreCase))
+        //            {
+        //                order[j + start] = i;
+        //                break;
+        //            }
+        //        }
+        //    }
+        //}
 
         public static IEnumerable<T> Fetch<T>(this FaaastCommand command)
         {

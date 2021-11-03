@@ -12,11 +12,18 @@ namespace Faaast.Tests.Orm.Fixtures
     {
         public class FakeDB : FaaastQueryDb
         {
+            Compiler _compiler;
             public FakeDB(IServiceProvider provider) : base(provider)
             {
+                _compiler = new SqlServerCompiler();
             }
 
-            protected override Compiler Compiler => new SqlServerCompiler();
+            protected override Compiler Compiler => _compiler;
+
+            public void SetCompiler (Compiler instance)
+            {
+                this._compiler = instance;
+            }
 
             public override ConnectionSettings Connection => new ConnectionSettings("connectionName", null, "sampleConnectionString");
 

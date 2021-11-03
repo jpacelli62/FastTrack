@@ -79,6 +79,7 @@ namespace Faaast.Orm
             };
 
             db.Set(Meta.Mapping, dbMap);
+            db.Set(Meta.Readers, new System.Collections.Concurrent.ConcurrentDictionary<Type, Reader.ObjectReader>());
             return db;
         }
     }

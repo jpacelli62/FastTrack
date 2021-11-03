@@ -31,12 +31,10 @@ namespace Faaast.Orm
 				//case ExpressionType.Modulo:
 
 					return VisitBinary((BinaryExpression)expression);
-					break;
 
 				case ExpressionType.Convert:
 				case ExpressionType.Not:
 					return VisitUnary((UnaryExpression)expression);
-					break;
 
 				//case ExpressionType.New:
 				//	return ((NewExpression)expression).Value();
@@ -142,6 +140,7 @@ namespace Faaast.Orm
 					return new NegateClause { Clause = result };
 
 				case ExpressionType.Convert:
+					return result;
 					//if (expression.Method != null)
 					//{
 					//	condition.Value = Expression.Lambda(expression).Compile().DynamicInvoke();
@@ -149,7 +148,7 @@ namespace Faaast.Orm
 					break;
 			}
 
-			return null;
+			throw new NotImplementedException();
 
 		}
 

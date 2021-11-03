@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using Faaast.DatabaseModel;
-using Faaast.Metadata;
 
 namespace Faaast.Orm.Reader
 {

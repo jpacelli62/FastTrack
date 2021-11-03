@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Data;
+using System.Diagnostics;
 using Faaast.DatabaseModel;
 using Faaast.Metadata;
 
 namespace Faaast.Orm.Reader
 {
+    [DebuggerDisplay("{Column.Name}")]
     public struct ColumnReader
     {
         public DtoProperty Property { get; private set; }
@@ -24,7 +26,7 @@ namespace Faaast.Orm.Reader
             }
             else
             {
-                Call = !this.Column.Has(DbMeta.Nullable) || this.Column.Get(DbMeta.Nullable) ? ReadNullable : ReadNonNullable;
+                Call = this.Column.Get(DbMeta.Nullable) == true ? ReadNullable : ReadNonNullable;
             }
         }
 
