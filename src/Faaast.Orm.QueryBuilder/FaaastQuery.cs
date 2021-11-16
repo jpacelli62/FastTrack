@@ -1,4 +1,5 @@
-﻿using SqlKata;
+﻿using Faaast.Orm.Mapping;
+using SqlKata;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -143,6 +144,20 @@ namespace Faaast.Orm
             return this;
         }
 
+        public FaaastQuery<TModel> Select<V>(string alias, params Expression<Func<TModel, V>>[] exps)
+        {
+            foreach (var exp in exps)
+            {
+                var result = TreeExtensions.VisitExpression(exp);
+                if (result is PropertyClause property)
+                {
+                    Query.Select(ConvertValue(property).ToString());
+                }
+            }
+
+            return this;
+        }
+
         public FaaastQuery<T> Select<T>(string alias)
         {
             var mapping = Db.Mapping<T>();
@@ -177,49 +192,49 @@ namespace Faaast.Orm
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A,B>(Expression<Func<A,B, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B>(Expression<Func<A, B, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B,C>(Expression<Func<A, B,C, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C>(Expression<Func<A, B, C, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C,D>(Expression<Func<A, B, C,D, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D>(Expression<Func<A, B, C, D, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E>(Expression<Func<A, B, C, D,E, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E>(Expression<Func<A, B, C, D, E, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E,F>(Expression<Func<A, B, C, D, E,F, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F>(Expression<Func<A, B, C, D, E, F, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F,G>(Expression<Func<A, B, C, D, E, F,G, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G>(Expression<Func<A, B, C, D, E, F, G, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G,H>(Expression<Func<A, B, C, D, E, F, G,H, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H>(Expression<Func<A, B, C, D, E, F, G, H, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H,I>(Expression<Func<A, B, C, D, E, F, G, H,I, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I>(Expression<Func<A, B, C, D, E, F, G, H, I, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
@@ -234,7 +249,7 @@ namespace Faaast.Orm
 
 
 
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J,K>(Expression<Func<A, B, C, D, E, F, G, H, I, J,K, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
@@ -246,19 +261,19 @@ namespace Faaast.Orm
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L,M>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L,M, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M,N>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M,N, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);
             return this;
         }
-        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M, N,O>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N,O, bool>> exp)
+        public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
             ConvertWhere(result);

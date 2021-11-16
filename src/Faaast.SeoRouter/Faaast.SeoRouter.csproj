@@ -1,10 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <LangVersion>9</LangVersion>
     <Description>A simple and efficient MVC router alowing complex rules and SEO-friendly Url generation</Description>
     <PackageTags>mvc;seo;url;route;routing</PackageTags>
-    <NuGetPublishType>remote</NuGetPublishType>
-    <NuGetPublishLocation>https://api.nuget.org/v3/index.json</NuGetPublishLocation>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
   </PropertyGroup>
   
   <ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">

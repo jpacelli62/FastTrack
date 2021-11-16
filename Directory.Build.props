@@ -1,12 +1,15 @@
 <Project>
   <PropertyGroup>
-    <RootNamespace>Faaast</RootNamespace>
+    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <Configurations>Debug;Release;Publish</Configurations>
     <Authors>Jérôme Pacelli</Authors>
     <OutputType>Library</OutputType>
     <Copyright>Jérôme Pacelli</Copyright>
     <Company />
+    <LangVersion>9</LangVersion>
 
-    <!--<PackageLicenseFile>LICENSE</PackageLicenseFile>-->
+    <Version>0.0.8-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
@@ -14,53 +17,30 @@
     <RepositoryType>git</RepositoryType>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    
+    <Deterministic>true</Deterministic>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <DebugType>full</DebugType>
-    <DebugSymbols>true</DebugSymbols>
-    <LangVersion>9.0</LangVersion>
-    <Version>0.0.5-alpha</Version>
-    <Configurations>Debug;Release;Publish</Configurations>
-
-    <PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>
-    <IsTestProject>$(MSBuildProjectName.Contains('Test'))</IsTestProject>
-    <!--<IsPack>'$(IsTestProject)' == 'false' AND $(Configuration) != 'Debug'</IsPack>-->
-    <!--<IsPublish>$(IsPack) == 'true' AND $(Configuration) == 'Publish'</IsPublish>-->
-  </PropertyGroup>
-
-
-  <PropertyGroup Condition="'$(IsTestProject)' == 'false' AND '$(Configuration)'!='Debug'">
-    <IsPack>true</IsPack>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <DebugType>embedded</DebugType>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <!--<PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>-->
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(IsTestProject)' != 'true' AND '$(Configuration)'=='Publish'">
-    <IsPublish>true</IsPublish>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsPack)' == 'true'">
+  <PropertyGroup Condition="'$(Configuration)'=='Publish'">
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Optimize>true</Optimize>
     <PackageIcon>icon.png</PackageIcon>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Deterministic>true</Deterministic>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
-  <ItemGroup Condition="'$(IsPack)' == 'true'">
-    
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    
+  
+  <ItemGroup Condition="'$(Configuration)'=='Publish'">
     <None Include="..\..\icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
   </ItemGroup>
-  
-  <ItemGroup Condition="'$(IsPublish)' == 'true'">
-    <PackageReference Include="SS.NuGet.Publish" Version="1.0.1912.22">
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

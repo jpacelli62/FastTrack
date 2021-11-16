@@ -1,10 +1,10 @@
-﻿using System;
+﻿using Faaast.DatabaseModel;
+using Faaast.Metadata;
+using Faaast.Orm.Mapping;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Faaast.DatabaseModel;
-using Faaast.Metadata;
 
-namespace Faaast.Orm
+namespace Faaast.Orm.Mapping
 {
     public class TableMapping : MetaModel<TableMapping>
     {
@@ -20,7 +20,7 @@ namespace Faaast.Orm
 
         public ReadOnlyDictionary<Column, DtoProperty> ColumnToProperty { get; private set; }
 
-        internal void Init()
+        public void Init()
         {
             var property = new Dictionary<string, Column>();
             var columns = new Dictionary<Column, DtoProperty>();

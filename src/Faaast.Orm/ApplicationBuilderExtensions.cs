@@ -10,7 +10,5 @@ namespace Microsoft.Extensions.DependencyInjection
             services.AddDatabaseModel();
             return services;
         }
-
-
     }
 }

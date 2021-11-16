@@ -6,7 +6,7 @@ namespace Faaast.Orm
     {
         public FaaastQueryDb Db { get; set; }
 
-        internal Query Query { get; set; } = new Query();
+        public Query Query { get; set; } = new Query();
 
         public FaaastQueryBase(FaaastQueryDb db)
         {

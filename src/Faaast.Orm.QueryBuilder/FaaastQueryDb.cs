@@ -1,4 +1,5 @@
 ﻿using System;
+using SqlKata;
 using SqlKata.Compilers;
 
 namespace Faaast.Orm
@@ -26,7 +27,12 @@ namespace Faaast.Orm
 
         public virtual CompiledQuery Compile(FaaastQuery query)
         {
-            var result = Compiler.Compile(query.Query);
+            return Compile(query.Query);
+        }
+
+        public virtual CompiledQuery Compile(Query query)
+        {
+            var result = Compiler.Compile(query);
             return new CompiledQuery(result.Sql, result.NamedBindings);
         }
     }

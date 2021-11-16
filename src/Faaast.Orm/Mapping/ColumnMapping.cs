@@ -2,7 +2,7 @@
 using Faaast.DatabaseModel;
 using Faaast.Metadata;
 
-namespace Faaast.Orm
+namespace Faaast.Orm.Mapping
 {
     public class ColumnMapping: MetaModel<ColumnMapping>
     {

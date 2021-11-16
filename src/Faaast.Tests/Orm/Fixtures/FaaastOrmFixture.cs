@@ -1,5 +1,6 @@
 ﻿using Faaast.DatabaseModel;
 using Faaast.Orm;
+using Faaast.Tests.Orm.FakeConnection;
 using Microsoft.Extensions.DependencyInjection;
 using SqlKata.Compilers;
 using System;
@@ -45,7 +46,6 @@ namespace Faaast.Tests.Orm.Fixtures
 
         public FaaastOrmFixture()
         {
-
         }
 
         public FakeDB GetDb(out ServiceProvider provider)

@@ -1,5 +1,6 @@
 ﻿using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
@@ -20,6 +21,8 @@ namespace Faaast.Orm.Reader
         public IObjectMapper Mapper { get; }
         public IDatabase Database { get; }
         public CommandBehavior CommandBehavior { get; set; }
+        public bool HandleConnection { get; set; }
+
         public FaaastCommand(
             IDatabase database,
             IObjectMapper mapper,
@@ -29,7 +32,8 @@ namespace Faaast.Orm.Reader
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CommandType? commandType = null,
-            CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default,
+            bool handleConnection = true)
         {
             this.Database = database;
             this.Mapper = mapper;
@@ -41,11 +45,12 @@ namespace Faaast.Orm.Reader
             this.CommandType = commandType;
             this.CancellationToken = cancellationToken;
             this.CommandBehavior = CommandBehavior.SequentialAccess;
+            this.HandleConnection = handleConnection;
         }
 
         internal DbCommand SetupCommand()
         {
-            var cmd = (DbCommand)Connection.CreateCommand();
+            var cmd = Connection.CreateCommand();
             cmd.CommandText = CommandText;
 
             if (Transaction != null)
@@ -64,19 +69,7 @@ namespace Faaast.Orm.Reader
                     foreach (var key in dictionary.Keys)
                     {
                         var value = dictionary[key];
-                        var parameter = cmd.CreateParameter();
-                        parameter.Value = value;
-                        parameter.ParameterName = key.ToString().Sanitize();
-                        if(value != null)
-                        {
-                            parameter.DbType = value.GetType().ToDbType();
-                            if(parameter.DbType == DbType.String)
-                            {
-                                parameter.Size = ((string)value).Length;
-                            }
-                        }
-                        parameter.Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add(parameter);
+                        AddParameter(cmd, key.ToString(), value, value?.GetType(), ParameterDirection.Input);
                     }
                 }
                 else
@@ -84,17 +77,28 @@ namespace Faaast.Orm.Reader
                     DtoClass map = Mapper.Get(Parameters.GetType());
                     foreach (var property in map)
                     {
-                        var parameter = cmd.CreateParameter();
-                        parameter.Value = property.Read(Parameters);
-                        parameter.ParameterName = property.Name.Sanitize();
-                        parameter.DbType = property.Type.ToDbType();
-                        parameter.Direction = ParameterDirection.Input;
-                        cmd.Parameters.Add(parameter);
+                        AddParameter(cmd, property.Name, property.Read(Parameters), property.Type, ParameterDirection.Input);
                     }
                 }
             }
 
             return cmd;
+        }
+
+        internal void AddParameter(DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
+        {
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = name.Sanitize();
+            parameter.Value = value;
+            parameter.Direction = direction;
+
+            if(valueType != null)
+                parameter.DbType = valueType.ToDbType();
+
+            if (parameter.DbType == DbType.String)
+                parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+
+            command.Parameters.Add(parameter);
         }
     }
 }

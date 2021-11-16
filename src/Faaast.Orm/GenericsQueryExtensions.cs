@@ -1,31 +1,18 @@
-﻿
-
-
-
-
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Faaast.Orm.Reader;
 
 namespace Faaast.Orm
 {
-
     public class FaaastTuple<TA, TB>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
         public FaaastTuple(TA A, TB B)
         {
-
-            this.A = A;
-
-            this.B = B;
-
+            this.RecordA = A;
+            this.RecordB = B;
         }
     }
 
@@ -98,25 +85,16 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
         public FaaastTuple(TA A, TB B, TC C)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
         }
     }
 
@@ -189,29 +167,18 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
         }
     }
 
@@ -284,33 +251,20 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
         }
     }
 
@@ -383,37 +337,22 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
         }
     }
 
@@ -486,41 +425,24 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
         }
     }
 
@@ -593,45 +515,26 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
         }
     }
 
@@ -704,49 +607,28 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
         }
     }
 
@@ -819,53 +701,30 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
         }
     }
 
@@ -938,57 +797,32 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
         }
     }
 
@@ -1061,61 +895,34 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
-        public TL L { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
+        public TL RecordL { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K, TL L)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
-            this.L = L;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
+            this.RecordL = L;
         }
     }
 
@@ -1188,65 +995,36 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
-        public TL L { get; set; }
-
-        public TM M { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
+        public TL RecordL { get; set; }
+        public TM RecordM { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K, TL L, TM M)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
-            this.L = L;
-
-            this.M = M;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
+            this.RecordL = L;
+            this.RecordM = M;
         }
     }
 
@@ -1319,69 +1097,38 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
-        public TL L { get; set; }
-
-        public TM M { get; set; }
-
-        public TN N { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
+        public TL RecordL { get; set; }
+        public TM RecordM { get; set; }
+        public TN RecordN { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K, TL L, TM M, TN N)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
-            this.L = L;
-
-            this.M = M;
-
-            this.N = N;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
+            this.RecordL = L;
+            this.RecordM = M;
+            this.RecordN = N;
         }
     }
 
@@ -1454,73 +1201,40 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
-        public TL L { get; set; }
-
-        public TM M { get; set; }
-
-        public TN N { get; set; }
-
-        public TO O { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
+        public TL RecordL { get; set; }
+        public TM RecordM { get; set; }
+        public TN RecordN { get; set; }
+        public TO RecordO { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K, TL L, TM M, TN N, TO O)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
-            this.L = L;
-
-            this.M = M;
-
-            this.N = N;
-
-            this.O = O;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
+            this.RecordL = L;
+            this.RecordM = M;
+            this.RecordN = N;
+            this.RecordO = O;
         }
     }
 
@@ -1593,77 +1307,42 @@ namespace Faaast.Orm
             return result;
         }
     }
-
     public class FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>
     {
-
-        public TA A { get; set; }
-
-        public TB B { get; set; }
-
-        public TC C { get; set; }
-
-        public TD D { get; set; }
-
-        public TE E { get; set; }
-
-        public TF F { get; set; }
-
-        public TG G { get; set; }
-
-        public TH H { get; set; }
-
-        public TI I { get; set; }
-
-        public TJ J { get; set; }
-
-        public TK K { get; set; }
-
-        public TL L { get; set; }
-
-        public TM M { get; set; }
-
-        public TN N { get; set; }
-
-        public TO O { get; set; }
-
-        public TP P { get; set; }
-
+        public TA RecordA { get; set; }
+        public TB RecordB { get; set; }
+        public TC RecordC { get; set; }
+        public TD RecordD { get; set; }
+        public TE RecordE { get; set; }
+        public TF RecordF { get; set; }
+        public TG RecordG { get; set; }
+        public TH RecordH { get; set; }
+        public TI RecordI { get; set; }
+        public TJ RecordJ { get; set; }
+        public TK RecordK { get; set; }
+        public TL RecordL { get; set; }
+        public TM RecordM { get; set; }
+        public TN RecordN { get; set; }
+        public TO RecordO { get; set; }
+        public TP RecordP { get; set; }
         public FaaastTuple(TA A, TB B, TC C, TD D, TE E, TF F, TG G, TH H, TI I, TJ J, TK K, TL L, TM M, TN N, TO O, TP P)
         {
-
-            this.A = A;
-
-            this.B = B;
-
-            this.C = C;
-
-            this.D = D;
-
-            this.E = E;
-
-            this.F = F;
-
-            this.G = G;
-
-            this.H = H;
-
-            this.I = I;
-
-            this.J = J;
-
-            this.K = K;
-
-            this.L = L;
-
-            this.M = M;
-
-            this.N = N;
-
-            this.O = O;
-
-            this.P = P;
-
+            this.RecordA = A;
+            this.RecordB = B;
+            this.RecordC = C;
+            this.RecordD = D;
+            this.RecordE = E;
+            this.RecordF = F;
+            this.RecordG = G;
+            this.RecordH = H;
+            this.RecordI = I;
+            this.RecordJ = J;
+            this.RecordK = K;
+            this.RecordL = L;
+            this.RecordM = M;
+            this.RecordN = N;
+            this.RecordO = O;
+            this.RecordP = P;
         }
     }
 
@@ -1736,5 +1415,4 @@ namespace Faaast.Orm
             return result;
         }
     }
-
 }

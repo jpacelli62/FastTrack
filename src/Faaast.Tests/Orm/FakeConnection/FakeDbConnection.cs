@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data;
 
-namespace Faaast.Tests.Orm.Fixtures
+namespace Faaast.Tests.Orm.FakeConnection
 {
     public class FakeDbConnection : IDbConnection
     {

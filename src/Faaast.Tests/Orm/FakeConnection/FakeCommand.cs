@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 
-namespace Faaast.Tests.Orm.Fixtures
+namespace Faaast.Tests.Orm.FakeConnection
 {
     public class FakeCommand : IDbCommand
     {

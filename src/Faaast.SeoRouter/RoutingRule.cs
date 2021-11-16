@@ -83,7 +83,6 @@ namespace Faaast.SeoRouter
             _binder = binderFactory.Create(_routeTemplate, _templateMatcher.Defaults);
             _routeConstraints = BuildContraints(services, targetConstraints);
 
-
             foreach (var item in targetValues)
             {
                 if (!item.Key.Equals("controller", StringComparison.OrdinalIgnoreCase) &&
@@ -144,10 +143,10 @@ namespace Faaast.SeoRouter
 
         public virtual bool MatchConstraints(RouteValueDictionary values, RouteDirection direction)
         {
-            var constaints = direction == RouteDirection.IncomingRequest ? _routeConstraints : _matchVirtualPathConstraints;
-            if (constaints.Count > 0)
-            {
-                foreach (var kvp in constaints)
+            //var constaints = direction == RouteDirection.IncomingRequest ? _routeConstraints : _matchVirtualPathConstraints;
+            //if (constaints.Count > 0)
+            //{
+                foreach (var kvp in _matchVirtualPathConstraints)
                 {
                     var constraint = kvp.Value;
                     if (!constraint.Match(null, null, kvp.Key, values, direction))
@@ -155,7 +154,15 @@ namespace Faaast.SeoRouter
                         return false;
                     }
                 }
-            }
+                foreach (var kvp in _routeConstraints)
+                {
+                    var constraint = kvp.Value;
+                    if (!constraint.Match(null, null, kvp.Key, values, direction))
+                    {
+                        return false;
+                    }
+                }
+            //}
 
             return true;
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Faaast.Tests
+namespace Faaast.Tests.Orm.Fixtures
 {
     public class SampleModelDto
     {

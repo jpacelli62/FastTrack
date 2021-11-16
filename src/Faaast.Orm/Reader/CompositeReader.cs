@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 
-namespace Faaast.Reader
+namespace Faaast.Orm.Reader
 {
     public class CompositeReader
     {
@@ -21,7 +21,7 @@ namespace Faaast.Reader
             public int TypeIndex;
             public bool HasMatch;
         }
-        private List<Match> Matches {get; set;}
+        private List<Match> Matches { get; set; }
         public FaaastCommand Command { get; set; }
 
         private ObjectReader[] Readers { get; set; }
@@ -36,7 +36,7 @@ namespace Faaast.Reader
                     throw new ArgumentException($"No mapping found for type \"{type.FullName}\"");
 
                 var mapping = db.TypeToMapping[type];
-                return new ObjectReader(mapping.Table.Columns, mapping);
+                return new ObjectReader(mapping);
             });
         }
 
@@ -62,16 +62,22 @@ namespace Faaast.Reader
 
                 for (int typeIndex = 0; typeIndex < types.Length; typeIndex++)
                 {
+                    bool skip = false;
                     foreach (var found in this.Matches)
                     {
-                        if (found.DataName == dataName)
-                            typeIndex++;
+                        if (found.DataName == dataName && found.TypeIndex == typeIndex)
+                        {
+                            skip = true;
+                            break;
+                        }
                     }
+                    if (skip)
+                        continue;
 
                     var columns = Readers[typeIndex].Columns;
                     for (int colIndex = 0; colIndex < columns.Length; colIndex++)
                     {
-                        if (columns[colIndex].Column.Name.Equals(dataName, StringComparison.OrdinalIgnoreCase))
+                        if (columns[colIndex].ColumnName.Equals(dataName, StringComparison.OrdinalIgnoreCase))
                         {
 
 
@@ -80,15 +86,16 @@ namespace Faaast.Reader
                             m.TargetIndex = colIndex;
                             m.TypeIndex = typeIndex;
                             m.HasMatch = true;
+                            this.Matches.Add(m);
                             break;
                         }
                     }
+                    if (m.HasMatch)
+                        break;
                 }
 
-                this.Matches.Add(m);
             }
         }
-
         public object[] Read(IDataReader reader)
         {
             object[] results = new object[Readers.Length];
@@ -99,13 +106,37 @@ namespace Faaast.Reader
 
             foreach (Match item in this.Matches)
             {
-                if(item.HasMatch)
+                if (item.HasMatch)
                 {
                     item.TargetReader.Read(reader, item.DataIndex, item.TargetIndex, ref results[item.TypeIndex]);
                 }
             }
 
             return results;
+        }
+
+        public static CompositeReader DynamicReader(FaaastCommand command, IDataReader reader)
+        {
+            CompositeReader result = new CompositeReader(command);
+            var dynamicReader = ObjectReader.ForDynamic(reader);
+            result.Readers = new ObjectReader[1] { dynamicReader };
+            result.Matches = new List<Match>();
+
+            int i = 0;
+            foreach (var item in dynamicReader.Columns)
+            {
+                result.Matches.Add(new Match
+                {
+                    DataIndex = i,
+                    DataName = item.ColumnName,
+                    HasMatch = true,
+                    TargetReader = dynamicReader,
+                    TargetColumn = item,
+                    TargetIndex = i,
+                    TypeIndex = 0
+                });
+            }
+            return result;
         }
     }
 }

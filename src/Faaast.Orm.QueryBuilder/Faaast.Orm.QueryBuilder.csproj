@@ -4,6 +4,8 @@
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
     <Description>A simple and extensible SQL query builder</Description>
     <RootNamespace>Faaast.Orm</RootNamespace>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">

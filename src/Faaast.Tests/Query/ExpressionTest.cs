@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xunit;
 
-namespace Faaast.Tests.Orm
+namespace Faaast.Tests.Query
 {
     public class ExpressionTests : IClassFixture<FaaastOrmFixture>
     {
@@ -38,11 +38,14 @@ namespace Faaast.Tests.Orm
             var query = db.From<SimpleModel>().OrderBy(x => x.V2.Length);
             Assert.Equal("SELECT * FROM [sampleTable] ORDER BY LEN([V2]) ASC", query.Compile().Sql);
 
-            var query2 = db.Sql()
-                .Select("A.*", "C.*")
+            var query2 = db
+                .Sql
                 .From<SimpleModel>("A")
                 .InnerJoin<SimpleModel>("B", (A,B) => A.V1 == B.V1)
-                .InnerJoin<SimpleModel>("C", (C, B) => C.V1 == B.V1);
+                .InnerJoin<SimpleModel>("C", (C, B) => C.V1 == B.V1)
+                .Select<SimpleModel>("A")
+                .Select<SimpleModel>("C")
+                ;
             var test = query2.Compile();
             Assert.Equal("SELECT [A].*, [C].* FROM [sampleTable] AS [A]  INNER JOIN [sampleTable] AS [B] ON ([A].[v1] = [B].[v1]) INNER JOIN [sampleTable] AS [C] ON ([C].[v1] = [B].[v1])", test.Sql.Replace("\n", " "));
 

@@ -27,7 +27,7 @@ foreach(int i in Enumerable.Range(0, 16))
         foreach(var letter in letters)
         {
 #>
-        public T<#= letter #> <#= letter #> { get; set; }
+        public T<#= letter #> Record<#= letter #> { get; set; }
 <#
         }
 #>
@@ -37,7 +37,7 @@ foreach(int i in Enumerable.Range(0, 16))
         foreach(var letter in letters)
         {
 #>
-            this.<#= letter #> = <#= letter #>;
+            this.Record<#= letter #> = <#= letter #>;
 <#
         }
 #>

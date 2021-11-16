@@ -6,13 +6,13 @@ namespace Faaast.Metadata
 {
     public class DtoClass : MetaModel<DtoClass>, IEnumerable<DtoProperty>
     {
-        public string Name { get; internal set; }
+        public string Name { get; set; }
 
-        public Type Type { get; internal set; }
+        public Type Type { get; set; }
 
         private Dictionary<string, DtoProperty> Properties { get; set; }
 
-        public Func<object> Activator { get; internal set; }
+        public Func<object> Activator { get; set; }
 
 
         public DtoProperty this[string propertyName]

@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <LangVersion>9</LangVersion>
     <Description>A set of classes used to represent a database structure</Description>
     <PackageTags>database;db;modeling;sql;orm</PackageTags>
-
-    <NuGetPublishType>remote</NuGetPublishType>
-    <NuGetPublishLocation>https://api.nuget.org/v3/index.json</NuGetPublishLocation>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
   </ItemGroup>
