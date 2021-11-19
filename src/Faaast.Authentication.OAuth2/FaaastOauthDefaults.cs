@@ -15,13 +15,12 @@ namespace Faaast.Authentication.OAuth2
         /// </summary>
         public static readonly string DisplayName = "FaaastOauth";
 
-
         /// <summary>
         /// The default endpoint used to perform authentication.
         /// </summary>
 
         public static readonly string AuthorizationEndpoint = "/oauth/authorize";
-        
+
         /// <summary>
         /// The endpoint used to retrieve access tokens.
         /// </summary>

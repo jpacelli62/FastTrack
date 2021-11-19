@@ -50,11 +50,13 @@ namespace Faaast.Orm
             var pk = table.Get(DbMeta.PrimaryKeyColumns);
             if (pk == null)
             {
-                List<Column> columns = new List<Column>();
+                var columns = new List<Column>();
                 foreach (var column in table.Columns)
                 {
                     if (column.PrimaryKey)
+                    {
                         columns.Add(column);
+                    }
                 }
 
                 pk = columns.ToArray();

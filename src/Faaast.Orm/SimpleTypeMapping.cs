@@ -1,8 +1,8 @@
-﻿using Faaast.DatabaseModel;
-using Faaast.Orm.Mapping;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Faaast.DatabaseModel;
+using Faaast.Orm.Mapping;
 
 namespace Faaast.Orm
 {
@@ -12,35 +12,23 @@ namespace Faaast.Orm
 
         public TableMapping Table { get; set; } = new TableMapping();
 
-        public SimpleTypeMapping(Type type)
-        {
-            this.Type = type;
-        }
+        public SimpleTypeMapping(Type type) => this.Type = type;
 
-        public void ToTable(string name, string schema = null)
+        public void ToTable(string name, string schema = null) => this.Table = new TableMapping
         {
-            Table = new TableMapping
+            Table = new Table
             {
-                Table = new Table
-                {
-                    Name = name,
-                    Schema = schema
-                }
-            };
-        }
+                Name = name,
+                Schema = schema
+            }
+        };
 
-        public void ToTable(Table table)
+        public void ToTable(Table table) => this.Table = new TableMapping
         {
-            Table = new TableMapping
-            {
-                Table = table
-            };
-        }
+            Table = table
+        };
 
-        public void ToDatabase(string name)
-        {
-            this.Table.Database = name;
-        }
+        public void ToDatabase(string name) => this.Table.Database = name;
     }
 
     public class SimpleTypeMapping<TClass> : SimpleTypeMapping where TClass : class
@@ -49,28 +37,20 @@ namespace Faaast.Orm
         {
         }
 
-
-        public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, string columnName)
-        {
-            return Map<TProperty>(member, new Column(columnName));
-        }
+        public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, string columnName) => this.Map(member, new Column(columnName));
 
         public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, Column column)
         {
-            var exp = member.Body as MemberExpression;
-            if(exp == null)
+            var exp = member.Body as MemberExpression ?? throw new ArgumentException("Must be a MemberExpression", nameof(member));
+            var mappings = this.Table.ColumnMappings ?? new List<ColumnMapping>();
+            mappings.Add(new ColumnMapping
             {
-                throw new ArgumentException(nameof(member));
-            }
-
-            ColumnMapping mapping = new ColumnMapping();
-            mapping.Member = exp.Member;
-            mapping.Column = column;
-            var mappings = Table.ColumnMappings ?? new List<ColumnMapping>();
-            mappings.Add(mapping);
-            Table.ColumnMappings = mappings;
-            Table.Table.Columns.Add(column);
-            return mapping.Column;
+                Member = exp.Member,
+                Column = column
+            });
+            this.Table.ColumnMappings = mappings;
+            this.Table.Table.Columns.Add(column);
+            return column;
         }
     }
 }

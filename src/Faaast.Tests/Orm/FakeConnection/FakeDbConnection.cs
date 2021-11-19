@@ -15,38 +15,21 @@ namespace Faaast.Tests.Orm.FakeConnection
 
         public ConnectionState State { get; set; }
 
-        public IDbTransaction BeginTransaction()
-        {
-            throw new NotImplementedException();
-        }
+        public IDbTransaction BeginTransaction() => throw new NotImplementedException();
 
-        public IDbTransaction BeginTransaction(IsolationLevel il)
-        {
-            throw new NotImplementedException();
-        }
+        public IDbTransaction BeginTransaction(IsolationLevel il) => throw new NotImplementedException();
 
         public void ChangeDatabase(string databaseName)
         {
+            //Do nothing
         }
 
-        public void Close()
-        {
-            this.State = ConnectionState.Closed;
-        }
+        public void Close() => this.State = ConnectionState.Closed;
 
-        public IDbCommand CreateCommand()
-        {
-            return Command ?? new FakeCommand();
-        }
+        public IDbCommand CreateCommand() => this.Command ?? new FakeCommand();
 
-        public void Dispose()
-        {
-            Close();
-        }
+        public void Dispose() => GC.SuppressFinalize(this);
 
-        public void Open()
-        {
-            this.State = ConnectionState.Open;
-        }
+        public void Open() => this.State = ConnectionState.Open;
     }
 }

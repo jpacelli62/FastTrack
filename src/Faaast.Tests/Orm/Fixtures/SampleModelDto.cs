@@ -14,7 +14,6 @@ namespace Faaast.Tests.Orm.Fixtures
         private int PrivateProperty { get; set; } = 5445;
 #pragma warning restore IDE0051 // Supprimer les membres privés non utilisés
 
-
         public int WriteProperty { private get; set; } = 456;
         public string RefProperty { get; set; } = "Hello world";
         public DateTime StructProperty { get; set; } = DateTime.Today;

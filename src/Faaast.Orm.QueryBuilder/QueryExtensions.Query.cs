@@ -1,9 +1,9 @@
-﻿using Faaast.Orm.Reader;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Faaast.Orm.Reader;
 
 namespace Faaast.Orm
 {
@@ -54,7 +54,7 @@ namespace Faaast.Orm
             CancellationToken cancellationToken = default)
         {
             var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
-            List<TClass> result = new List<TClass>();
+            var result = new List<TClass>();
             await foreach (var row in command.FetchAsync<TClass>())
             {
                 result.Add(row);
@@ -70,7 +70,7 @@ namespace Faaast.Orm
             CancellationToken cancellationToken = default)
         {
             var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
-            List<TClass> result = new List<TClass>();
+            var result = new List<TClass>();
             await foreach (var row in command.FetchAsync<TClass>())
             {
                 result.Add(row);

@@ -14,9 +14,6 @@ namespace Faaast.DatabaseModel
 
         public bool PrimaryKey { get; set; }
 
-        public Column(string name)
-        {
-            Name = name;
-        }
+        public Column(string name) => this.Name = name;
     }
 }

@@ -19,11 +19,11 @@ namespace Faaast.SeoRouter
 
         public MvcAction(string controller, string action, string additionalValues, string constraints)
         {
-            Controller = controller.ToLower();
-            Action = action.ToLower();
-            AdditionalValues = additionalValues?.ToLower();
-            Constraints = constraints?.ToLower();
-            DefaultValues = AdditionalValues.GetQueryDictionnary();
+            this.Controller = controller.ToLower();
+            this.Action = action.ToLower();
+            this.AdditionalValues = additionalValues?.ToLower();
+            this.Constraints = constraints?.ToLower();
+            this.DefaultValues = this.AdditionalValues.GetQueryDictionnary();
         }
     }
 }

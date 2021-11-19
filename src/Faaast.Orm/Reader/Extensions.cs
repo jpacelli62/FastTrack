@@ -6,7 +6,7 @@ namespace Faaast.Orm.Reader
 {
     public static class Extensions
     {
-        private static readonly Dictionary<Type, DbType> TypeMap = new Dictionary<Type, DbType>()
+        private static readonly Dictionary<Type, DbType> TypeMap = new()
         {
             [typeof(byte)] = DbType.Byte,
             [typeof(sbyte)] = DbType.SByte,
@@ -47,10 +47,7 @@ namespace Faaast.Orm.Reader
             [typeof(object)] = DbType.Object
         };
 
-        public static DbType ToDbType(this Type type)
-        {
-            return TypeMap[type];
-        }
+        public static DbType ToDbType(this Type type) => TypeMap[type];
 
         public static string Sanitize(this string name)
         {

@@ -11,20 +11,14 @@ namespace Microsoft.AspNetCore.Authentication
 {
     public static class AuthenticationHttpContextExtensions
     {
-        public static Task<string> GetAccessTokenAsync(this HttpContext context)
-        {
-            return context.GetTokenAsync("access_token");
-        }
+        public static Task<string> GetAccessTokenAsync(this HttpContext context) => context.GetTokenAsync("access_token");
 
-        public static Task<string> GetRefreshTokenAsync(this HttpContext context)
-        {
-            return context.GetTokenAsync("refresh_token");
-        }
+        public static Task<string> GetRefreshTokenAsync(this HttpContext context) => context.GetTokenAsync("refresh_token");
 
         internal static async Task<OAuthTokenResponse> CallRefreshTokenAsync(this HttpContext context, AuthenticateResult auth, FaaastOauthOptions options)
         {
-            string refreshToken = auth.Properties.GetTokenValue("refresh_token");
-            string endPoint = options.TokenEndpoint;
+            var refreshToken = auth.Properties.GetTokenValue("refresh_token");
+            var endPoint = options.TokenEndpoint;
             var request = new HttpRequestMessage(HttpMethod.Post, endPoint);
             var content = new FormUrlEncodedContent(new[]
             {
@@ -38,7 +32,6 @@ namespace Microsoft.AspNetCore.Authentication
             if (httpResult.IsSuccessStatusCode)
             {
                 var result = await httpResult.Content.ReadAsStringAsync();
-
 #if NETSTANDARD2_0 || NET461
                 return OAuthTokenResponse.Success(JObject.Parse(result));
 #elif NET5_0

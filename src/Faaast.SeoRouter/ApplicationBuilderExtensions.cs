@@ -11,10 +11,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddSeoRouter(this IServiceCollection services)
         {
-            services.Configure<RouteOptions>(options =>
-            {
-                options.LowercaseUrls = true;
-            });  
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
             services.AddRouting();
             services.TryAddTransient<IInlineConstraintResolver, DefaultInlineConstraintResolver>();

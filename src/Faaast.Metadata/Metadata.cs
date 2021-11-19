@@ -4,10 +4,7 @@
     {
         public virtual string Name { get; set; }
 
-        public Metadata(string name)
-        {
-            Name = name;
-        }
+        public Metadata(string name) => this.Name = name;
     }
 
 #pragma warning disable S2326 // Unused type parameters should be removed

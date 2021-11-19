@@ -1,7 +1,6 @@
-﻿using Faaast.Metadata;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
+using Faaast.Metadata;
 
 namespace Faaast.DatabaseModel
 {

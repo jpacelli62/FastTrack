@@ -12,27 +12,15 @@ namespace Faaast.Orm
         {
         }
 
-        public FaaastQuery<TClass> From<TClass>(string alias = null)
-        {
-            return Sql.From<TClass>(alias);
-        }
+        public FaaastQuery<TClass> From<TClass>(string alias = null) => this.Sql.From<TClass>(alias);
 
-        public FaaastQuery Sql
-        {
-            get
-            {
-                return new FaaastQuery(this);
-            }
-        }
+        public FaaastQuery Sql => new FaaastQuery(this);
 
-        public virtual CompiledQuery Compile(FaaastQuery query)
-        {
-            return Compile(query.Query);
-        }
+        public virtual CompiledQuery Compile(FaaastQuery query) => this.Compile(query.Query);
 
         public virtual CompiledQuery Compile(Query query)
         {
-            var result = Compiler.Compile(query);
+            var result = this.Compiler.Compile(query);
             return new CompiledQuery(result.Sql, result.NamedBindings);
         }
     }

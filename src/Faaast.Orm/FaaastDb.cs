@@ -1,10 +1,10 @@
-﻿using Faaast.DatabaseModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using Faaast.DatabaseModel;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
 
 namespace Faaast.Orm
 {
@@ -20,8 +20,8 @@ namespace Faaast.Orm
 
         public virtual DbConnection CreateConnection()
         {
-            var connection =  Connection.Engine.Create();
-            connection.ConnectionString = Connection.ConnectionString(Connection);
+            var connection = this.Connection.Engine.Create();
+            connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
             return connection;
         }
 
@@ -35,29 +35,30 @@ namespace Faaast.Orm
         {
             this.Mapper = services.GetRequiredService<IObjectMapper>();
             this.DbStore = services.GetRequiredService<IDatabaseStore>();
-            this.Mappings = new Lazy<DatabaseMapping>(InitMapping, true);
+            this.Mappings = new Lazy<DatabaseMapping>(this.InitMapping, true);
         }
 
         protected DatabaseMapping InitMapping()
         {
-            if (Connection != null)
+            if (this.Connection != null)
             {
-                var database = this.DbStore[Connection.Name];
+                var database = this.DbStore[this.Connection.Name];
                 if (database == null)
                 {
-                    database = Initialize(Connection, Mapper, GetMappings());
-                    DbStore[Connection.Name] = database;
+                    database = Initialize(this.Connection, this.Mapper, this.GetMappings());
+                    this.DbStore[this.Connection.Name] = database;
                 }
+
                 return database.Get(Meta.Mapping);
             }
 
-            throw new ArgumentException(nameof(Connection));
+            throw new ArgumentException(nameof(this.Connection));
         }
 
         internal static Database Initialize(ConnectionSettings connection, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
         {
-            Database db = new Database(connection);
-            List<TableMapping> tableMaps = new List<TableMapping>();
+            var db = new Database(connection);
+            var tableMaps = new List<TableMapping>();
             foreach (var mapping in mappings)
             {
                 var dto = mapper.Get(mapping.Type);
@@ -66,13 +67,14 @@ namespace Faaast.Orm
                 {
                     columnMap.Property = dto[columnMap.Member.Name];
                 }
+
                 mapping.Table.Init();
 
                 db.Tables.Add(mapping.Table.Table);
                 tableMaps.Add(mapping.Table);
             }
 
-            DatabaseMapping dbMap = new DatabaseMapping
+            var dbMap = new DatabaseMapping
             {
                 Source = db,
                 Mappings = tableMaps

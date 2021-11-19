@@ -1,7 +1,7 @@
-﻿using Faaast.Authentication.OAuth2Server.Core;
+﻿using System;
+using Faaast.Authentication.OAuth2Server.Core;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using System;
 
 namespace Faaast.OAuth2Server
 {
@@ -19,34 +19,19 @@ namespace Faaast.OAuth2Server
             return app;
         }
 
-        private static bool IsValidRequest(HttpContext context, OAuthServerOptions options)
-        {
-            return IsAuthorizeRequest(context, options) || IsValidTokenRequest(context, options) || IsUserRequest(context, options) || IsLogOutRequest(context, options);
-        }
+        private static bool IsValidRequest(HttpContext context, OAuthServerOptions options) => IsAuthorizeRequest(context, options) || IsValidTokenRequest(context, options) || IsUserRequest(context, options) || IsLogOutRequest(context, options);
 
-        private static bool IsValidTokenRequest(HttpContext context, OAuthServerOptions options)
-        {
-            return context.Request.Method == HttpMethods.Post &&
+        private static bool IsValidTokenRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Post &&
                    context.Request.ContentType == xFormUrlEncoded &&
                    options.TokenEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
 
-        private static bool IsAuthorizeRequest(HttpContext context, OAuthServerOptions options)
-        {
-            return context.Request.Method == HttpMethods.Get &&
+        private static bool IsAuthorizeRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
                    options.AuthorizeEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
 
-        private static bool IsUserRequest(HttpContext context, OAuthServerOptions options)
-        {
-            return context.Request.Method == HttpMethods.Get &&
+        private static bool IsUserRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
                    options.UserEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
 
-        private static bool IsLogOutRequest(HttpContext context, OAuthServerOptions options)
-        {
-            return context.Request.Method == HttpMethods.Get &&
+        private static bool IsLogOutRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
                    options.LogoutPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
     }
 }

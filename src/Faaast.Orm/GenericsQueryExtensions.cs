@@ -29,20 +29,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB> FirstOrDefault<TA, TB>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB> Single<TA, TB>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB> result = default;
             foreach (var item in command.Fetch<TA, TB>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -62,22 +61,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB>> SingleAsync<TA, TB>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB> result = default;
             await foreach (var item in command.FetchAsync<TA, TB>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -111,20 +107,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC> FirstOrDefault<TA, TB, TC>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC> Single<TA, TB, TC>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC> result = default;
             foreach (var item in command.Fetch<TA, TB, TC>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -144,22 +139,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC>> SingleAsync<TA, TB, TC>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -195,20 +187,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD> FirstOrDefault<TA, TB, TC, TD>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD> Single<TA, TB, TC, TD>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -228,22 +219,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD>> SingleAsync<TA, TB, TC, TD>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -281,20 +269,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE> FirstOrDefault<TA, TB, TC, TD, TE>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE> Single<TA, TB, TC, TD, TE>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -314,22 +301,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE>> SingleAsync<TA, TB, TC, TD, TE>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -369,20 +353,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF> FirstOrDefault<TA, TB, TC, TD, TE, TF>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF> Single<TA, TB, TC, TD, TE, TF>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -402,22 +385,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF>> SingleAsync<TA, TB, TC, TD, TE, TF>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -459,20 +439,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG> Single<TA, TB, TC, TD, TE, TF, TG>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -492,22 +471,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG>> SingleAsync<TA, TB, TC, TD, TE, TF, TG>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -551,20 +527,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH> Single<TA, TB, TC, TD, TE, TF, TG, TH>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -584,22 +559,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -645,20 +617,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -678,22 +649,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -741,20 +709,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -774,22 +741,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -839,20 +803,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -872,22 +835,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -939,20 +899,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -972,22 +931,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1041,20 +997,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1074,22 +1029,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1145,20 +1097,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1178,22 +1129,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1251,20 +1199,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1284,22 +1231,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1359,20 +1303,19 @@ namespace Faaast.Orm
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP> FirstOrDefault<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>(this FaaastCommand command)
         {
             var enumerator = command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>().GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP> Single<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP> result = default;
             foreach (var item in command.Fetch<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }
@@ -1392,22 +1335,19 @@ namespace Faaast.Orm
         {
             var enumerator = command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>()
                 .GetAsyncEnumerator(command.CancellationToken);
-            if(await enumerator.MoveNextAsync())
-            {
-                return enumerator.Current;
-            }
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>> SingleAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             FaaastTuple<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP> result = default;
             await foreach (var item in command.FetchAsync<TA, TB, TC, TD, TE, TF, TG, TH, TI, TJ, TK, TL, TM, TN, TO, TP>())
             {
                 if (row++ > 1)
+                {
                     throw new InvalidOperationException("Sequence contains more than one element");
+                }
 
                 result = item;
             }

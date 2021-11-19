@@ -7,14 +7,14 @@ namespace Faaast.Authentication.OAuth2Server.Core
 {
     public static class CodeGenerator
     {
-        private static readonly Random rnd = new Random();
+        private static readonly Random rnd = new();
         private static char[] AllowedChars { get; set; }
 
         public static Func<int, string> GenerateRandomCode { get; set; } = GenerateRandomCodeImpl;
 
         static CodeGenerator()
         {
-            List<char> table = new List<char>();
+            var table = new List<char>();
             foreach (var intChar in Enumerable.Range((int)'a', 26))
             {
                 table.Add((char)intChar);
@@ -29,13 +29,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
             {
                 table.Add((char)intChar);
             }
+
             AllowedChars = table.ToArray();
         }
 
-        private static string GenerateRandomCodeImpl(int length)
-        {
-            return string.Concat(Enumerable.Range(0, length).Select(x => AllowedChars[rnd.Next(0, AllowedChars.Length)]).ToArray());
-        }
+        private static string GenerateRandomCodeImpl(int length) => string.Concat(Enumerable.Range(0, length).Select(x => AllowedChars[rnd.Next(0, AllowedChars.Length)]).ToArray());
 
         public static string GenerateRandomNumber(int length)
         {

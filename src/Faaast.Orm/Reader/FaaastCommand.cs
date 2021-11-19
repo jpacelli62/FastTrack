@@ -1,11 +1,11 @@
-﻿using Faaast.DatabaseModel;
-using Faaast.Metadata;
-using System;
+﻿using System;
 using System.Collections;
 using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
+using Faaast.DatabaseModel;
+using Faaast.Metadata;
 
 namespace Faaast.Orm.Reader
 {
@@ -32,8 +32,8 @@ namespace Faaast.Orm.Reader
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CommandType? commandType = null,
-            CancellationToken cancellationToken = default,
-            bool handleConnection = true)
+            bool handleConnection = true,
+            CancellationToken cancellationToken = default)
         {
             this.Database = database;
             this.Mapper = mapper;
@@ -50,21 +50,27 @@ namespace Faaast.Orm.Reader
 
         internal DbCommand SetupCommand()
         {
-            var cmd = Connection.CreateCommand();
-            cmd.CommandText = CommandText;
+            var cmd = this.Connection.CreateCommand();
+            cmd.CommandText = this.CommandText;
 
-            if (Transaction != null)
-                cmd.Transaction = Transaction;
-
-            if (CommandTimeout.HasValue)
-                cmd.CommandTimeout = CommandTimeout.Value;
-
-            if (CommandType.HasValue)
-                cmd.CommandType = CommandType.Value;
-
-            if (Parameters != null)
+            if (this.Transaction != null)
             {
-                if(Parameters is IDictionary dictionary)
+                cmd.Transaction = this.Transaction;
+            }
+
+            if (this.CommandTimeout.HasValue)
+            {
+                cmd.CommandTimeout = this.CommandTimeout.Value;
+            }
+
+            if (this.CommandType.HasValue)
+            {
+                cmd.CommandType = this.CommandType.Value;
+            }
+
+            if (this.Parameters != null)
+            {
+                if (this.Parameters is IDictionary dictionary)
                 {
                     foreach (var key in dictionary.Keys)
                     {
@@ -74,10 +80,10 @@ namespace Faaast.Orm.Reader
                 }
                 else
                 {
-                    DtoClass map = Mapper.Get(Parameters.GetType());
+                    var map = this.Mapper.Get(this.Parameters.GetType());
                     foreach (var property in map)
                     {
-                        AddParameter(cmd, property.Name, property.Read(Parameters), property.Type, ParameterDirection.Input);
+                        AddParameter(cmd, property.Name, property.Read(this.Parameters), property.Type, ParameterDirection.Input);
                     }
                 }
             }
@@ -85,18 +91,22 @@ namespace Faaast.Orm.Reader
             return cmd;
         }
 
-        internal void AddParameter(DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
+        internal static void AddParameter(DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
         {
             var parameter = command.CreateParameter();
             parameter.ParameterName = name.Sanitize();
             parameter.Value = value;
             parameter.Direction = direction;
 
-            if(valueType != null)
+            if (valueType != null)
+            {
                 parameter.DbType = valueType.ToDbType();
+            }
 
             if (parameter.DbType == DbType.String)
+            {
                 parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+            }
 
             command.Parameters.Add(parameter);
         }

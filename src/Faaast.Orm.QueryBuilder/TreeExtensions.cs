@@ -1,156 +1,108 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-
 namespace Faaast.Orm
 {
     internal static partial class TreeExtensions
-	{
-		internal static AbstractClause VisitExpression(Expression expression)
-		{
-			switch (expression.NodeType)
-			{
-				case ExpressionType.Lambda:
-					return VisitExpression(((LambdaExpression)expression).Body);
+    {
+        internal static AbstractClause VisitExpression(Expression expression) => expression.NodeType switch
+        {
+            ExpressionType.Lambda => VisitExpression(((LambdaExpression)expression).Body),
+            ExpressionType.MemberAccess => ((MemberExpression)expression).Value(),
+            ExpressionType.Constant => ((ConstantExpression)expression).Value(),
+            ExpressionType.Call => VisitLikeExpression((MethodCallExpression)expression),
 
-				case ExpressionType.LessThan:
-				case ExpressionType.LessThanOrEqual:
-				case ExpressionType.GreaterThan:
-				case ExpressionType.GreaterThanOrEqual:
-				case ExpressionType.Equal:
-				case ExpressionType.NotEqual:
-				case ExpressionType.And:
-				case ExpressionType.AndAlso:
-				case ExpressionType.Or:
-				case ExpressionType.OrElse:
+            ExpressionType.LessThan or
+            ExpressionType.LessThanOrEqual or
+            ExpressionType.GreaterThan or
+            ExpressionType.GreaterThanOrEqual or
+            ExpressionType.Equal or
+            ExpressionType.NotEqual or
+            ExpressionType.And or
+            ExpressionType.AndAlso or
+            ExpressionType.Or or
+            ExpressionType.OrElse => VisitBinary((BinaryExpression)expression),//case ExpressionType.Subtract:
 
-				//case ExpressionType.Subtract:
-				//case ExpressionType.Add:
-				//case ExpressionType.Divide:
-				//case ExpressionType.Multiply:
-				//case ExpressionType.Modulo:
+            ExpressionType.Convert or
+            ExpressionType.Not => VisitUnary((UnaryExpression)expression),
 
-					return VisitBinary((BinaryExpression)expression);
+            //case ExpressionType.New:
+            //	return ((NewExpression)expression).Value();
+            _ => null,
+        };
 
-				case ExpressionType.Convert:
-				case ExpressionType.Not:
-					return VisitUnary((UnaryExpression)expression);
-
-				//case ExpressionType.New:
-				//	return ((NewExpression)expression).Value();
-
-				case ExpressionType.MemberAccess:
-					return ((MemberExpression)expression).Value();
-
-				case ExpressionType.Constant:
-					return ((ConstantExpression)expression).Value();
-
-				case ExpressionType.Call:
-					return VisitLikeExpression((MethodCallExpression)expression);
-
-				//case ExpressionType.Invoke:
-				//	VisitExpression(((InvocationExpression)expression).Expression);
-				//	break;
-			}
-
-			return null;
-		}
-
-
-		internal static AbstractClause VisitLikeExpression(MethodCallExpression expression)
-		{
-			var method = expression.Method.Name.ToLower();
-			if (expression.Object != null)
-			{
-				if (expression.Object.Type == typeof(string))
-				{
-					return VisitContainsExpression(expression, method);
-				}
-				else if (method == "tostring")
-				{
-					throw new NotImplementedException();
-					//return expression.Object.ToString();
-				}
-			}
-
-			throw new NotImplementedException();
-		}
-
-		internal static AbstractClause VisitContainsExpression(MethodCallExpression expression, string textSearch)
-		{
-			var column = VisitExpression(expression.Object);
-			if (expression.Arguments.Count == 0 || expression.Arguments.Count > 1)
-			{
-				throw new ArgumentException("Contains-expression should contain exactly one argument.", nameof(expression));
-			}
-
-			ConstantClause value = (ConstantClause) VisitExpression(expression.Arguments[0]);
-			switch (textSearch)
+        internal static AbstractClause VisitLikeExpression(MethodCallExpression expression)
+        {
+            var method = expression.Method.Name.ToLower();
+            if (expression.Object != null)
             {
-                case "contains":
-					return new BinaryColumnClause()
-					{
-						Left = column,
-						Operation = "LIKE",
-						Right = new ConstantClause(string.Concat("%", value.Value, "%"))
-					};
-
-                case "startswith":
-					return new BinaryColumnClause()
-					{
-						Left = column,
-						Operation = "LIKE",
-						Right = new ConstantClause(string.Concat(value.Value, "%"))
-					};
-
-                case "endswith":
-					return new BinaryColumnClause()
-					{
-						Left = column,
-						Operation = "LIKE",
-						Right = new ConstantClause(string.Concat("%", value.Value))
-					};
-
-				default:
-					throw new ArgumentOutOfRangeException($"Invalid TextSearch value '{textSearch}'.", nameof(textSearch));
+                if (expression.Object.Type == typeof(string))
+                {
+                    return VisitContainsExpression(expression, method);
+                }
+                else if (method == "tostring")
+                {
+                    throw new NotImplementedException();
+                }
             }
 
-			throw new NotImplementedException();
-		}
+            throw new NotImplementedException();
+        }
 
+        internal static AbstractClause VisitContainsExpression(MethodCallExpression expression, string textSearch)
+        {
+            var column = VisitExpression(expression.Object);
+            if (expression.Arguments.Count is 0 or > 1)
+            {
+                throw new ArgumentException("Contains-expression should contain exactly one argument.", nameof(expression));
+            }
 
-		internal static AbstractClause VisitBinary(BinaryExpression expression)
-		{
-			BinaryColumnClause result = new BinaryColumnClause();
-			var operand = expression.NodeType.GetOperant();
-			result.Left = VisitExpression(expression.Left);
-			result.Right = VisitExpression(expression.Right);
-			result.Operation = operand;
-			return result;
+            var value = (ConstantClause)VisitExpression(expression.Arguments[0]);
+            return textSearch switch
+            {
+                "contains" => new BinaryColumnClause()
+                {
+                    Left = column,
+                    Operation = "LIKE",
+                    Right = new ConstantClause(string.Concat("%", value.Value, "%"))
+                },
+                "startswith" => new BinaryColumnClause()
+                {
+                    Left = column,
+                    Operation = "LIKE",
+                    Right = new ConstantClause(string.Concat(value.Value, "%"))
+                },
+                "endswith" => new BinaryColumnClause()
+                {
+                    Left = column,
+                    Operation = "LIKE",
+                    Right = new ConstantClause(string.Concat("%", value.Value))
+                },
+                _ => throw new ArgumentOutOfRangeException(nameof(textSearch), $"Invalid TextSearch value '{textSearch}'."),
+            };
+            throw new NotImplementedException();
+        }
 
-		}
+        internal static AbstractClause VisitBinary(BinaryExpression expression)
+        {
+            var result = new BinaryColumnClause();
+            var operand = expression.NodeType.GetOperant();
+            result.Left = VisitExpression(expression.Left);
+            result.Right = VisitExpression(expression.Right);
+            result.Operation = operand;
+            return result;
 
+        }
 
-		internal static AbstractClause VisitUnary(UnaryExpression expression)
-		{
-			var result = VisitExpression(expression.Operand);
-			switch (expression.NodeType)
-			{
-				case ExpressionType.Not:
-					return new NegateClause { Clause = result };
-
-				case ExpressionType.Convert:
-					return result;
-					//if (expression.Method != null)
-					//{
-					//	condition.Value = Expression.Lambda(expression).Compile().DynamicInvoke();
-					//}
-					break;
-			}
-
-			throw new NotImplementedException();
-
-		}
-
-	}
+        internal static AbstractClause VisitUnary(UnaryExpression expression)
+        {
+            var result = VisitExpression(expression.Operand);
+            return expression.NodeType switch
+            {
+                ExpressionType.Not => new NegateClause { Clause = result },
+                ExpressionType.Convert => result,
+                _ => throw new NotImplementedException(),
+            };
+        }
+    }
 }

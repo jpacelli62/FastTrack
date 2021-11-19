@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.SeoRouter
 {
     public class Router : IRouter
     {
-        public static readonly RoutingRule NotFound = new RoutingRule { Kind = RuleKind.Global, Handler = HandlerType.NotFound };
+        public static readonly RoutingRule NotFound = new() { Kind = RuleKind.Global, Handler = HandlerType.NotFound };
         public const string ControllerKey = "controller";
         public const string ActionKey = "action";
 
@@ -16,24 +16,24 @@ namespace Faaast.SeoRouter
         public async Task<RoutingRules> GetRulesAsync(IServiceProvider services)
         {
             var provider = services.GetRequiredService<IRouteProvider>();
-            if (Rules == null || await provider.RefreshNeededAsync(Rules))
+            if (this.Rules == null || await provider.RefreshNeededAsync(this.Rules))
             {
-                Rules = await provider.GetRulesAsync();
+                this.Rules = await provider.GetRulesAsync();
             }
 
-            return Rules;
+            return this.Rules;
         }
 
         public Task RouteAsync(RouteContext context)
         {
             var httpContext = context.HttpContext;
             var services = httpContext.RequestServices;
-            return RouteAsync(httpContext.Request.Path.ToString(), context, services);
+            return this.RouteAsync(httpContext.Request.Path.ToString(), context, services);
         }
 
         public Task RouteAsync(string url, RouteContext context, IServiceProvider services)
         {
-            var rule = FollowRoute(url, services, out var origin, out var values);
+            var rule = this.FollowRoute(url, services, out var origin, out var values);
             var provider = services.GetRequiredService<IRouteProvider>();
             if (rule != null)
             {
@@ -55,14 +55,14 @@ namespace Faaast.SeoRouter
 
         public RoutingRule FindRouteRule(string url, IServiceProvider provider, out RouteValueDictionary routeValues)
         {
-            var rules = GetRulesAsync(provider).Result;
-            string requestPath = url.NormalizeUrl();
+            var rules = this.GetRulesAsync(provider).Result;
+            var requestPath = url.NormalizeUrl();
             return rules.Find(requestPath, out routeValues);
         }
 
         public RoutingRule FollowRoute(string url, IServiceProvider provider, out RoutingRule origin, out RouteValueDictionary values)
         {
-            origin = FindRouteRule(url, provider, out values);
+            origin = this.FindRouteRule(url, provider, out values);
             if (origin != null)
             {
                 switch (origin.Handler)
@@ -70,7 +70,7 @@ namespace Faaast.SeoRouter
                     case HandlerType.Auto:
                     case HandlerType.RedirectPermanent:
                     case HandlerType.RedirectTemporary:
-                        return GetVirtualPathRuleAsync(values, provider).Result;
+                        return this.GetVirtualPathRuleAsync(values, provider).Result;
 
                     case HandlerType.Legacy:
                     case HandlerType.Gone:
@@ -85,12 +85,12 @@ namespace Faaast.SeoRouter
         public VirtualPathData GetVirtualPath(VirtualPathContext context)
         {
             var httpContext = context.HttpContext;
-            return GetVirtualPathAsync(context, httpContext.RequestServices).Result;
+            return this.GetVirtualPathAsync(context, httpContext.RequestServices).Result;
         }
 
         public async Task<VirtualPathData> GetVirtualPathAsync(VirtualPathContext context, IServiceProvider services, object sourceOject = null)
         {
-            var rule = await GetVirtualPathRuleAsync(context.Values, services);
+            var rule = await this.GetVirtualPathRuleAsync(context.Values, services);
             if (rule != null)
             {
                 var provider = services.GetRequiredService<IRouteProvider>();
@@ -103,7 +103,7 @@ namespace Faaast.SeoRouter
 
         public async Task<RoutingRule> GetVirtualPathRuleAsync(RouteValueDictionary contextValues, IServiceProvider provider)
         {
-            var rules = await GetRulesAsync(provider);
+            var rules = await this.GetRulesAsync(provider);
             return rules.FindByRoute(contextValues);
         }
     }

@@ -21,10 +21,7 @@ namespace Faaast.Orm
     public class ConstantClause : UnaryClause
     {
         public object Value { get; set; }
-        public ConstantClause(object value)
-        {
-            this.Value = value;
-        }
+        public ConstantClause(object value) => this.Value = value;
     }
 
     public class NegateClause : UnaryClause

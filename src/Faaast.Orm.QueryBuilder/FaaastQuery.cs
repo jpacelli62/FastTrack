@@ -1,8 +1,8 @@
-﻿using Faaast.Orm.Mapping;
-using SqlKata;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Faaast.Orm.Mapping;
+using SqlKata;
 
 namespace Faaast.Orm
 {
@@ -12,28 +12,23 @@ namespace Faaast.Orm
         {
         }
 
-        public override FaaastQuery NewQuery()
-        {
-            return new FaaastQuery(base.Db);
-        }
+        public override FaaastQuery NewQuery() => new(base.Db);
 
-        public CompiledQuery Compile()
-        {
-
-            return base.Db.Compile(this);
-        }
+        public CompiledQuery Compile() => base.Db.Compile(this);
 
         public FaaastQuery<TModel> Clone<TModel>()
         {
-            var clone = new FaaastQuery<TModel>(this.Db);
-            clone.Query = Query;
-            clone.LastAlias = Query.QueryAlias;
+            var clone = new FaaastQuery<TModel>(this.Db)
+            {
+                Query = this.Query,
+                LastAlias = this.Query.QueryAlias
+            };
             return clone;
         }
 
         public FaaastQuery<TClass> From<TClass>(string alias = null)
         {
-            var clone = Clone<TClass>();
+            var clone = this.Clone<TClass>();
             if (string.IsNullOrWhiteSpace(alias))
             {
                 clone.Query.From(clone.Mapping.Table.Name);
@@ -55,10 +50,7 @@ namespace Faaast.Orm
 
         internal string LastAlias { get; set; }
 
-        public FaaastQuery(FaaastQueryDb db) : base(db)
-        {
-            Mapping = Db.Mapping<TModel>();
-        }
+        public FaaastQuery(FaaastQueryDb db) : base(db) => this.Mapping = this.Db.Mapping<TModel>();
 
         public FaaastQuery<TModel> OrderBy<TProperty>(Expression<Func<TModel, TProperty>> exp, string order = "ASC")
         {
@@ -66,14 +58,16 @@ namespace Faaast.Orm
 
             if (clause is PropertyClause prop)
             {
-                Query.OrderBy(Mapping.PropertyToColumn[prop.Property].Name);
+                this.Query.OrderBy(this.Mapping.PropertyToColumn[prop.Property].Name);
             }
             else if (clause is OperationClause op)
             {
-                Query.OrderByRaw(string.Concat(string.Format(op.Function, Mapping.PropertyToColumn[op.Clause.Property].Name), " ASC"));
+                this.Query.OrderByRaw(string.Concat(string.Format(op.Function, this.Mapping.PropertyToColumn[op.Clause.Property].Name), " ASC"));
             }
             else
-                throw new ArgumentException(nameof(exp));
+            {
+                throw new NotImplementedException();
+            }
 
             return this;
         }
@@ -83,61 +77,64 @@ namespace Faaast.Orm
             var clause = TreeExtensions.VisitExpression(exp);
             if (clause is PropertyClause prop)
             {
-                Query.OrderByDesc(Mapping.PropertyToColumn[prop.Property].Name);
+                this.Query.OrderByDesc(this.Mapping.PropertyToColumn[prop.Property].Name);
             }
             else if (clause is OperationClause op)
             {
-                Query.OrderByRaw(string.Concat(string.Format(op.Function, Mapping.PropertyToColumn[op.Clause.Property].Name)), " DESC");
+                this.Query.OrderByRaw(string.Concat(string.Format(op.Function, this.Mapping.PropertyToColumn[op.Clause.Property].Name), " DESC"));
             }
             else
-                throw new ArgumentException(nameof(exp));
+            {
+                throw new NotImplementedException();
+            }
+
             return this;
         }
 
         public FaaastQuery<TModel> Top(int nb)
         {
-            Query.Limit(nb);
+            this.Query.Limit(nb);
             return this;
         }
 
         public FaaastQuery<TModel> Where(Dictionary<string, object> keyValuePairs)
         {
-            Query.Where(keyValuePairs);
+            this.Query.Where(keyValuePairs);
             return this;
         }
 
         internal FaaastQuery<TModel> AsInsert(Dictionary<string, object> insert, bool returnId)
         {
-            Query.AsInsert(insert, returnId);
+            this.Query.AsInsert(insert, returnId);
             return this;
         }
 
         public FaaastQuery<TModel> AsUpdate(Dictionary<string, object> update)
         {
-            Query.AsUpdate(update);
+            this.Query.AsUpdate(update);
             return this;
         }
 
         public FaaastQuery<TModel> AsDelete()
         {
-            Query.AsDelete();
+            this.Query.AsDelete();
             return this;
         }
 
         public FaaastQuery<TModel> SelectFields()
         {
-            if (!string.IsNullOrWhiteSpace(LastAlias))
+            if (!string.IsNullOrWhiteSpace(this.LastAlias))
             {
-                foreach (var map in Mapping.ColumnMappings)
+                foreach (var map in this.Mapping.ColumnMappings)
                 {
-                    Query.Select(string.Concat(LastAlias, ".", map.Column.Name));
+                    this.Query.Select(string.Concat(this.LastAlias, ".", map.Column.Name));
                 }
             }
             else
             {
-                foreach (var map in Mapping.ColumnMappings)
+                foreach (var map in this.Mapping.ColumnMappings)
                 {
-                    Query.Select(map.Column.Name);
+                    this.Query.Select(map.Column.Name);
                 }
             }
 
@@ -151,7 +148,7 @@ namespace Faaast.Orm
                 var result = TreeExtensions.VisitExpression(exp);
                 if (result is PropertyClause property)
                 {
-                    Query.Select(ConvertValue(property).ToString());
+                    this.Query.Select(this.ConvertValue(property).ToString());
                 }
             }
 
@@ -160,19 +157,19 @@ namespace Faaast.Orm
 
         public FaaastQuery<T> Select<T>(string alias)
         {
-            var mapping = Db.Mapping<T>();
+            var mapping = this.Db.Mapping<T>();
             if (!string.IsNullOrWhiteSpace(alias))
             {
                 foreach (var map in mapping.ColumnMappings)
                 {
-                    Query.Select(string.Concat(alias, ".", map.Column.Name));
+                    this.Query.Select(string.Concat(alias, ".", map.Column.Name));
                 }
             }
             else
             {
                 foreach (var map in mapping.ColumnMappings)
                 {
-                    Query.Select(map.Column.Name);
+                    this.Query.Select(map.Column.Name);
                 }
             }
 
@@ -182,104 +179,101 @@ namespace Faaast.Orm
         public FaaastQuery<TModel> Where(Expression<Func<TModel, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
 
         public FaaastQuery<TModel> Where<A>(Expression<Func<A, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B>(Expression<Func<A, B, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C>(Expression<Func<A, B, C, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D>(Expression<Func<A, B, C, D, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E>(Expression<Func<A, B, C, D, E, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F>(Expression<Func<A, B, C, D, E, F, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G>(Expression<Func<A, B, C, D, E, F, G, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H>(Expression<Func<A, B, C, D, E, F, G, H, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I>(Expression<Func<A, B, C, D, E, F, G, H, I, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J>(Expression<Func<A, B, C, D, E, F, G, H, I, J, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
-
-
 
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
         public FaaastQuery<TModel> Where<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(Expression<Func<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, bool>> exp)
         {
             var result = TreeExtensions.VisitExpression(exp);
-            ConvertWhere(result);
+            this.ConvertWhere(result);
             return this;
         }
-
 
         internal void ConvertWhere(AbstractClause clause, Query q = null)
         {
@@ -287,17 +281,20 @@ namespace Faaast.Orm
             {
                 if (binary.Left is UnaryClause leftUnary && binary.Right is UnaryClause rightUnary)
                 {
-                    (q ?? Query).Where(ConvertValue(leftUnary).ToString(), binary.Operation, ConvertValue(rightUnary));
+                    (q ?? this.Query).Where(this.ConvertValue(leftUnary).ToString(), binary.Operation, this.ConvertValue(rightUnary));
                     return;
                 }
                 else
                 {
-                    (q ?? Query).Where(q =>
+                    (q ?? this.Query).Where(q =>
                     {
-                        ConvertWhere(binary.Left, q);
+                        this.ConvertWhere(binary.Left, q);
                         if (string.Compare("or", binary.Operation, true) == 0)
+                        {
                             q.Or();
-                        ConvertWhere(binary.Right, q);
+                        }
+
+                        this.ConvertWhere(binary.Right, q);
                         return q;
                     });
                     return;
@@ -305,13 +302,13 @@ namespace Faaast.Orm
             }
             else if (clause is PropertyClause property)// Implicit true
             {
-                (q ?? Query).Where(ConvertValue(property).ToString(), "=", 1);
+                (q ?? this.Query).Where(this.ConvertValue(property).ToString(), "=", 1);
                 return;
             }
             else if (clause is NegateClause negate)
             {
-                (q ?? Query).Not();
-                ConvertWhere(negate.Clause, q);
+                (q ?? this.Query).Not();
+                this.ConvertWhere(negate.Clause, q);
                 return;
             }
 
@@ -324,15 +321,18 @@ namespace Faaast.Orm
             {
                 if (binary.Left is UnaryClause leftUnary && binary.Right is UnaryClause rightUnary)
                 {
-                    join.On(ConvertValue(leftUnary).ToString(), ConvertValue(rightUnary).ToString(), binary.Operation);
+                    join.On(this.ConvertValue(leftUnary).ToString(), this.ConvertValue(rightUnary).ToString(), binary.Operation);
                     return;
                 }
                 else
                 {
-                    ConvertJoin(binary.Left, join);
+                    this.ConvertJoin(binary.Left, join);
                     if (string.Compare("or", binary.Operation, true) == 0)
+                    {
                         join.Or();
-                    ConvertJoin(binary.Right, join);
+                    }
+
+                    this.ConvertJoin(binary.Right, join);
                     return;
                 }
             }
@@ -340,19 +340,18 @@ namespace Faaast.Orm
             {
                 join.AddComponent("where", new BasicCondition
                 {
-                    Column = ConvertValue(property).ToString(),
+                    Column = this.ConvertValue(property).ToString(),
                     Operator = "=",
                     Value = 1,
                     IsOr = false,
                     IsNot = false,
                 });
-                //join.On(ConvertValue(property).ToString(), "=", 1);
                 return;
             }
             else if (clause is NegateClause negate)
             {
-                Query.Not();
-                ConvertJoin(negate.Clause, join);
+                this.Query.Not();
+                this.ConvertJoin(negate.Clause, join);
                 return;
             }
 
@@ -360,46 +359,28 @@ namespace Faaast.Orm
         }
         private FaaastQuery<TModelB> Join<TModelA, TModelB>(string alias, Expression<Func<TModelA, TModelB, bool>> join, string type)
         {
-            FaaastQuery<TModelB> clone = Clone<TModelB>();
+            var clone = this.Clone<TModelB>();
             clone.LastAlias = alias;
-            AbstractClause clause = TreeExtensions.VisitExpression(join);
+            //join.Parameters.
+            var clause = TreeExtensions.VisitExpression(join);
             clone.Query.Join($"{clone.Mapping.Table.Name} AS {alias}", q =>
             {
-                ConvertJoin(clause, q);
+                this.ConvertJoin(clause, q);
                 return q;
             }, type);
 
             return clone;
         }
 
-        public FaaastQuery<TModelB> InnerJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join)
-        {
-            return Join(alias, join, "inner join");
-        }
+        public FaaastQuery<TModelB> InnerJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join) => this.Join(alias, join, "inner join");
+        public FaaastQuery<TModelB> InnerJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join) => this.Join(aliasB, join, "inner join");
 
-        public FaaastQuery<TModelB> LeftJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join)
-        {
-            return Join(alias, join, "left join");
-        }
+        public FaaastQuery<TModelB> LeftJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join) => this.Join(alias, join, "left join");
+        public FaaastQuery<TModelB> LeftJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join) => this.Join(aliasB, join, "left join");
 
-        public FaaastQuery<TModelB> RightJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join)
-        {
-            return Join(alias, join, "right join");
-        }
-        public FaaastQuery<TModelB> InnerJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join)
-        {
-            return Join(aliasB, join, "inner join");
-        }
+        public FaaastQuery<TModelB> RightJoin<TModelB>(string alias, Expression<Func<TModel, TModelB, bool>> join) => this.Join(alias, join, "right join");
 
-        public FaaastQuery<TModelB> LeftJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join)
-        {
-            return Join(aliasB, join, "left join");
-        }
-
-        public FaaastQuery<TModelB> RightJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join)
-        {
-            return Join(aliasB, join, "right join");
-        }
+        public FaaastQuery<TModelB> RightJoin<TModelA, TModelB>(string aliasA, string aliasB, Expression<Func<TModelA, TModelB, bool>> join) => this.Join(aliasB, join, "right join");
 
         internal object ConvertValue(UnaryClause clause)
         {
@@ -410,18 +391,15 @@ namespace Faaast.Orm
             }
             else if (clause is PropertyClause property)
             {
-                var mapping = Db.Mappings.Value.TypeToMapping[property.ObjectType];
-                string alias = property.References?.ToString();
-                if (!string.IsNullOrWhiteSpace(alias) && !string.IsNullOrWhiteSpace(LastAlias))
-                {
-                    return string.Concat(alias, ".", (mapping).PropertyToColumn[property.Property].Name);
-                }
-                else
-                    return Mapping.PropertyToColumn[property.Property].Name;
+                var mapping = this.Db.Mappings.Value.TypeToMapping[property.ObjectType];
+                var alias = property.References?.ToString();
+                return !string.IsNullOrWhiteSpace(alias) && !string.IsNullOrWhiteSpace(this.LastAlias)
+                    ? string.Concat(alias, ".", mapping.PropertyToColumn[property.Property].Name)
+                    : this.Mapping.PropertyToColumn[property.Property].Name;
             }
             else if (clause is OperationClause operation)
             {
-                return string.Format(operation.Function, ConvertValue(operation.Clause));
+                return string.Format(operation.Function, this.ConvertValue(operation.Clause));
             }
 
             throw new NotImplementedException();

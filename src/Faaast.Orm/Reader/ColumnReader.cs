@@ -14,7 +14,6 @@ namespace Faaast.Orm.Reader
 
         public string ColumnName { get; set; }
 
-
         public Action<IDataReader, int, object> Call { get; set; }
 
         public ColumnReader(DtoProperty property, string columnName)
@@ -24,21 +23,11 @@ namespace Faaast.Orm.Reader
             this.Call = null;
         }
 
-        public ColumnReader(DtoProperty property, string columnName, bool nullable) : this(property, columnName)
-        {
-            if (!Property?.CanWrite ?? true)
-            {
-                this.Call = DoNothing;
-            }
-            else
-            {
-                this.Call = nullable ? ReadNullable : ReadNonNullable;
-            }
-        }
+        public ColumnReader(DtoProperty property, string columnName, bool nullable) : this(property, columnName) => this.Call = this.Property?.CanWrite is false or null ? this.DoNothing : (Action<IDataReader, int, object>)(nullable ? this.ReadNullable : this.ReadNonNullable);
 
         public ColumnReader(DtoProperty property, ColumnMapping column) : this(property, column.Column.Name, column.Column.Get(DbMeta.Nullable) == true)
         {
-            
+
         }
 
         private void DoNothing(IDataReader reader, int index, object instance)
@@ -46,22 +35,21 @@ namespace Faaast.Orm.Reader
             // Really nothing
         }
 
-        public void Read(IDataReader reader, int index, object instance)
-        {
-            Call(reader, index, instance);
-        }
+        public void Read(IDataReader reader, int index, object instance) => this.Call(reader, index, instance);
 
         public void ReadNonNullable(IDataReader reader, int index, object instance)
         {
             var value = reader.GetValue(index);
-            Property.Write(instance, value);
+            this.Property.Write(instance, value);
         }
 
         public void ReadNullable(IDataReader reader, int index, object instance)
         {
             var value = reader.GetValue(index);
             if (value != DBNull.Value)
-                Property.Write(instance, value);
+            {
+                this.Property.Write(instance, value);
+            }
         }
     }
 }

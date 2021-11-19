@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq.Expressions;
 
 namespace Faaast.Orm
@@ -15,7 +13,7 @@ namespace Faaast.Orm
             return new ConstantClause(getter());
         }
 
-        internal static ConstantClause Value(this ConstantExpression expression) => new ConstantClause(expression.Value);
+        internal static ConstantClause Value(this ConstantExpression expression) => new(expression.Value);
 
         internal static AbstractClause Value(this MemberExpression expression)
         {
@@ -53,27 +51,23 @@ namespace Faaast.Orm
             throw new NotImplementedException();
         }
 
-        internal static string GetOperant(this ExpressionType expressionType)
+        internal static string GetOperant(this ExpressionType expressionType) => expressionType switch
         {
-            switch (expressionType)
-            {
-                case ExpressionType.Equal: return "=";
-                case ExpressionType.NotEqual: return "<>";
-                case ExpressionType.GreaterThan: return ">";
-                case ExpressionType.GreaterThanOrEqual: return ">=";
-                case ExpressionType.LessThan: return "<";
-                case ExpressionType.LessThanOrEqual: return "<=";
-                case ExpressionType.AndAlso: return "AND";
-                case ExpressionType.OrElse: return "OR";
-                case ExpressionType.Add: return "+";
-                case ExpressionType.Subtract: return "-";
-                case ExpressionType.Multiply: return "*";
-                case ExpressionType.Divide: return "/";
-                case ExpressionType.Modulo: return "MOD";
-                case ExpressionType.Coalesce: return "COALESCE";
-                default:
-                    return expressionType.ToString();
-            }
-        }
+            ExpressionType.Equal => "=",
+            ExpressionType.NotEqual => "<>",
+            ExpressionType.GreaterThan => ">",
+            ExpressionType.GreaterThanOrEqual => ">=",
+            ExpressionType.LessThan => "<",
+            ExpressionType.LessThanOrEqual => "<=",
+            ExpressionType.AndAlso => "AND",
+            ExpressionType.OrElse => "OR",
+            ExpressionType.Add => "+",
+            ExpressionType.Subtract => "-",
+            ExpressionType.Multiply => "*",
+            ExpressionType.Divide => "/",
+            ExpressionType.Modulo => "MOD",
+            ExpressionType.Coalesce => "COALESCE",
+            _ => expressionType.ToString()
+        };
     }
 }

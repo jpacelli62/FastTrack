@@ -14,37 +14,21 @@ namespace Faaast.Metadata
 
         public Func<object> Activator { get; set; }
 
-
         public DtoProperty this[string propertyName]
         {
-            get
-            {
-                if (Properties.TryGetValue(propertyName, out var property))
-                    return property;
-
-                return null;
-            }
-            set
-            {
-                Properties[propertyName] = value;
-            }
+            get => this.Properties.TryGetValue(propertyName, out var property) ? property : null;
+            set => this.Properties[propertyName] = value;
         }
 
         public DtoClass(Type type)
         {
-            Type = type;
-            Name = type.Name;
-            Properties = new Dictionary<string, DtoProperty>();
+            this.Type = type;
+            this.Name = type.Name;
+            this.Properties = new Dictionary<string, DtoProperty>();
         }
 
-        public IEnumerator<DtoProperty> GetEnumerator()
-        {
-            return Properties.Values.GetEnumerator();
-        }
+        public IEnumerator<DtoProperty> GetEnumerator() => this.Properties.Values.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return Properties.Values.GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => this.Properties.Values.GetEnumerator();
     }
 }

@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
@@ -11,10 +6,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Faaast.Authentication.OAuth2Server.Core
 {
@@ -29,9 +28,10 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public OAuthServerMiddleware(RequestDelegate next, OAuthServerOptions options, ILoggerFactory loggerFactory)
         {
             this.Options = options ?? throw new ArgumentNullException(nameof(options));
-            Logger = loggerFactory.CreateLogger<OAuthServerMiddleware>();
+            this.Logger = loggerFactory.CreateLogger<OAuthServerMiddleware>();
 
-            if (string.IsNullOrEmpty(options.Issuer))
+ #pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
+           if (string.IsNullOrEmpty(options.Issuer))
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.Issuer)), nameof(OAuthServerOptions.Issuer));
             }
@@ -70,12 +70,13 @@ namespace Faaast.Authentication.OAuth2Server.Core
             options.UserEndpointPath = options.UserEndpointPath.ToLower();
             options.AuthorizeEndpointPath = options.AuthorizeEndpointPath.ToLower();
             this.TokenHandler = new JwtSecurityTokenHandler();
+#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one 
 
         }
 
         private TokenValidationParameters BuildValidationParameters(Client client)
         {
-            byte[] keybytes = Encoding.ASCII.GetBytes(client.ClientSecret);
+            var keybytes = Encoding.ASCII.GetBytes(client.ClientSecret);
             SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
 
             return new TokenValidationParameters
@@ -87,7 +88,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 ClockSkew = TimeSpan.Zero,
                 ValidateLifetime = true,
                 ValidateIssuer = true,
-                ValidIssuer = Options.Issuer,
+                ValidIssuer = this.Options.Issuer,
                 RequireSignedTokens = true,
                 IssuerSigningKey = securityKey,
                 ValidateIssuerSigningKey = true
@@ -97,11 +98,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public async Task InvokeAsync(HttpContext context)
         {
             var provider = context.RequestServices.GetRequiredService<IOauthServerProvider>();
-            ValidationContext validation = ValidationContext.Create(context);
-            var result = await HandleEndpointRequestAsync(validation, provider);
+            var validation = ValidationContext.Create(context);
+            var result = await this.HandleEndpointRequestAsync(validation, provider);
             if (result?.IsValidated == false)
             {
-                await Failed(context, result.Error);
+                await this.Failed(context, result.Error);
             }
         }
 
@@ -110,12 +111,12 @@ namespace Faaast.Authentication.OAuth2Server.Core
             var securityKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(validation.Client.ClientSecret));
             var signingCredentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             Dictionary<string, object> claims = new();
-            string[] excludeList = new[] { "iat", "exp", "iss", "nbf", "scope", "aud" };
+            var excludeList = new[] { "iat", "exp", "iss", "nbf", "scope", "aud" };
             var groups = ticket.Principal.Claims.GroupBy(x => x.Type);
             foreach (var claimGroup in groups)
             {
-                bool add = true;
-                foreach (string claimToExclude in excludeList)
+                var add = true;
+                foreach (var claimToExclude in excludeList)
                 {
                     if (string.Equals(claimToExclude, claimGroup.Key))
                     {
@@ -137,16 +138,16 @@ namespace Faaast.Authentication.OAuth2Server.Core
                         claims.Add(claim.Type, claimGroup.Select(x => x.Value).ToArray());
                     }
                 }
-
             }
+
             claims.Add("scope", string.Join(" ", validation.Scope));
 
-            DateTime utcNow = DateTime.UtcNow;
-            DateTime expires = utcNow + Options.AccessTokenExpireTimeSpan;
+            var utcNow = DateTime.UtcNow;
+            var expires = utcNow + this.Options.AccessTokenExpireTimeSpan;
             var jwtToken = this.TokenHandler.CreateJwtSecurityToken(new SecurityTokenDescriptor()
             {
                 Audience = validation.Client.ClientId,
-                Issuer = Options.Issuer,
+                Issuer = this.Options.Issuer,
                 SigningCredentials = signingCredentials,
                 IssuedAt = utcNow,
                 Expires = expires,
@@ -158,125 +159,145 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 Indented = true
             };
 
-            string accessToken = this.TokenHandler.WriteToken(jwtToken);
-            using (var stream = new MemoryStream())
+            var accessToken = this.TokenHandler.WriteToken(jwtToken);
+            using var stream = new MemoryStream();
+            using (var writer = new Utf8JsonWriter(stream, options))
             {
-                using (var writer = new Utf8JsonWriter(stream, options))
+
+                writer.WriteStartObject();
+                writer.WriteString("access_token", accessToken);
+                writer.WriteString("token_type", "bearer");
+                writer.WriteNumber("expires_in", this.Options.AccessTokenExpireTimeSpan.TotalSeconds);
+
+                if (validation.GrantType != Parameters.ClientCredentials)
                 {
+                    var refreshToken = CodeGenerator.GenerateRandomNumber(32);
+                    writer.WriteString("refresh_token", refreshToken);
 
-                    writer.WriteStartObject();
-                    writer.WriteString("access_token", accessToken);
-                    writer.WriteString("token_type", "bearer");
-                    writer.WriteNumber("expires_in", Options.AccessTokenExpireTimeSpan.TotalSeconds);
-
-                    if (validation.GrantType != Parameters.ClientCredentials)
+                    await provider.StoreAsync(new Token
                     {
-                        string refreshToken = CodeGenerator.GenerateRandomNumber(32);
-                        writer.WriteString("refresh_token", refreshToken);
+                        AccessToken = accessToken,
+                        AccessTokenExpiresUtc = expires,
+                        RefreshToken = refreshToken,
+                        RefreshTokenExpiresUtc = utcNow + this.Options.RefreshTokenExpireTimeSpan,
+                        NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                    });
 
-                        await provider.StoreAsync(new Token
-                        {
-                            AccessToken = accessToken,
-                            AccessTokenExpiresUtc = expires,
-                            RefreshToken = refreshToken,
-                            RefreshTokenExpiresUtc = utcNow + Options.RefreshTokenExpireTimeSpan,
-                            NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        });
-
-                    }
-                    writer.WriteEndObject();
                 }
 
-                
-                string json = Encoding.UTF8.GetString(stream.ToArray());
-                await validation.HttpContext.Response.WriteAsync(json);
+                writer.WriteEndObject();
             }
+
+            var json = Encoding.UTF8.GetString(stream.ToArray());
+            await validation.HttpContext.Response.WriteAsync(json);
         }
 
         protected Task<StageValidationContext> HandleEndpointRequestAsync(ValidationContext context, IOauthServerProvider provider)
         {
-            StageValidationContext endpointValidation = new StageValidationContext(context);
-            if (!Options.AllowInsecureHttp && !context.HttpContext.Request.IsHttps)
+            var endpointValidation = new StageValidationContext(context);
+            if (!this.Options.AllowInsecureHttp && !context.HttpContext.Request.IsHttps)
             {
                 return endpointValidation.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_Insecure);
             }
 
-            string path = context.HttpContext.Request.Path.ToString().ToLower();
+            var path = context.HttpContext.Request.Path.ToString().ToLower();
 
-            if (path.Equals(Options.TokenEndpointPath))
-                return HandleTokenEndPointRequestAsync(endpointValidation, provider);
-            else if (path.Equals(Options.AuthorizeEndpointPath))
-                return HandleAuthorizeEndPointRequestAsync(endpointValidation, provider);
-            else if (path.Equals(Options.LogoutPath))
-                return HandleLogOutAsync(endpointValidation, provider);
+            if (path.Equals(this.Options.TokenEndpointPath))
+            {
+                return this.HandleTokenEndPointRequestAsync(endpointValidation, provider);
+            }
+            else if (path.Equals(this.Options.AuthorizeEndpointPath))
+            {
+                return this.HandleAuthorizeEndPointRequestAsync(endpointValidation, provider);
+            }
             else
-                return Task.FromResult<StageValidationContext>(null);
+            {
+                return path.Equals(this.Options.LogoutPath)
+                    ? this.HandleLogOutAsync(endpointValidation, provider)
+                    : Task.FromResult<StageValidationContext>(null);
+            }
         }
 
         protected virtual Task<StageValidationContext> HandleTokenEndPointRequestAsync(StageValidationContext context, IOauthServerProvider provider) => context.GrantType?.ToLower() switch
         {
-            Parameters.ClientCredentials => HandleClientCredentialsAsync(context, provider),
-            Parameters.RefreshToken => HandleRefreshAsync(context, provider),
-            Parameters.Password => HandlePasswordAsync(context, provider),
-            Parameters.AuthorizationCode => HandleAuthorizationCodeAsync(context, provider),
+            Parameters.ClientCredentials => this.HandleClientCredentialsAsync(context, provider),
+            Parameters.RefreshToken => this.HandleRefreshAsync(context, provider),
+            Parameters.Password => this.HandlePasswordAsync(context, provider),
+            Parameters.AuthorizationCode => this.HandleAuthorizationCodeAsync(context, provider),
             _ => context.RejectAsync(ErrorCodes.invalid_request, Resources.Msg_InvalidGrantType)
         };
 
         protected virtual async Task<StageValidationContext> HandleRefreshAsync(ValidationContext context, IOauthServerProvider provider)
         {
-            StageValidationContext validateClientContext = await ValidateClientCredentialsAsync(new StageValidationContext(context), provider, false);
+            var validateClientContext = await this.ValidateClientCredentialsAsync(new StageValidationContext(context), provider, false);
             if (!validateClientContext.IsValidated)
+            {
                 return validateClientContext;
+            }
 
-            StageValidationContext validateRefreshTokenContext = new StageValidationContext(validateClientContext);
+            var validateRefreshTokenContext = new StageValidationContext(validateClientContext);
             if (string.IsNullOrWhiteSpace(validateRefreshTokenContext.RefreshToken))
+            {
                 return await validateRefreshTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            }
 
             var token = await provider.OnRefreshReceivedAsync(validateRefreshTokenContext.RefreshToken);
             if (token == null)
+            {
                 return await validateRefreshTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            }
 
-            StageValidationContext validateAccessTokenContext = new StageValidationContext(validateRefreshTokenContext);
-            var validationParams = BuildValidationParameters(validateAccessTokenContext.Client);
+            var validateAccessTokenContext = new StageValidationContext(validateRefreshTokenContext);
+            var validationParams = this.BuildValidationParameters(validateAccessTokenContext.Client);
             validationParams.ValidateLifetime = false;
-            var principal = this.TokenHandler.ValidateToken(token.AccessToken, validationParams, out var ValidatedToken);
+            var principal = this.TokenHandler.ValidateToken(token.AccessToken, validationParams, out _);
             if (principal == null)
+            {
                 return await validateAccessTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            }
 
             principal = await provider.OnRefreshPrincipaldAsync(principal);
             if (principal == null)
+            {
                 return await validateAccessTokenContext.RejectAsync(ErrorCodes.access_denied, Resources.Msg_InvalidToken);
+            }
 
-            JwtSecurityToken jwtToken = new JwtSecurityToken(token.AccessToken);
+            var jwtToken = new JwtSecurityToken(token.AccessToken);
             validateAccessTokenContext.Scope = jwtToken.Payload["scope"].ToString().Split(' ');
             var authTicket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, "Default");
 
-            await CreateJwt(validateAccessTokenContext, authTicket, provider);
+            await this.CreateJwt(validateAccessTokenContext, authTicket, provider);
             await validateAccessTokenContext.ValidateAsync();
             return validateAccessTokenContext;
         }
 
         protected virtual async Task<StageValidationContext> HandlePasswordAsync(ValidationContext context, IOauthServerProvider provider)
         {
-            StageValidationContext validateClientContext = await ValidateClientCredentialsAsync(new StageValidationContext(context), provider, true);
+            var validateClientContext = await this.ValidateClientCredentialsAsync(new StageValidationContext(context), provider, true);
             if (!validateClientContext.IsValidated)
+            {
                 return validateClientContext;
+            }
 
-            StageValidationContext validateClientUriContext = await ValidateRedirectUriAsync(validateClientContext, context.Client, provider);
+            var validateClientUriContext = await this.ValidateRedirectUriAsync(validateClientContext, context.Client, provider);
             if (!validateClientUriContext.IsValidated)
+            {
                 return validateClientUriContext;
+            }
 
-            StageValidationContext validateScopesContext = await ValidateScopeAsync(validateClientUriContext, context.Client, provider);
+            var validateScopesContext = await this.ValidateScopeAsync(validateClientUriContext, context.Client, provider);
             if (!validateScopesContext.IsValidated)
+            {
                 return validateScopesContext;
+            }
 
-            StageValidationContext validateAccountContext = new StageValidationContext(validateScopesContext);
+            var validateAccountContext = new StageValidationContext(validateScopesContext);
             var principal = await provider.PasswordSigningAsync(context.UserName, context.Password);
             if (principal != null)
             {
                 var authTicket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, "Default");
 
-                await CreateJwt(validateAccountContext, authTicket, provider);
+                await this.CreateJwt(validateAccountContext, authTicket, provider);
                 await validateAccountContext.ValidateAsync();
                 return validateAccountContext;
             }
@@ -286,10 +307,10 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
         protected virtual Task<StageValidationContext> ValidateScopeAsync(StageValidationContext context, Client client, IOauthServerProvider provider)
         {
-            StageValidationContext stageContext = new StageValidationContext(context);
+            var stageContext = new StageValidationContext(context);
             foreach (var contextScope in context.Scope)
             {
-                bool found = false;
+                var found = false;
                 foreach (var allowedScope in client.Scopes)
                 {
                     if (allowedScope.Equals(contextScope, StringComparison.OrdinalIgnoreCase))
@@ -298,8 +319,11 @@ namespace Faaast.Authentication.OAuth2Server.Core
                         break;
                     }
                 }
+
                 if (!found)
+                {
                     return stageContext.RejectAsync(ErrorCodes.invalid_scope, Resources.Msg_InvalidScope);
+                }
             }
 
             return stageContext.ValidateAsync();
@@ -307,33 +331,37 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
         protected async Task Failed(HttpContext context, string error)
         {
-            Logger.LogWarning(error);
+            this.Logger.LogWarning(error);
             context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            if (Options.DisplayErrors)
+            if (this.Options.DisplayErrors)
+            {
                 await context.Response.WriteAsync(error);
+            }
             else
+            {
                 await context.Response.WriteAsync("bad request");
+            }
         }
 
         protected virtual Task<StageValidationContext> RedirectAsync(StageValidationContext context, string relativeUri)
         {
             var request = context.HttpContext.Request;
-            string currentUrl = BuildUri(request.Scheme, request.Host.Host, request.Host.Port, request.Path, request.QueryString.Value);
-            string targetUrl = BuildUri(request.Scheme, request.Host.Host, request.Host.Port, relativeUri, $"?returnUrl={WebUtility.UrlEncode(currentUrl)}");
+            var currentUrl = BuildUri(request.Scheme, request.Host.Host, request.Host.Port, request.Path, request.QueryString.Value);
+            var targetUrl = BuildUri(request.Scheme, request.Host.Host, request.Host.Port, relativeUri, $"?returnUrl={WebUtility.UrlEncode(currentUrl)}");
             context.HttpContext.Response.Redirect(targetUrl);
             return Task.FromResult<StageValidationContext>(null);
         }
 
-        private string BuildUri(string scheme, string host, int? port, string path, string query)
+        private static string BuildUri(string scheme, string host, int? port, string path, string query)
         {
-            int cleanPort = port ?? -1;
-            UriBuilder sourceUrl = new UriBuilder(scheme, host, cleanPort, path, query);
+            var cleanPort = port ?? -1;
+            var sourceUrl = new UriBuilder(scheme, host, cleanPort, path, query);
             return sourceUrl.ToString();
         }
 
         protected virtual async Task<StageValidationContext> HandleLogOutAsync(StageValidationContext context, IOauthServerProvider provider)
         {
-            StageValidationContext stage = new StageValidationContext(context);
+            var stage = new StageValidationContext(context);
             await stage.ValidateAsync();
             await context.HttpContext.SignOutAsync();
             context.HttpContext.Response.Redirect(stage.RedirectUri);

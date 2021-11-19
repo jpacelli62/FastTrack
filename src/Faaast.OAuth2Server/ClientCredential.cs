@@ -9,6 +9,5 @@
         public string[] Scopes { get; set; }
 
         public string Audience { get; set; }
-
     }
 }

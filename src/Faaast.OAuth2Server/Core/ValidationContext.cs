@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using System;
+﻿using System;
 using System.Linq;
 using System.Text;
+using Microsoft.AspNetCore.Http;
 
 namespace Faaast.Authentication.OAuth2Server.Core
 {
@@ -25,7 +25,6 @@ namespace Faaast.Authentication.OAuth2Server.Core
 
         public virtual string Audience { get; set; }
 
-
         public virtual string ResponseType { get; private set; }
 
         public virtual string State { get; private set; }
@@ -35,9 +34,6 @@ namespace Faaast.Authentication.OAuth2Server.Core
         public virtual string AccessToken { get; private set; }
         public virtual string RefreshToken { get; private set; }
         public virtual string AppSecretProof { get; private set; }
-
-
-
 
         public virtual Client Client { get; set; }
 
@@ -54,7 +50,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                     UserName = requestForm[Parameters.UserName].FirstOrDefault(),
                     Password = requestForm[Parameters.Password].FirstOrDefault(),
                     Code = requestForm[Parameters.Code].FirstOrDefault(),
-                    Scope = (requestForm[Parameters.Scope].FirstOrDefault()?.Split(' ') ?? new string[0]),
+                    Scope = requestForm[Parameters.Scope].FirstOrDefault()?.Split(' ') ?? Array.Empty<string>(),
                     RedirectUri = requestForm[Parameters.RedirectUri].FirstOrDefault(),
                     RefreshToken = requestForm[Parameters.RefreshToken].FirstOrDefault(),
                     AccessToken = requestForm[Parameters.AccessToken].FirstOrDefault(),
@@ -65,7 +61,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                 var basic = context.Request.Headers["Authorization"].FirstOrDefault();
                 if (!string.IsNullOrWhiteSpace(basic) && basic.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    string[] credentials = ASCIIEncoding.ASCII.GetString(Convert.FromBase64String(basic.Substring(6))).Split(':');
+                    var credentials = Encoding.ASCII.GetString(Convert.FromBase64String(basic.Substring(6))).Split(':');
                     if (credentials.Length == 2)
                     {
                         validationContext.ClientId = credentials[0];
@@ -90,6 +86,7 @@ namespace Faaast.Authentication.OAuth2Server.Core
                     AccessToken = query[Parameters.AccessToken].FirstOrDefault(),
                 };
             }
+
             throw new NotImplementedException();
         }
     }

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Threading.Tasks;
 
 namespace Faaast.SeoRouter
 {
@@ -17,8 +17,8 @@ namespace Faaast.SeoRouter
             }
 
             var services = context.HttpContext.RequestServices;
-            IActionInvokerFactory _actionInvokerFactory = services.GetRequiredService<IActionInvokerFactory>();
-            IActionSelector _actionSelector = services.GetRequiredService<IActionSelector>();
+            var _actionInvokerFactory = services.GetRequiredService<IActionInvokerFactory>();
+            var _actionSelector = services.GetRequiredService<IActionSelector>();
 
             var candidates = _actionSelector.SelectCandidates(context);
             if (candidates == null || candidates.Count == 0)
@@ -38,12 +38,9 @@ namespace Faaast.SeoRouter
 
                 var actionContext = new ActionContext(context.HttpContext, routeData, actionDescriptor);
                 var invoker = _actionInvokerFactory.CreateInvoker(actionContext);
-                if (invoker == null)
-                {
-                    throw new InvalidOperationException("Could not create invoker for " + actionDescriptor.DisplayName);
-                }
-
-                return invoker.InvokeAsync();
+                return invoker == null
+                    ? throw new InvalidOperationException("Could not create invoker for " + actionDescriptor.DisplayName)
+                    : invoker.InvokeAsync();
             };
 
             return Task.CompletedTask;

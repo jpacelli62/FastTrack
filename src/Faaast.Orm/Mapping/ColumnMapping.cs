@@ -4,7 +4,7 @@ using Faaast.Metadata;
 
 namespace Faaast.Orm.Mapping
 {
-    public class ColumnMapping: MetaModel<ColumnMapping>
+    public class ColumnMapping : MetaModel<ColumnMapping>
     {
         public DtoProperty Property { get; set; }
 

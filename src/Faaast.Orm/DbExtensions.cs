@@ -1,10 +1,10 @@
-﻿using Faaast.Orm.Reader;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Faaast.Orm.Reader;
 
 namespace Faaast.Orm
 {
@@ -15,9 +15,7 @@ namespace Faaast.Orm
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CommandType? commandType = null,
-            CancellationToken cancellationToken = default)
-        {
-            return new FaaastCommand(db.DbStore[db.Connection.Name],
+            CancellationToken cancellationToken = default) => new(db.DbStore[db.Connection.Name],
             db.Mapper,
             connection ?? db.CreateConnection(),
             sql,
@@ -25,9 +23,8 @@ namespace Faaast.Orm
             transaction,
             commandTimeout,
             commandType,
-            cancellationToken,
-            connection == null);
-        }
+            connection == null,
+            cancellationToken);
 
         internal static Task TryPrepareAsync(this DbCommand dbCommand, CancellationToken cancellationToken)
         {
@@ -72,11 +69,13 @@ namespace Faaast.Orm
 
         public static async Task<int> ExecuteAsync(this FaaastCommand command)
         {
-            int result = 0;
+            var result = 0;
             if (command.HandleConnection)
+            {
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
+            }
 
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (var dbCommand = command.SetupCommand())
             {
                 await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 result = await dbCommand.ExecuteNonQueryAsync(command.CancellationToken).ConfigureAwait(false);
@@ -94,13 +93,15 @@ namespace Faaast.Orm
         internal static IEnumerable<T> Read<T>(this FaaastCommand command)
         {
             if (command.HandleConnection)
+            {
                 command.Connection.Open();
+            }
 
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (var dbCommand = command.SetupCommand())
             {
                 dbCommand.Prepare();
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                CompositeReader composite = new CompositeReader(command, dbReader, typeof(T));
+                var composite = new CompositeReader(command, dbReader, typeof(T));
 
                 while (dbReader.Read())
                 {
@@ -118,13 +119,15 @@ namespace Faaast.Orm
         internal static IEnumerable<dynamic> ReadDynamic(this FaaastCommand command)
         {
             if (command.HandleConnection)
+            {
                 command.Connection.Open();
+            }
 
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (var dbCommand = command.SetupCommand())
             {
                 dbCommand.Prepare();
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                CompositeReader composite = CompositeReader.DynamicReader(command, dbReader);
+                var composite = CompositeReader.DynamicReader(command, dbReader);
 
                 while (dbReader.Read())
                 {
@@ -142,13 +145,15 @@ namespace Faaast.Orm
         internal static IEnumerable<object[]> Read(this FaaastCommand command, params Type[] types)
         {
             if (command.HandleConnection)
+            {
                 command.Connection.Open();
+            }
 
             using (IDbCommand dbCommand = command.SetupCommand())
             {
                 dbCommand.Prepare();
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                CompositeReader composite = new CompositeReader(command, dbReader, types);
+                var composite = new CompositeReader(command, dbReader, types);
 
                 while (dbReader.Read())
                 {
@@ -166,14 +171,15 @@ namespace Faaast.Orm
         public static async IAsyncEnumerable<T> ReadAsync<T>(this FaaastCommand command)
         {
             if (command.HandleConnection)
-                await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
-
-            using (DbCommand dbCommand = command.SetupCommand())
             {
-                var type = (typeof(T));
+                await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
+            }
+
+            using (var dbCommand = command.SetupCommand())
+            {
                 await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
-                CompositeReader composite = new CompositeReader(command, dbReader, typeof(T));
+                var composite = new CompositeReader(command, dbReader, typeof(T));
 
                 while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
                 {
@@ -191,13 +197,15 @@ namespace Faaast.Orm
         public static async IAsyncEnumerable<object[]> ReadAsync(this FaaastCommand command, params Type[] types)
         {
             if (command.HandleConnection)
+            {
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
+            }
 
-            using (DbCommand dbCommand = command.SetupCommand())
+            using (var dbCommand = command.SetupCommand())
             {
                 await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
-                CompositeReader composite = new CompositeReader(command, dbReader, types);
+                var composite = new CompositeReader(command, dbReader, types);
 
                 while (await dbReader.ReadAsync(command.CancellationToken).ConfigureAwait(false))
                 {
@@ -215,49 +223,39 @@ namespace Faaast.Orm
         public static T FirstOrDefault<T>(this FaaastCommand command)
         {
             var enumerator = Read<T>(command).GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static object[] FirstOrDefault(this FaaastCommand command, params Type[] types)
         {
             var enumerator = Read(command, types).GetEnumerator();
-            if (enumerator.MoveNext())
-                return enumerator.Current;
-
-            return default;
+            return enumerator.MoveNext() ? enumerator.Current : default;
         }
 
         public static async Task<T> FirstOrDefaultAsync<T>(this FaaastCommand command)
         {
             var enumerator = ReadAsync<T>(command).ConfigureAwait(false).GetAsyncEnumerator();
-            if (await enumerator.MoveNextAsync())
-                return enumerator.Current;
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static async Task<object[]> FirstOrDefaultAsync(this FaaastCommand command, params Type[] types)
         {
             var enumerator = ReadAsync(command, types).ConfigureAwait(false).GetAsyncEnumerator();
-            if (await enumerator.MoveNextAsync())
-                return enumerator.Current;
-
-            return default;
+            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
         }
 
         public static T Single<T>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             T result = default;
             foreach (var item in Read<T>(command))
             {
                 result = item;
                 row++;
                 if (row > 1)
+                {
                     throw new InvalidOperationException("Seqence contains more than one element");
+                }
             }
 
             return result;
@@ -265,14 +263,16 @@ namespace Faaast.Orm
 
         public static object[] Single(this FaaastCommand command, params Type[] types)
         {
-            int row = 0;
+            var row = 0;
             object[] result = default;
             foreach (var item in Read(command, types))
             {
                 result = item;
                 row++;
                 if (row > 1)
+                {
                     throw new InvalidOperationException("Seqence contains more than one element");
+                }
             }
 
             return result;
@@ -280,14 +280,16 @@ namespace Faaast.Orm
 
         public static async Task<T> SingleAsync<T>(this FaaastCommand command)
         {
-            int row = 0;
+            var row = 0;
             T result = default;
             await foreach (var item in ReadAsync<T>(command).ConfigureAwait(false))
             {
                 result = item;
                 row++;
                 if (row > 1)
+                {
                     throw new InvalidOperationException("Seqence contains more than one element");
+                }
             }
 
             return result;
@@ -295,42 +297,29 @@ namespace Faaast.Orm
 
         public static async Task<object[]> SingleAsync(this FaaastCommand command, params Type[] types)
         {
-            int row = 0;
+            var row = 0;
             object[] result = default;
             await foreach (var item in ReadAsync(command, types).ConfigureAwait(false))
             {
                 result = item;
                 row++;
                 if (row > 1)
+                {
                     throw new InvalidOperationException("Seqence contains more than one element");
+                }
             }
 
             return result;
         }
 
-        public static IEnumerable<object[]> Fetch(this FaaastCommand command, params Type[] types)
-        {
-            return Read(command, types);
-        }
+        public static IEnumerable<object[]> Fetch(this FaaastCommand command, params Type[] types) => Read(command, types);
 
-        public static IEnumerable<T> Fetch<T>(this FaaastCommand command)
-        {
-            return Read<T>(command);
-        }
+        public static IEnumerable<T> Fetch<T>(this FaaastCommand command) => Read<T>(command);
 
-        public static IEnumerable<dynamic> Fetch(this FaaastCommand command)
-        {
-            return ReadDynamic(command);
-        }
+        public static IEnumerable<dynamic> Fetch(this FaaastCommand command) => ReadDynamic(command);
 
-        public static IAsyncEnumerable<T> FetchAsync<T>(this FaaastCommand command)
-        {
-            return ReadAsync<T>(command);
-        }
+        public static IAsyncEnumerable<T> FetchAsync<T>(this FaaastCommand command) => ReadAsync<T>(command);
 
-        public static IAsyncEnumerable<object[]> FetchAsync(this FaaastCommand command, params Type[] types)
-        {
-            return ReadAsync(command, types);
-        }
+        public static IAsyncEnumerable<object[]> FetchAsync(this FaaastCommand command, params Type[] types) => ReadAsync(command, types);
     }
 }

@@ -1,9 +1,9 @@
-﻿using Faaast.Orm.Mapping;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
+using Faaast.Orm.Mapping;
 
 namespace Faaast.Orm
 {
@@ -15,7 +15,7 @@ namespace Faaast.Orm
             return mapping.TypeToMapping[typeof(TClass)];
         }
 
-        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, 
+        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record,
             DbConnection connection = null,
             DbTransaction transaction = null,
             int? commandTimeout = null,
@@ -30,10 +30,10 @@ namespace Faaast.Orm
                 where.Add(column.Name, mapping.ColumnToProperty[column].Read(record));
             }
 
-            var query = (FaaastQuery<T>) db.From<T>().Where(where).AsDelete();
+            var query = db.From<T>().Where(where).AsDelete();
             var compiledQuery = db.Compile(query);
             var command = db.Query(
-                compiledQuery.Sql, 
+                compiledQuery.Sql,
                 compiledQuery.Parameters,
                 connection,
                 transaction,
@@ -45,7 +45,7 @@ namespace Faaast.Orm
             return command.ExecuteAsync();
         }
 
-        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, 
+        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record,
             DbConnection connection = null,
             DbTransaction transaction = null,
             int? commandTimeout = null,
@@ -53,7 +53,6 @@ namespace Faaast.Orm
 
         {
             var mapping = db.Mapping<T>();
-            string tableName = mapping.Table.Name;
             var where = new Dictionary<string, object>();
             var update = new Dictionary<string, object>();
             foreach (var column in mapping.ColumnMappings)
@@ -71,7 +70,7 @@ namespace Faaast.Orm
                 }
             }
 
-            var query = (FaaastQuery<T>)db.From<T>().Where(where).AsUpdate(update);
+            var query = db.From<T>().Where(where).AsUpdate(update);
             var compiledQuery = db.Compile(query);
             var command = db.Query(
                 compiledQuery.Sql,
@@ -90,7 +89,6 @@ namespace Faaast.Orm
             CancellationToken cancellationToken = default)
         {
             var mapping = db.Mapping<T>();
-            string tableName = mapping.Table.Name;
             var insert = new Dictionary<string, object>();
             ColumnMapping identityColumn = null;
 
@@ -106,18 +104,20 @@ namespace Faaast.Orm
                 }
             }
 
-            var query = (FaaastQuery<T>)db.From<T>().AsInsert(insert, identityColumn != null);
+            var query = db.From<T>().AsInsert(insert, identityColumn != null);
             var compiledQuery = db.Compile(query);
             var command = db.Query(
-                compiledQuery.Sql, 
-                compiledQuery.Parameters, 
+                compiledQuery.Sql,
+                compiledQuery.Parameters,
                 connection,
                 transaction,
                 commandTimeout,
                 CommandType.Text,
                 cancellationToken);
             if (identityColumn == null)
+            {
                 return await command.ExecuteAsync();
+            }
             else
             {
                 object id = await command.SingleAsync(identityColumn.Property.Type);

@@ -1,28 +1,22 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace Faaast.SeoRouter
 {
     public class RoutingRules
     {
-        private readonly Dictionary<string, Dictionary<string, List<RoutingRule>>> _indexByControllerAction = new Dictionary<string, Dictionary<string, List<RoutingRule>>>(StringComparer.OrdinalIgnoreCase);
-        private readonly List<RoutingRule> _allRules = new List<RoutingRule>();
-        private readonly List<RoutingRule> _dynamicRules = new List<RoutingRule>();
+        private readonly Dictionary<string, Dictionary<string, List<RoutingRule>>> _indexByControllerAction = new(StringComparer.OrdinalIgnoreCase);
+        private readonly List<RoutingRule> _allRules = new();
+        private readonly List<RoutingRule> _dynamicRules = new();
 
-        private readonly Dictionary<string, List<RoutingRule>> _indexByUrl = new Dictionary<string, List<RoutingRule>>();
+        private readonly Dictionary<string, List<RoutingRule>> _indexByUrl = new();
 
-        private readonly ReaderWriterLock _syncLock = new ReaderWriterLock();
+        private readonly ReaderWriterLock _syncLock = new();
 
-        public IReadOnlyCollection<RoutingRule> Rules
-        {
-            get
-            {
-                return _allRules.ToArray();
-            }
-        }
+        public IReadOnlyCollection<RoutingRule> Rules => _allRules.ToArray();
 
         public void Add(RoutingRule rule)
         {
@@ -37,9 +31,11 @@ namespace Faaast.SeoRouter
 
                 if (!rule.IsDynamic)
                 {
-                    string baseUrl = rule.Url.BaseUrl();
+                    var baseUrl = rule.Url.BaseUrl();
                     if (!_indexByUrl.TryGetValue(baseUrl, out var items))
+                    {
                         _indexByUrl[baseUrl] = items = new List<RoutingRule>();
+                    }
 
                     items.Add(rule);
                 }
@@ -63,21 +59,14 @@ namespace Faaast.SeoRouter
             {
                 foreach (var item in rules)
                 {
-                    Add(item);
+                    this.Add(item);
                 }
             }
         }
 
-        public IReadOnlyCollection<RoutingRule> GetFor(string controller, string action)
-        {
-            if (_indexByControllerAction.TryGetValue(controller, out var actions) &&
-                actions.TryGetValue(action, out var collection))
-            {
-                return collection;
-            }
-
-            return new RoutingRule[0];
-        }
+        public IReadOnlyCollection<RoutingRule> GetFor(string controller, string action) => _indexByControllerAction.TryGetValue(controller, out var actions) && actions.TryGetValue(action, out var collection)
+                ? collection
+                : Array.Empty<RoutingRule>();
 
         public RoutingRules(params IEnumerable<RoutingRule>[] groups)
         {
@@ -85,7 +74,7 @@ namespace Faaast.SeoRouter
             {
                 foreach (var group in groups)
                 {
-                    AddRange(group);
+                    this.AddRange(group);
                 }
             }
         }
@@ -96,13 +85,13 @@ namespace Faaast.SeoRouter
             try
             {
                 requestPath = requestPath.NormalizeUrl();
-                string baseUrl = requestPath.BaseUrl();
+                var baseUrl = requestPath.BaseUrl();
 
-                if (_indexByUrl.TryGetValue(baseUrl, out List<RoutingRule> rules))
+                if (_indexByUrl.TryGetValue(baseUrl, out var rules))
                 {
                     foreach (var rule in rules)
                     {
-                        if (rule.MatchStrict(requestPath, out RouteValueDictionary requestValues))
+                        if (rule.MatchStrict(requestPath, out var requestValues))
                         {
                             values = requestValues;
                             return rule;
@@ -110,16 +99,20 @@ namespace Faaast.SeoRouter
                     }
                 }
 
-                PathString pathString = new PathString("/" + baseUrl);
+                var pathString = new PathString("/" + baseUrl);
                 foreach (var rule in _dynamicRules)
                 {
-                    if (rule.MatchDynamic(pathString, out RouteValueDictionary requestValues))
+                    if (rule.MatchDynamic(pathString, out var requestValues))
                     {
                         if (!_indexByUrl.TryGetValue(baseUrl, out var items))
+                        {
                             _indexByUrl[baseUrl] = items = new List<RoutingRule>();
+                        }
 
                         if (!items.Contains(rule))
+                        {
                             items.Add(rule);
+                        }
 
                         values = requestValues;
                         return rule;
@@ -137,8 +130,8 @@ namespace Faaast.SeoRouter
 
         public RoutingRule FindByRoute(RouteValueDictionary values)
         {
-            if (values.TryGetValue("controller", out object controller) &&
-                values.TryGetValue("action", out object action) &&
+            if (values.TryGetValue("controller", out var controller) &&
+                values.TryGetValue("action", out var action) &&
                 _indexByControllerAction.TryGetValue(controller.ToString(), out var actions) &&
                 actions.TryGetValue(action.ToString(), out var rules))
             {

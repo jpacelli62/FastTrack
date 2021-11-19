@@ -1,8 +1,7 @@
-﻿using Faaast.DatabaseModel;
-using Faaast.Metadata;
-using Faaast.Orm.Mapping;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using Faaast.DatabaseModel;
+using Faaast.Metadata;
 
 namespace Faaast.Orm.Mapping
 {
@@ -26,7 +25,7 @@ namespace Faaast.Orm.Mapping
             var columns = new Dictionary<Column, DtoProperty>();
             if (this.ColumnMappings != null)
             {
-                foreach (var map in ColumnMappings)
+                foreach (var map in this.ColumnMappings)
                 {
                     property.Add(map.Property.Name, map.Column);
                     columns.Add(map.Column, map.Property);

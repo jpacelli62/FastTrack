@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Routing;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Routing;
 
 namespace Faaast.SeoRouter
 {

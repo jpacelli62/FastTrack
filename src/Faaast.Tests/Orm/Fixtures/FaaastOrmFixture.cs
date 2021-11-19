@@ -1,11 +1,11 @@
-﻿using Faaast.DatabaseModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Faaast.DatabaseModel;
 using Faaast.Orm;
 using Faaast.Tests.Orm.FakeConnection;
 using Microsoft.Extensions.DependencyInjection;
 using SqlKata.Compilers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Faaast.Tests.Orm.Fixtures
 {
@@ -14,19 +14,13 @@ namespace Faaast.Tests.Orm.Fixtures
         public class FakeDB : FaaastQueryDb
         {
             Compiler _compiler;
-            public FakeDB(IServiceProvider provider) : base(provider)
-            {
-                _compiler = new SqlServerCompiler();
-            }
+            public FakeDB(IServiceProvider provider) : base(provider) => _compiler = new SqlServerCompiler();
 
             protected override Compiler Compiler => _compiler;
 
-            public void SetCompiler (Compiler instance)
-            {
-                this._compiler = instance;
-            }
+            public void SetCompiler(Compiler instance) => this._compiler = instance;
 
-            public override ConnectionSettings Connection => new ConnectionSettings("connectionName", null, "sampleConnectionString");
+            public override ConnectionSettings Connection => new("connectionName", null, "sampleConnectionString");
 
             protected override IEnumerable<SimpleTypeMapping> GetMappings()
             {
@@ -48,25 +42,27 @@ namespace Faaast.Tests.Orm.Fixtures
         {
         }
 
-        public FakeDB GetDb(out ServiceProvider provider)
+        public static FakeDB GetDb(out ServiceProvider provider)
         {
-            ServiceCollection services = new ServiceCollection();
+            var services = new ServiceCollection();
             services.AddFaaastOrm();
             services.AddSingleton<FakeDB>();
             provider = services.BuildServiceProvider();
             return provider.GetRequiredService<FakeDB>();
         }
 
-        public FakeDbConnection CreateFakeConnection()
+        public static FakeDbConnection CreateFakeConnection()
         {
-            var connection = new FakeDbConnection();
-            connection.Command = new FakeCommand()
+            FakeDbConnection connection = new()
             {
-                Reader = new FakeDataReader()
+                Command = new FakeCommand()
                 {
-                    Count = 10000000,
-                    columns = Enumerable.Range(1, 7).Select(i => "v" + i).ToList(),
-                    Values = new object[] { 123, "lorem ipsum", DateTime.Now, Guid.NewGuid(), 3.14f, (long)89765464, 0.001d },
+                    Reader = new FakeDataReader()
+                    {
+                        Count = 10000000,
+                        columns = Enumerable.Range(1, 7).Select(i => "v" + i).ToList(),
+                        Values = new object[] { 123, "lorem ipsum", DateTime.Now, Guid.NewGuid(), 3.14f, (long)89765464, 0.001d },
+                    }
                 }
             };
             return connection;

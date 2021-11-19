@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Routing;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Routing;
 
 namespace Faaast.SeoRouter
 {
@@ -15,7 +15,9 @@ namespace Faaast.SeoRouter
         {
             url = url.ToLower();
             if (!string.IsNullOrEmpty(url) && url[0] == '/')
+            {
                 url = url.Substring(1);
+            }
 
             return url;
         }
@@ -23,9 +25,11 @@ namespace Faaast.SeoRouter
         public static RouteValueDictionary ToRouteValueDictionary(this MvcAction? action)
         {
             if (action == null || string.IsNullOrEmpty(action?.Controller))
+            {
                 return new RouteValueDictionary();
+            }
 
-            Dictionary<string, string> values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            var values = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
             {
                 { "controller", action.Value.Controller },
                 { "action", action.Value.Action }
@@ -39,10 +43,9 @@ namespace Faaast.SeoRouter
             return new RouteValueDictionary(values);
         }
 
-
         public static string BaseUrl(this string url)
         {
-            int index = url.IndexOf("?");
+            var index = url.IndexOf("?");
             if (index > -1)
             {
                 url = url.Substring(0, index);
@@ -53,31 +56,38 @@ namespace Faaast.SeoRouter
 
         public static IDictionary<string, object> GetQueryDictionnary(this string queryString)
         {
-            Dictionary<string, object> query = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            var query = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
             if (!string.IsNullOrWhiteSpace(queryString))
             {
                 if (queryString.StartsWith(QUERY_DELIMITER.ToString()))
+                {
                     queryString = queryString.Substring(1);
+                }
 
-                int l = queryString.Length;
-                int i = 0;
+                var l = queryString.Length;
+                var i = 0;
                 while (i < l)
                 {
-                    int si = i;
-                    int ti = -1;
+                    var si = i;
+                    var ti = -1;
 
                     while (i < l)
                     {
-                        char ch = queryString[i];
+                        var ch = queryString[i];
 
                         if (ch == PARAM_VALUE_SEPARATOR)
                         {
                             if (ti < 0)
+                            {
                                 ti = i;
+                            }
                         }
                         else if (ch == PARAMETER_DELIMITER)
+                        {
                             break;
+                        }
+
                         i++;
                     }
 
@@ -92,15 +102,19 @@ namespace Faaast.SeoRouter
                         value = queryString.Substring(ti + 1, i - ti - 1);
                     }
                     else
+                    {
                         name = queryString.Substring(si, i - si);
+                    }
 
                     if (!query.ContainsKey(name))
                     {
                         query.Add(name, value == null ? value : Uri.UnescapeDataString(value));
                     }
+
                     i++;
                 }
             }
+
             return query;
         }
 

@@ -1,8 +1,7 @@
+
+using System;
 using Faaast.Authentication.OAuth2;
 using Microsoft.AspNetCore.Authentication;
-using System;
-using System.Net.Http;
-using System.Threading;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

@@ -20,8 +20,8 @@ namespace Faaast.Metadata
 
         public DtoProperty(string name, Type type)
         {
-            Name = name;
-            Type = type;
+            this.Name = name;
+            this.Type = type;
         }
     }
 }

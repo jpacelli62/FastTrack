@@ -7,35 +7,33 @@ namespace Faaast.Metadata
 {
     public class DefaultObjectMapper : IObjectMapper
     {
-        private Dictionary<Type, DtoClass> Definitions { get; set; } = new Dictionary<Type, DtoClass>();
+        private Dictionary<Type, DtoClass> Definitions { get; } = new Dictionary<Type, DtoClass>();
 
-        private readonly ReadWriteSync _sync = new ReadWriteSync();
+        private readonly ReadWriteSync _sync = new();
 
         public DtoClass Get(Type type)
         {
             using (_sync.ReadAccess(10000))
             {
-                if (!Definitions.ContainsKey(type))
+                if (!this.Definitions.ContainsKey(type))
                 {
                     using (_sync.UpgradeToWriteAccess(10000))
                     {
-                        if (!Definitions.ContainsKey(type))
+                        if (!this.Definitions.ContainsKey(type))
                         {
-                            Definitions.Add(type, Build(type));
+                            this.Definitions.Add(type, Build(type));
                         }
                     }
-
                 }
 
-                return Definitions[type];
+                return this.Definitions[type];
             }
         }
 
-
-        public DtoClass Build(Type type)
+        public static DtoClass Build(Type type)
         {
             var result = new DtoClass(type);
-            var constructor = type.GetConstructor(new Type[0]);
+            var constructor = type.GetConstructor(Array.Empty<Type>());
             result.Activator = GenerateActivator(type, constructor);
 
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
@@ -72,10 +70,11 @@ namespace Faaast.Metadata
 
         public static Func<object> GenerateActivator(Type type, ConstructorInfo constructor)
         {
-            if(constructor == null)
+            if (constructor == null)
             {
                 return () => throw new InvalidOperationException($"No parameterless constructor on type \"{type.FullName}\"");
             }
+
             var callNew = Expression.New(constructor);
             var cast = Expression.Convert(callNew, typeof(object));
             var exp = (Func<object>)Expression.Lambda(cast).Compile();
@@ -87,12 +86,9 @@ namespace Faaast.Metadata
             var instance = Expression.Parameter(typeof(object), "x");
             var castedInstance = Expression.Convert(instance, type);
 
-            Expression call;
-            if (member is PropertyInfo property)
-                call = Expression.Call(castedInstance, property.GetGetMethod(true));
-            else
-                call = Expression.MakeMemberAccess(castedInstance, member);
-
+            var call = member is PropertyInfo property
+                ? Expression.Call(castedInstance, property.GetGetMethod(true))
+                : (Expression)Expression.MakeMemberAccess(castedInstance, member);
             var cast = Expression.Convert(call, typeof(object));
             var exp = (Func<object, object>)Expression.Lambda(cast, instance).Compile();
             return exp;
@@ -114,7 +110,7 @@ namespace Faaast.Metadata
             {
                 var fieldType = ((FieldInfo)member).FieldType;
                 Expression castedValue = fieldType.IsValueType ? Expression.Unbox(value, fieldType) : Expression.Convert(value, fieldType);
-                MemberExpression fieldExp = Expression.Field(castedInstance, (FieldInfo)member);
+                var fieldExp = Expression.Field(castedInstance, (FieldInfo)member);
                 call = Expression.Assign(fieldExp, castedValue);
             }
 
