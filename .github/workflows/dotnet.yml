@@ -19,6 +19,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Faaast.sln
     - name: Build
-      run: dotnet build --no-restore src/Faaast.sln
+      run: dotnet build --no-restore Faaast.sln
     - name: Test
       run: dotnet test --no-build --verbosity normal  Faaast.sln
