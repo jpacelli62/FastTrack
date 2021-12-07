@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Faaast.SeoRouter
 {
@@ -13,11 +14,19 @@ namespace Faaast.SeoRouter
 
         public RoutingRules Rules { get; set; }
 
+        private ILogger Log { get; set; }
+
         public async Task<RoutingRules> GetRulesAsync(IServiceProvider services)
         {
+            if(this.Log is null)
+            {
+                this.Log = services.GetRequiredService<ILoggerFactory>().CreateLogger("SeoRouter");
+            }
+
             var provider = services.GetRequiredService<IRouteProvider>();
             if (this.Rules == null || await provider.RefreshNeededAsync(this.Rules))
             {
+                this.Log.LogDebug("Refreshing rules");
                 this.Rules = await provider.GetRulesAsync();
             }
 
@@ -39,11 +48,13 @@ namespace Faaast.SeoRouter
             {
                 if (rule == origin)
                 {
+                    context.RouteData = new RouteData(values);
                     return provider.HandleAsync(context, rule);
                 }
                 else
                 {
                     var vpd = rule.GetVirtualPath(this, context.RouteData.DataTokens, values);
+                    this.Log.LogTrace("Url \"{0}\" matches route {1} and is redirected to {2} (\"{3}\")", url, origin.DisplayName, rule.DisplayName, vpd.VirtualPath);
                     return provider.HandleRedirectAsync(context, rule, vpd);
                 }
             }
@@ -65,6 +76,7 @@ namespace Faaast.SeoRouter
             origin = this.FindRouteRule(url, provider, out values);
             if (origin != null)
             {
+                this.Log.LogTrace("Url \"{0}\" matches route {1} with handler {2}", url, origin.DisplayName, origin.Handler.ToString());
                 switch (origin.Handler)
                 {
                     case HandlerType.Auto:

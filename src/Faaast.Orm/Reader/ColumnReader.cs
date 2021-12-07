@@ -23,7 +23,7 @@ namespace Faaast.Orm.Reader
             this.Call = null;
         }
 
-        public ColumnReader(DtoProperty property, string columnName, bool nullable) : this(property, columnName) => this.Call = this.Property?.CanWrite is false or null ? this.DoNothing : (Action<IDataReader, int, object>)(nullable ? this.ReadNullable : this.ReadNonNullable);
+        public ColumnReader(DtoProperty property, string columnName, bool nullable) : this(property, columnName) => this.Call = this.Property?.CanWrite is false or null ? this.DoNothing : this.ReadNullable;
 
         public ColumnReader(DtoProperty property, ColumnMapping column) : this(property, column.Column.Name, column.Column.Get(DbMeta.Nullable) == true)
         {
@@ -36,12 +36,6 @@ namespace Faaast.Orm.Reader
         }
 
         public void Read(IDataReader reader, int index, object instance) => this.Call(reader, index, instance);
-
-        public void ReadNonNullable(IDataReader reader, int index, object instance)
-        {
-            var value = reader.GetValue(index);
-            this.Property.Write(instance, value);
-        }
 
         public void ReadNullable(IDataReader reader, int index, object instance)
         {
