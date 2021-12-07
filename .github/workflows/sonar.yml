@@ -1,11 +1,9 @@
 on:
-  workflow_dispatch:
+  push:
+    branches: [ main ]
   pull_request:
-    branches: 
-      - develop
-      - release/**
-      - feature/**
-
+    branches: [ main ]
+    
 jobs:
   validate-changes:
     runs-on: ubuntu-latest
