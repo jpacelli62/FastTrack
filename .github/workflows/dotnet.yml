@@ -17,8 +17,8 @@ jobs:
       with:
         dotnet-version: 5.0.x
     - name: Restore dependencies
-      run: dotnet restore src/Faaast.sln
+      run: dotnet restore Faaast.sln
     - name: Build
       run: dotnet build --no-restore src/Faaast.sln
     - name: Test
-      run: dotnet test --no-build --verbosity normal  src/Faaast.sln
+      run: dotnet test --no-build --verbosity normal  Faaast.sln
