@@ -24,7 +24,7 @@ namespace Faaast.Metadata
         {
             this.Type = type;
             this.Name = type.Name;
-            this.Properties = new Dictionary<string, DtoProperty>();
+            this.Properties = new Dictionary<string, DtoProperty>(StringComparer.OrdinalIgnoreCase);
         }
 
         public IEnumerator<DtoProperty> GetEnumerator() => this.Properties.Values.GetEnumerator();

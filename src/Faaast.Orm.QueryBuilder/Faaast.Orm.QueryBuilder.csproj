@@ -23,6 +23,5 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Faaast.DatabaseModel\Faaast.DatabaseModel.csproj" />
-    <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
   </ItemGroup>
 </Project>
