@@ -26,6 +26,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "src\Faaast.Tests\Faaast.Tests.csproj", "{1098A113-2402-4E75-8723-ED773F93DC22}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{BCC959BB-C924-45D6-B167-8E9E45CD097B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sample.Metadata", "Samples\Sample.Metadata\Sample.Metadata.csproj", "{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,9 +85,18 @@ Global
 		{1098A113-2402-4E75-8723-ED773F93DC22}.Publish|Any CPU.Build.0 = Debug|Any CPU
 		{1098A113-2402-4E75-8723-ED773F93DC22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1098A113-2402-4E75-8723-ED773F93DC22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Publish|Any CPU.ActiveCfg = Debug|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Publish|Any CPU.Build.0 = Debug|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{23DF5FAC-6A95-4BC7-980A-44A357E3DEDD} = {BCC959BB-C924-45D6-B167-8E9E45CD097B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {087104AF-30C6-453A-9150-CFA589030A30}
