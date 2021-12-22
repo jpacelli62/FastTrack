@@ -27,6 +27,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
         
     - name: Publish coverage
+      if: always()
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
