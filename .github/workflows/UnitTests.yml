@@ -25,3 +25,9 @@ jobs:
       run: dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=lcov
       env:
         ASPNETCORE_ENVIRONMENT: Development
+        
+    - name: Publish coverage
+      uses: coverallapp/github-action@master
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: src/Faaast.Tests/TestResults/coverage.info
