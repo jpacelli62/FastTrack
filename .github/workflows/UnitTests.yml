@@ -19,9 +19,9 @@ jobs:
       run: dotnet restore Faaast.sln
       
     - name: Build
-      run: dotnet build --no-restore Faaast.sln -c Publish
+      run: dotnet build --no-restore Faaast.sln
 
     - name: Test with the dotnet CLI
-      run: dotnet test --no-build --settings coverlet.runsettings --logger:trx Faaast.sln
+      run: dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj //p:CollectCoverage=true //p:CoverletOutput=TestResults //p:CoverletOutputFormat=lcov
       env:
         ASPNETCORE_ENVIRONMENT: Development
