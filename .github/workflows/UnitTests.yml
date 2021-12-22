@@ -1,4 +1,4 @@
-name: .NET
+name: Unit Tests
 
 on:
   push:
@@ -18,11 +18,6 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Faaast.sln
       
-    - name: Sonarqube Begin
-      run: | 
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /o:someorg /k:somekey /d:sonar.login=${{ secrets.SONAR_TOKEN }} /s:$GITHUB_WORKSPACE/SonarQube.Analysis.xml
-      
     - name: Build
       run: dotnet build --no-restore Faaast.sln -c Publish
 
@@ -30,8 +25,3 @@ jobs:
       run: dotnet test --no-build --settings coverlet.runsettings --logger:trx Faaast.sln
       env:
         ASPNETCORE_ENVIRONMENT: Development
-
-    - name: Sonarqube end
-      run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
