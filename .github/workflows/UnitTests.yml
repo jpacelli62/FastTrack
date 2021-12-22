@@ -27,7 +27,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
         
     - name: Publish coverage
-      uses: coverallapp/github-action@master
+      uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         path-to-lcov: src/Faaast.Tests/TestResults/coverage.info
