@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Faaast.DatabaseModel;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Mapping
 {

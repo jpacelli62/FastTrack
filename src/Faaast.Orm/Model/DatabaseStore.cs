@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     public class DatabaseStore : IDatabaseStore
     {

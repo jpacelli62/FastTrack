@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Faaast.DatabaseModel;
 using Faaast.Orm.Mapping;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm
 {

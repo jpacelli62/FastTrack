@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Faaast.Metadata;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     public interface IDatabase : IMetaModel<IDatabase>
     {

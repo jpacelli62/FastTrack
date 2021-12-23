@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Common;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     public abstract class SqlEngine
     {

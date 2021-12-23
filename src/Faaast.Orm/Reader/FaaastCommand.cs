@@ -4,8 +4,8 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
-using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Reader
 {

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Mapping
 {

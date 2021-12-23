@@ -1,5 +1,6 @@
 ﻿using System;
 using Faaast.SeoRouter;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,6 +31,9 @@ namespace Faaast.Tests.Routing
             services.AddSingleton<IHttpContextAccessor>(context);
             services.AddSeoRouter();
             var provider = services.BuildServiceProvider();
+
+            var appMock = new Mock<IApplicationBuilder>();
+            appMock.Object.UseSeoRouter();
 
             var httpContext = new Mock<HttpContext>();
             httpContext.SetupGet(x => x.RequestServices).Returns(provider);

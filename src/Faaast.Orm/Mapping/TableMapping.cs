@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using Faaast.DatabaseModel;
 using Faaast.Metadata;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Mapping
 {

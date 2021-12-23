@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Faaast.DatabaseModel;
 using Faaast.Orm;
+using Faaast.Orm.Model;
 using Faaast.Tests.Orm.FakeConnection;
 using Microsoft.Extensions.DependencyInjection;
 using SqlKata.Compilers;

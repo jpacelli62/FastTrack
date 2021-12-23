@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Faaast.Metadata;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     [DebuggerDisplay("{Connexion.Name}")]
     public class Database : MetaModel<IDatabase>, IDatabase

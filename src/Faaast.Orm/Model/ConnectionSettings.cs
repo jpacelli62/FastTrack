@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     public class ConnectionSettings
     {

@@ -1,6 +1,6 @@
 ﻿using Faaast.Metadata;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     public static class DbMeta
     {

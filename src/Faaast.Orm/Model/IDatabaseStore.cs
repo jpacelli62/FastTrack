@@ -1,4 +1,4 @@
-﻿namespace Faaast.DatabaseModel
+﻿namespace Faaast.Orm.Model
 {
     public interface IDatabaseStore
     {

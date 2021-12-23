@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Diagnostics;
-using Faaast.DatabaseModel;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
+using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Reader
 {

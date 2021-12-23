@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using Faaast.Metadata;
 
-namespace Faaast.DatabaseModel
+namespace Faaast.Orm.Model
 {
     [DebuggerDisplay("{Name}")]
     public class Table : MetaModel<Table>

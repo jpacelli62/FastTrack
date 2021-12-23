@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Faaast.DatabaseModel;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
+using Faaast.Orm.Model;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.Orm

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Faaast.Orm.Model.Column">
+    <Position X="7.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAAAAAAAAQAAAAAAAAAAEAAAAAAgAA=</HashCode>
+      <FileName>Model\Column.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Faaast.Orm.Model.ConnectionSettings">
+    <Position X="4.75" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAABCAAAAAAAAA=</HashCode>
+      <FileName>Model\ConnectionSettings.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Engine" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Faaast.Orm.Model.Database" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\Database.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.15" Collapsed="true" />
+  </Class>
+  <Class Name="Faaast.Orm.Model.DatabaseStore" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\DatabaseStore.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Faaast.Orm.Model.SqlEngine">
+    <Position X="2.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAQAAAAAAA=</HashCode>
+      <FileName>Model\SqlEngine.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Faaast.Orm.Model.Table">
+    <Position X="7.5" Y="5.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAgAAAA=</HashCode>
+      <FileName>Model\Table.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsCollectionAssociation>
+      <Property Name="Columns" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Interface Name="Faaast.Orm.Model.IDatabase">
+    <Position X="7.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\IDatabase.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Connexion" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="Tables" />
+    </ShowAsCollectionAssociation>
+  </Interface>
+  <Interface Name="Faaast.Orm.Model.IDatabaseStore">
+    <Position X="7.5" Y="2" Width="1.5" />
+    <AssociationLine Name="this[System.String]" Type="Faaast.Orm.Model.IDatabase">
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.135" Y="0.043" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Model\IDatabaseStore.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="this[System.String]" />
+    </ShowAsAssociation>
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
