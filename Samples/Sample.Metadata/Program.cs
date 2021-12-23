@@ -28,7 +28,7 @@ namespace Sample.Metadata
             servicesCollection.AddMetadata();
             var services = servicesCollection.BuildServiceProvider();
 
-            // Retrieve service from dependaency injection
+            // Retrieve service from dependency injection
             ObjectMapper = services.GetRequiredService<IObjectMapper>();
 
             // Load and caches the metadata for the type

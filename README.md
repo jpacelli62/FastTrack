@@ -6,4 +6,4 @@
 A simple, modular and powerful toolset (work in progress)
 
 ##### Faaast.Metadata
-[Sample app](https://github.com/jpacelli62/Faaast/tree/main/Samples/Sample.Metadata/Program.cs)
+- [Sample app](https://github.com/jpacelli62/Faaast/tree/main/Samples/Sample.Metadata/Program.cs)
