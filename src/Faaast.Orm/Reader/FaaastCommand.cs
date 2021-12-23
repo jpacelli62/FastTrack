@@ -11,15 +11,15 @@ namespace Faaast.Orm.Reader
 {
     public struct FaaastCommand
     {
-        public string CommandText { get; }
-        public object Parameters { get; }
-        public DbTransaction Transaction { get; }
-        public int? CommandTimeout { get; }
-        public CommandType? CommandType { get; }
-        public CancellationToken CancellationToken { get; }
-        public DbConnection Connection { get; }
-        public IObjectMapper Mapper { get; }
-        public IDatabase Database { get; }
+        public string CommandText { get; set; }
+        public object Parameters { get; set; }
+        public DbTransaction Transaction { get; set; }
+        public int? CommandTimeout { get; set; }
+        public CommandType? CommandType { get; set; }
+        public CancellationToken CancellationToken { get; set; }
+        public DbConnection Connection { get; set; }
+        public IObjectMapper Mapper { get; set; }
+        public IDatabase Database { get; set; }
         public CommandBehavior CommandBehavior { get; set; }
         public bool HandleConnection { get; set; }
 

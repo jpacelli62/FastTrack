@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Faaast.Orm.Mapping;
-
+using Faaast.Orm.Reader;
 namespace Faaast.Orm
 {
     public static partial class QueryExtensions
@@ -15,12 +13,7 @@ namespace Faaast.Orm
             return mapping.TypeToMapping[typeof(TClass)];
         }
 
-        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record,
-            DbConnection connection = null,
-            DbTransaction transaction = null,
-            int? commandTimeout = null,
-            CancellationToken cancellationToken = default)
-
+        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
         {
             var mapping = db.Mapping<T>();
             var pk = mapping.Table.PrimaryKeyColumns();
@@ -29,27 +22,17 @@ namespace Faaast.Orm
             {
                 where.Add(column.Name, mapping.ColumnToProperty[column].Read(record));
             }
-
+            
             var query = db.From<T>().Where(where).AsDelete();
             var compiledQuery = db.Compile(query);
-            var command = db.Query(
-                compiledQuery.Sql,
-                compiledQuery.Parameters,
-                connection,
-                transaction,
-                commandTimeout,
-                CommandType.Text,
-                cancellationToken
-                );
-
-            return command.ExecuteAsync();
+            var cmd = command ?? db.Query(null);
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = compiledQuery.Sql;
+            cmd.Parameters = compiledQuery.Parameters;
+            return cmd.ExecuteAsync();
         }
 
-        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record,
-            DbConnection connection = null,
-            DbTransaction transaction = null,
-            int? commandTimeout = null,
-            CancellationToken cancellationToken = default)
+        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
 
         {
             var mapping = db.Mapping<T>();
@@ -72,21 +55,14 @@ namespace Faaast.Orm
 
             var query = db.From<T>().Where(where).AsUpdate(update);
             var compiledQuery = db.Compile(query);
-            var command = db.Query(
-                compiledQuery.Sql,
-                compiledQuery.Parameters,
-                connection,
-                transaction,
-                commandTimeout,
-                CommandType.Text,
-                cancellationToken);
-            return command.ExecuteAsync();
+            var cmd = command ?? db.Query(null);
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = compiledQuery.Sql;
+            cmd.Parameters = compiledQuery.Parameters;
+            return cmd.ExecuteAsync();
         }
 
-        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, DbConnection connection = null,
-            DbTransaction transaction = null,
-            int? commandTimeout = null,
-            CancellationToken cancellationToken = default)
+        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
         {
             var mapping = db.Mapping<T>();
             var insert = new Dictionary<string, object>();
@@ -106,21 +82,18 @@ namespace Faaast.Orm
 
             var query = db.From<T>().AsInsert(insert, identityColumn != null);
             var compiledQuery = db.Compile(query);
-            var command = db.Query(
-                compiledQuery.Sql,
-                compiledQuery.Parameters,
-                connection,
-                transaction,
-                commandTimeout,
-                CommandType.Text,
-                cancellationToken);
+            var cmd = command ?? db.Query(null);
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = compiledQuery.Sql;
+            cmd.Parameters = compiledQuery.Parameters;
+
             if (identityColumn == null)
             {
-                return await command.ExecuteAsync();
+                return await cmd.ExecuteAsync();
             }
             else
             {
-                object id = await command.SingleAsync(identityColumn.Property.Type);
+                object id = await cmd.SingleAsync(identityColumn.Property.Type);
                 identityColumn.Property.Write(record, id);
             }
 
