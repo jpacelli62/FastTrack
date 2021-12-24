@@ -44,7 +44,7 @@ jobs:
       run: |
         New-Item -Path .\.sonar\scanner -ItemType Directory
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-        dotnet tool update dotnet-reportgenerator-globaltool -g --version 4.8.7
+#        dotnet tool update dotnet-reportgenerator-globaltool -g --version 4.8.7
 
     - name: Build and analyze
       env:
@@ -53,10 +53,9 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.coverageReportPaths=".\sonarqubecoverage\SonarQube.xml" 
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.dotnet.excludeTestProjects=true 
         dotnet build --no-restore Faaast.sln
-        dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=lcov
-        reportgenerator "-reports:src\Faaast.Tests\TestResults.info" "-targetdir:sonarqubecoverage" "-reporttypes:SonarQube"
+        dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov --logger:trx
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
 #    - name: Test with the dotnet CLI
