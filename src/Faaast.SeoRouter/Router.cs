@@ -8,7 +8,7 @@ namespace Faaast.SeoRouter
 {
     public class Router : IRouter
     {
-        public static readonly RoutingRule NotFound = new() { Kind = RuleKind.Global, Handler = HandlerType.NotFound };
+        public static readonly RoutingRule NotFound = new(null, "NotFound",RuleKind.Global, HandlerType.NotFound, null, null);
         public const string ControllerKey = "controller";
         public const string ActionKey = "action";
 

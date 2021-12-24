@@ -30,9 +30,11 @@ namespace Faaast.Tests.Routing
             var context = new FakeContext();
             services.AddSingleton<IHttpContextAccessor>(context);
             services.AddSeoRouter();
+            services.AddLogging();
             var provider = services.BuildServiceProvider();
 
             var appMock = new Mock<IApplicationBuilder>();
+            appMock.SetupGet(app => app.ApplicationServices).Returns(provider);
             appMock.Object.UseSeoRouter();
 
             var httpContext = new Mock<HttpContext>();

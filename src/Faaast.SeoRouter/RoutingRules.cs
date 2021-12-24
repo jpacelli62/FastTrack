@@ -16,8 +16,6 @@ namespace Faaast.SeoRouter
 
         private readonly ReaderWriterLock _syncLock = new();
 
-        public IReadOnlyCollection<RoutingRule> Rules => _allRules.ToArray();
-
         public void Add(RoutingRule rule)
         {
             _syncLock.AcquireWriterLock(5000);
@@ -60,21 +58,6 @@ namespace Faaast.SeoRouter
                 foreach (var item in rules)
                 {
                     this.Add(item);
-                }
-            }
-        }
-
-        public IReadOnlyCollection<RoutingRule> GetFor(string controller, string action) => _indexByControllerAction.TryGetValue(controller, out var actions) && actions.TryGetValue(action, out var collection)
-                ? collection
-                : Array.Empty<RoutingRule>();
-
-        public RoutingRules(params IEnumerable<RoutingRule>[] groups)
-        {
-            if (groups != null)
-            {
-                foreach (var group in groups)
-                {
-                    this.AddRange(group);
                 }
             }
         }

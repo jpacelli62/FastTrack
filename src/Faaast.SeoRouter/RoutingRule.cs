@@ -32,11 +32,6 @@ namespace Faaast.SeoRouter
         private IDictionary<string, IRouteConstraint> _routeConstraints;
         private IDictionary<string, IRouteConstraint> _matchVirtualPathConstraints;
 
-        internal RoutingRule()
-        {
-
-        }
-
         public RoutingRule(IServiceProvider services, string displayName, RuleKind kind, HandlerType handler, string url, MvcAction? target)
         {
             this.DisplayName = displayName;
@@ -54,11 +49,6 @@ namespace Faaast.SeoRouter
 
         internal void InitConstraints(IServiceProvider services)
         {
-            if (this.Target == null)
-            {
-                this.Target = new MvcAction();
-            }
-
             var vpdConstraints = new Dictionary<string, object>();
             var targetConstraints = this.Target.Value.Constraints.GetQueryDictionnary();
             var targetValues = this.Target.ToRouteValueDictionary();
@@ -67,11 +57,7 @@ namespace Faaast.SeoRouter
             var index = template.IndexOf('?');
             if (index > -1)
             {
-#pragma warning disable IDE0079
-#pragma warning disable IDE0057 
                 var querystring = template.Substring(index + 1).GetQueryDictionnary();
-#pragma warning restore IDE0057  
-#pragma warning restore IDE0079
 
                 foreach (var queryParameter in querystring)
                 {
@@ -109,7 +95,7 @@ namespace Faaast.SeoRouter
             {
                 foreach (var kvp in constraints)
                 {
-                    if (!string.IsNullOrWhiteSpace(kvp.Key) && kvp.Value != null)
+                    if (!string.IsNullOrWhiteSpace(kvp.Key))
                     {
                         switch (kvp.Value.ToString())
                         {

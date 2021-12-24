@@ -29,6 +29,7 @@ namespace Faaast.Tests.Routing
             var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Strict, HandlerType.Auto, "recettes/fiche_recette_v3.aspx", new MvcAction("recipe", "details", string.Empty));
             var rules = new RoutingRules();
             rules.Add(route);
+            Assert.Equal("test", route.DisplayName);
             Assert.NotNull(rules.Find("recettes/fiche_recette_v3.aspx", out _));
             Assert.NotNull(rules.Find("/recettes/fiche_recette_v3.aspx", out _));
             Assert.Null(rules.Find("recettes/fiche_recette_v3.aspx?foo=bar", out _));
@@ -149,87 +150,82 @@ namespace Faaast.Tests.Routing
             Assert.Equal("/name_p123?slug=blah", path.VirtualPath);
         }
 
-        //TODO
-        //[Fact]
-        //public void TestGenerateDynamicUrlWithRouteProvider()
-        //{
-        //    var rule = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "{name}_p{id}", new MvcAction("Portal", "Details", null, "id=^[0-9]+"));
-        //    var rules = new RoutingRules();
-        //    rules.Add(rule);
+        [Fact]
+        public void TestGenerateDynamicUrlWithRouteProvider()
+        {
+            var rule = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "{name}_p{id}", new MvcAction("Portal", "Details", null, "id=^[0-9]+"));
+            var rules = new RoutingRules();
+            rules.Add(rule);
 
-        //    var provider = new Mock<IRouteProvider>();
-        //    provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).Callback<RoutingRule, RouteValueDictionary, RouteValueDictionary, object>((rule, ambiant, values, src) => values.Add("name", "wonderful"));
-        //    provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+            var provider = new Mock<IRouteProvider>();
+            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).Callback<RoutingRule, RouteValueDictionary, RouteValueDictionary, object>((rule, ambiant, values, src) => values.Add("name", "wonderful"));
+            provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
 
-        //    var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
-        //    var values = new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" });
+            var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
+            var values = new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" });
 
-        //    var matchingRule = router.GetVirtualPathRuleAsync(values, services).Result;
-        //    Assert.Equal(rule, matchingRule);
+            var matchingRule = router.GetVirtualPathRuleAsync(values, services).Result;
+            Assert.Equal(rule, matchingRule);
 
-        //    var context = new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values);
-        //    var vpd = router.GetVirtualPath(context);
-        //    Assert.NotNull(vpd);
-        //    Assert.Equal("/wonderful_p123?slug=blah", vpd.VirtualPath);
-        //}
+            var context = new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values);
+            var vpd = router.GetVirtualPath(context);
+            Assert.NotNull(vpd);
+            Assert.Equal("/wonderful_p123?slug=blah", vpd.VirtualPath);
+        }
 
-        //TODO
-        //[Fact]
-        //public void TestFollowRoutesRedirect()
-        //{
-        //    var source = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Global, HandlerType.RedirectPermanent, "category/empty", new MvcAction("Category", "Details", string.Empty));
-        //    var target = new RoutingRule(this.ServiceProvider, "target", RuleKind.Global, HandlerType.Auto, "category", new MvcAction("Category", "Details", string.Empty));
-        //    var rules = new RoutingRules();
-        //    rules.Add(source);
-        //    rules.Add(target);
-        //    var provider = new Mock<IRouteProvider>();
-        //    provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+        [Fact]
+        public void TestFollowRoutesRedirect()
+        {
+            var source = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Global, HandlerType.RedirectPermanent, "category/empty", new MvcAction("Category", "Details", string.Empty));
+            var target = new RoutingRule(this.ServiceProvider, "target", RuleKind.Global, HandlerType.Auto, "category", new MvcAction("Category", "Details", string.Empty));
+            var rules = new RoutingRules();
+            rules.Add(source);
+            rules.Add(target);
+            var provider = new Mock<IRouteProvider>();
+            provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
 
-        //    var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
-        //    var result = router.FollowRoute("category/empty", services, out var origin, out var values);
-        //    Assert.NotEqual(result, origin);
-        //    Assert.Equal(target, result);
-        //}
+            var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
+            var result = router.FollowRoute("category/empty", services, out var origin, out var values);
+            Assert.NotEqual(result, origin);
+            Assert.Equal(target, result);
+        }
 
-        //TODO
-        //[Fact]
-        //public void TestFollowRedirectToGoodRoute()
-        //{
-        //    var source = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Global, HandlerType.Auto, "category/empty", new MvcAction("Category", "Details", string.Empty));
-        //    var duplicate = new RoutingRule(this.ServiceProvider, "target", RuleKind.Global, HandlerType.Auto, "category", new MvcAction("Category", "Details", string.Empty));
-        //    var rules = new RoutingRules();
-        //    rules.Add(source);
-        //    rules.Add(duplicate);
-        //    var provider = new Mock<IRouteProvider>();
-        //    provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+        [Fact]
+        public void TestFollowRedirectToGoodRoute()
+        {
+            var source = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Global, HandlerType.Auto, "category/empty", new MvcAction("Category", "Details", string.Empty));
+            var duplicate = new RoutingRule(this.ServiceProvider, "target", RuleKind.Global, HandlerType.Auto, "category", new MvcAction("Category", "Details", string.Empty));
+            var rules = new RoutingRules();
+            rules.AddRange(new[] { source, duplicate });
+            var provider = new Mock<IRouteProvider>();
+            provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
 
-        //    var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
-        //    var result = router.FollowRoute("category", services, out var origin, out var values);
-        //    Assert.NotEqual(result, origin);
-        //    Assert.Equal(source, result);
-        //}
+            var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
+            var result = router.FollowRoute("category", services, out var origin, out var values);
+            Assert.NotEqual(result, origin);
+            Assert.Equal(source, result);
+        }
 
 
-        //TODO
-        //[Fact]
-        //public void TestMatchStrictConstraints()
-        //{
-        //    var rule = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Strict, HandlerType.Auto, "category/empty?foo=bar", new MvcAction("Category", "Details", "id=5"));
-        //    var rules = new RoutingRules();
-        //    rules.Add(rule);
-        //    var provider = new Mock<IRouteProvider>();
-        //    provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
-        //    var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
+        [Fact]
+        public void TestMatchStrictConstraints()
+        {
+            var rule = new RoutingRule(this.ServiceProvider, "empty", RuleKind.Strict, HandlerType.Auto, "category/empty?foo=bar", new MvcAction("Category", "Details", "id=5"));
+            var rules = new RoutingRules();
+            rules.Add(rule);
+            var provider = new Mock<IRouteProvider>();
+            provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+            var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
 
-        //    var values1 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "fizz" });
-        //    Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values1), services).Result);
+            var values1 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "fizz" });
+            Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values1), services).Result);
 
-        //    var values2 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "bar" });
-        //    Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values2), services).Result);
+            var values2 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "bar" });
+            Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values2), services).Result);
 
-        //    var values3 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "bar", id = 5 });
-        //    Assert.NotNull(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values3), services).Result);
+            var values3 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "bar", id = 5 });
+            Assert.NotNull(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values3), services).Result);
 
-        //}
+        }
     }
 }
