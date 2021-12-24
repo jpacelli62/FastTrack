@@ -67,4 +67,4 @@ jobs:
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: /home/runner/work/Faaast/Faaast/src/Faaast.Tests/TestResults.info
+        path-to-lcov: src/Faaast.Tests/TestResults.info
