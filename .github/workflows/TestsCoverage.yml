@@ -53,9 +53,9 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=src/Faaast.Tests/TestResults/*.trx 
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=src/Faaast.Tests/coverage.opencover.xml 
         dotnet build --no-restore Faaast.sln
-        dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults/ /p:CoverletOutputFormat=lcov --logger:trx
+        dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage /p:CoverletOutputFormat=opencover
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
 #    - name: Test with the dotnet CLI
