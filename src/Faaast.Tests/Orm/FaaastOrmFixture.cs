@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using Faaast.Orm;
-using Faaast.Orm.Model;
 using Faaast.Tests.Orm.Fake;
 using Faaast.Tests.Orm.FakeConnection;
 using Microsoft.Extensions.DependencyInjection;
-using SqlKata.Compilers;
 
 namespace Faaast.Tests.Orm.Fixtures
 {

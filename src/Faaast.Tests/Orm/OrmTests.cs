@@ -1,12 +1,5 @@
-﻿using System;
-using System.Net;
-using System.Threading.Tasks;
-using Faaast.Authentication.OAuth2;
-using Faaast.Orm;
-using Faaast.Orm.Model;
+﻿using Faaast.Orm;
 using Faaast.Tests.Orm.Fixtures;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Faaast.Tests.Orm
