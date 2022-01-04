@@ -8,11 +8,11 @@ using Xunit;
 
 namespace Faaast.Tests.Authentication
 {
-    public class OAuth2ClientTests : IClassFixture<AuthFixture>
+    public class OrmTests : IClassFixture<AuthFixture>
     {
         public AuthFixture Fixture { get; set; }
 
-        public OAuth2ClientTests(AuthFixture fixture) => this.Fixture = fixture;
+        public OrmTests(AuthFixture fixture) => this.Fixture = fixture;
 
         [Fact]
         public async Task VerifySchemeDefaults()

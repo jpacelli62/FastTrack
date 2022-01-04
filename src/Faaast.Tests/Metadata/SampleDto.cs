@@ -2,7 +2,7 @@
 
 namespace Faaast.Tests.Orm.Fixtures
 {
-    public class SampleModelDto
+    public class SampleDto
     {
         public int IntMember = 234;
         public int ReadWriteProperty { get; set; } = 123;
@@ -23,6 +23,6 @@ namespace Faaast.Tests.Orm.Fixtures
 
         public string RefProperty { get; set; } = "Hello world";
         public DateTime StructProperty { get; set; } = DateTime.Today;
-        public SampleModelDto ComplexType { get; set; }
+        public SampleDto ComplexType { get; set; }
     }
 }

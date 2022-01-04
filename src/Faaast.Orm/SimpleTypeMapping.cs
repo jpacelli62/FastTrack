@@ -10,23 +10,22 @@ namespace Faaast.Orm
     {
         public Type Type { get; set; }
 
-        public TableMapping Table { get; set; } = new TableMapping();
+        public TableMapping Table { get; set; }
 
-        public SimpleTypeMapping(Type type) => this.Type = type;
-
-        public void ToTable(string name, string schema = null) => this.Table = new TableMapping
+        public SimpleTypeMapping(Type type)
         {
-            Table = new Table
+            this.Type = type;
+            this.Table = new TableMapping()
             {
-                Name = name,
-                Schema = schema
-            }
-        };
+                Table = new Table()
+            };
+        }
 
-        public void ToTable(Table table) => this.Table = new TableMapping
+        public void ToTable(string name, string schema = null)
         {
-            Table = table
-        };
+            this.Table.Table.Name = name;
+            this.Table.Table.Schema = schema;
+        }
 
         public void ToDatabase(string name) => this.Table.Database = name;
     }

@@ -73,7 +73,7 @@ namespace Faaast.Metadata
 
         private static void AddConstructor(Type type, Type baseType, TypeBuilder tb, Dictionary<MemberInfo, ConstructorBuilder> propertyTypes)
         {
-            var baseConstructor = baseType.GetConstructor(BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance, null, new Type[1] { typeof(Type) }, null);
+            var baseConstructor = baseType.GetConstructor(BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance, null, new Type[1] { typeof(Type) }, null);
             var constructor = tb.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, Type.EmptyTypes);
             var il = constructor.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);

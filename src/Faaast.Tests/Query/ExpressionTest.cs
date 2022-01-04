@@ -46,12 +46,12 @@ namespace Faaast.Tests.Query
 
         //}
 
-        private string BuildSqlQuery<T>(Expression<Func<T, bool>> exp)
-        {
-            var db = FaaastOrmFixture.GetDb(out _);
-            var query = db.From<T>().Where<T>(exp);
-            var compiledQuery = query.Compile();
-            return compiledQuery.Sql;
-        }
+        //private string BuildSqlQuery<T>(Expression<Func<T, bool>> exp)
+        //{
+        //    var db = FaaastOrmFixture.GetDb(out _);
+        //    var query = db.From<T>().Where<T>(exp);
+        //    var compiledQuery = query.Compile();
+        //    return compiledQuery.Sql;
+        //}
     }
 }

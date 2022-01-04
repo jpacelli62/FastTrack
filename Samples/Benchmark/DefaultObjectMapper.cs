@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Benchmark;
 
 namespace Faaast.Metadata
 {
@@ -32,14 +33,14 @@ namespace Faaast.Metadata
 
         public static IDtoClass Build(Type type)
         {
-            var result = new DtoClass(type);
+            var result = new LambdaDto(type);
             var constructor = type.GetConstructor(Array.Empty<Type>());
-            result.Activator = GenerateActivator(type, constructor);
+            result.Lambda = GenerateActivator(type, constructor);
 
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 var newProp = new DtoProperty(property.Name, property.PropertyType);
-                if (property.CanRead && !(property.GetGetMethod()?.IsPrivate != false))
+                if (property.CanRead && (property.GetGetMethod()?.IsPrivate == false))
                 {
                     newProp.ReadFunc = GenerateGetter(type, property);
                     newProp.CanRead = true;
@@ -49,7 +50,7 @@ namespace Faaast.Metadata
                     newProp.ReadFunc = x => throw new InvalidOperationException();
                 }
 
-                if (property.CanWrite && !(property.GetSetMethod()?.IsPrivate != false))
+                if (property.CanWrite && (property.GetSetMethod()?.IsPrivate == false))
                 {
                     newProp.WriteFunc = GenerateSetter(type, property);
                     newProp.CanWrite = true;

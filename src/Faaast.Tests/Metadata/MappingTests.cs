@@ -13,7 +13,7 @@ namespace Faaast.Tests.Metadata
 
         IObjectMapper Mapper { get; set; }
 
-        SampleModelDto SampleModelDto { get; set; }
+        SampleDto SampleDto { get; set; }
 
         IDtoClass Dto { get; set; }
 
@@ -22,15 +22,15 @@ namespace Faaast.Tests.Metadata
             var services = new ServiceCollection();
             services.AddMetadata();
             this.Mapper = services.BuildServiceProvider().GetService<IObjectMapper>();
-            this.SampleModelDto = new SampleModelDto();
-            this.Dto = this.Mapper.Get(typeof(SampleModelDto));
+            this.SampleDto = new SampleDto();
+            this.Dto = this.Mapper.Get(typeof(SampleDto));
             Assert.NotNull(this.Dto);
         }
 
         [Fact]
         public void Can_attach_value()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.ReadWriteProperty)];
+            var property = this.Dto[nameof(this.SampleDto.ReadWriteProperty)];
             Assert.Null(property.Get(IsAmazing));
             property.Set(IsAmazing, true);
             Assert.True(property.Has(IsAmazing));
@@ -40,69 +40,69 @@ namespace Faaast.Tests.Metadata
         [Fact]
         public void Has_properties_filled()
         {
-            Assert.Equal(nameof(this.SampleModelDto), this.Dto.Name);
-            Assert.Equal(typeof(SampleModelDto), this.Dto.Type);
+            Assert.Equal(typeof(SampleDto).Name, this.Dto.Name);
+            Assert.Equal(typeof(SampleDto), this.Dto.Type);
         }
 
         [Fact]
         public void Can_read_ReadWriteProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.ReadWriteProperty)];
+            var property = this.Dto[nameof(this.SampleDto.ReadWriteProperty)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
 
             var value = 98798654;
-            property.Write(this.SampleModelDto, value);
-            Assert.Equal(value, property.Read(this.SampleModelDto));
-            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleModelDto, null));
+            property.Write(this.SampleDto, value);
+            Assert.Equal(value, property.Read(this.SampleDto));
+            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleDto, null));
         }
 
         [Fact]
         public void Can_read_IntMember()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.IntMember)];
+            var property = this.Dto[nameof(this.SampleDto.IntMember)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Equal(234, (int)property.Read(this.SampleModelDto));
+            Assert.Equal(234, (int)property.Read(this.SampleDto));
             var value = 567;
-            property.Write(this.SampleModelDto, value);
-            Assert.Equal(value, property.Read(this.SampleModelDto));
-            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleModelDto, null));
+            property.Write(this.SampleDto, value);
+            Assert.Equal(value, property.Read(this.SampleDto));
+            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleDto, null));
         }
 
         [Fact]
         public void Can_read_NullableBoolProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.NullableBoolProperty)];
+            var property = this.Dto[nameof(this.SampleDto.NullableBoolProperty)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.True((bool?)property.Read(this.SampleModelDto));
+            Assert.True((bool?)property.Read(this.SampleDto));
 
-            property.Write(this.SampleModelDto, null);
-            Assert.Null(property.Read(this.SampleModelDto));
+            property.Write(this.SampleDto, null);
+            Assert.Null(property.Read(this.SampleDto));
 
-            property.Write(this.SampleModelDto, false);
-            Assert.False((bool?)property.Read(this.SampleModelDto));
+            property.Write(this.SampleDto, false);
+            Assert.False((bool?)property.Read(this.SampleDto));
         }
 
         [Fact]
         public void Can_read_ReadOnlyProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.ReadOnlyProperty)];
+            var property = this.Dto[nameof(this.SampleDto.ReadOnlyProperty)];
             Assert.True(property.CanRead);
             Assert.False(property.CanWrite);
-            Assert.Equal(234, (int)property.Read(this.SampleModelDto));
-            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleModelDto, 456));
+            Assert.Equal(234, (int)property.Read(this.SampleDto));
+            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleDto, 456));
         }
 
         [Fact]
         public void Cant_read_private_set()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.PrivateSetProperty)];
+            var property = this.Dto[nameof(this.SampleDto.PrivateSetProperty)];
             Assert.True(property.CanRead);
             Assert.False(property.CanWrite);
-            Assert.Equal(345, (int?)property.Read(this.SampleModelDto));
-            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleModelDto, 456));
+            Assert.Equal(345, (int?)property.Read(this.SampleDto));
+            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleDto, 456));
         }
 
         [Fact]
@@ -115,13 +115,13 @@ namespace Faaast.Tests.Metadata
         [Fact]
         public void Cant_read_WriteProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.WriteProperty)];
+            var property = this.Dto[nameof(this.SampleDto.WriteProperty)];
             Assert.False(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Equal(456, this.SampleModelDto._writeProperty);
-            property.Write(this.SampleModelDto, 567);
-            Assert.Equal(567, this.SampleModelDto._writeProperty);
-            Assert.Throws<InvalidOperationException>(() => property.Read(this.SampleModelDto));
+            Assert.Equal(456, this.SampleDto._writeProperty);
+            property.Write(this.SampleDto, 567);
+            Assert.Equal(567, this.SampleDto._writeProperty);
+            Assert.Throws<InvalidOperationException>(() => property.Read(this.SampleDto));
         }
 
         [Fact]
@@ -129,7 +129,6 @@ namespace Faaast.Tests.Metadata
         {
             var services = new ServiceCollection();
             services.AddMetadata();
-            var mapper = services.BuildServiceProvider().GetService<IObjectMapper>();
             var dto = this.Mapper.Get(typeof(SampleClassA));
             Assert.NotNull(dto);
             var member = dto["MyComplexMember"];
@@ -142,36 +141,36 @@ namespace Faaast.Tests.Metadata
         [Fact]
         public void Can_read_RefProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.RefProperty)];
+            var property = this.Dto[nameof(this.SampleDto.RefProperty)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Equal("Hello world", (string)property.Read(this.SampleModelDto));
-            property.Write(this.SampleModelDto, "Lorem ipsum");
-            Assert.Equal("Lorem ipsum", (string)property.Read(this.SampleModelDto));
-            property.Write(this.SampleModelDto, null);
-            Assert.Null((string)property.Read(this.SampleModelDto));
+            Assert.Equal("Hello world", (string)property.Read(this.SampleDto));
+            property.Write(this.SampleDto, "Lorem ipsum");
+            Assert.Equal("Lorem ipsum", (string)property.Read(this.SampleDto));
+            property.Write(this.SampleDto, null);
+            Assert.Null((string)property.Read(this.SampleDto));
         }
 
         [Fact]
         public void Can_read_StructProperty()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.StructProperty)];
+            var property = this.Dto[nameof(this.SampleDto.StructProperty)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Equal(DateTime.Today, (DateTime)property.Read(this.SampleModelDto));
-            property.Write(this.SampleModelDto, DateTime.Today.AddDays(1));
-            Assert.Equal(DateTime.Today.AddDays(1), (DateTime)property.Read(this.SampleModelDto));
+            Assert.Equal(DateTime.Today, (DateTime)property.Read(this.SampleDto));
+            property.Write(this.SampleDto, DateTime.Today.AddDays(1));
+            Assert.Equal(DateTime.Today.AddDays(1), (DateTime)property.Read(this.SampleDto));
         }
 
         [Fact]
         public void Can_read_ComplexType()
         {
-            var property = this.Dto[nameof(this.SampleModelDto.ComplexType)];
+            var property = this.Dto[nameof(this.SampleDto.ComplexType)];
             Assert.True(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Null(property.Read(this.SampleModelDto));
-            property.Write(this.SampleModelDto, new SampleModelDto());
-            Assert.NotNull(property.Read(this.SampleModelDto));
+            Assert.Null(property.Read(this.SampleDto));
+            property.Write(this.SampleDto, new SampleDto());
+            Assert.NotNull(property.Read(this.SampleDto));
         }
 
         [Fact]

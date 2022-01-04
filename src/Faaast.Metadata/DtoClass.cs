@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Faaast.Metadata
 {
-    public class DtoClass : MetaModel<IDtoClass>, IDtoClass
+    public abstract class DtoClass : MetaModel<IDtoClass>, IDtoClass
     {
         public virtual string Name { get; internal set; }
 
@@ -12,9 +12,7 @@ namespace Faaast.Metadata
 
         protected Dictionary<string, IDtoProperty> Properties { get; set; }
 
-        public virtual Func<object> Activator { get; internal set; }
-
-        public virtual object CreateInstance() => this.Activator();
+        public abstract object CreateInstance();
 
         public virtual IDtoProperty this[string propertyName]
         {
@@ -22,7 +20,7 @@ namespace Faaast.Metadata
             set => this.Properties[propertyName] = value;
         }
 
-        public DtoClass(Type type)
+        protected DtoClass(Type type)
         {
             this.Type = type;
             this.Name = type.Name;

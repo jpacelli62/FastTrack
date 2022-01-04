@@ -11,6 +11,8 @@ namespace Faaast.Orm.Model
 
         public virtual string Schema { get; set; }
 
-        public ICollection<Column> Columns { get; set; } = new List<Column>();
+        public ICollection<Column> Columns { get; set; }
+
+        public Table() => this.Columns = new List<Column>();
     }
 }
