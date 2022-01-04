@@ -9,13 +9,13 @@ namespace Faaast.Tests.Metadata
 {
     public class MappingTests
     {
-        private static readonly Metadata<DtoProperty, bool?> IsAmazing = new(nameof(IsAmazing));
+        private static readonly Metadata<IDtoProperty, bool?> IsAmazing = new(nameof(IsAmazing));
 
         IObjectMapper Mapper { get; set; }
 
         SampleModelDto SampleModelDto { get; set; }
 
-        DtoClass Dto { get; set; }
+        IDtoClass Dto { get; set; }
 
         public MappingTests()
         {
@@ -40,7 +40,7 @@ namespace Faaast.Tests.Metadata
         [Fact]
         public void Has_properties_filled()
         {
-            Assert.Equal(nameof(SampleModelDto), this.Dto.Name);
+            Assert.Equal(nameof(this.SampleModelDto), this.Dto.Name);
             Assert.Equal(typeof(SampleModelDto), this.Dto.Type);
         }
 
@@ -92,18 +92,17 @@ namespace Faaast.Tests.Metadata
             Assert.True(property.CanRead);
             Assert.False(property.CanWrite);
             Assert.Equal(234, (int)property.Read(this.SampleModelDto));
-            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleModelDto, 456));
+            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleModelDto, 456));
         }
 
         [Fact]
-        public void Can_read_private_set()
+        public void Cant_read_private_set()
         {
             var property = this.Dto[nameof(this.SampleModelDto.PrivateSetProperty)];
             Assert.True(property.CanRead);
-            Assert.True(property.CanWrite);
+            Assert.False(property.CanWrite);
             Assert.Equal(345, (int?)property.Read(this.SampleModelDto));
-            property.Write(this.SampleModelDto, 456);
-            Assert.Equal(456, (int)property.Read(this.SampleModelDto));
+            Assert.Throws<InvalidOperationException>(() => property.Write(this.SampleModelDto, 456));
         }
 
         [Fact]
@@ -114,17 +113,16 @@ namespace Faaast.Tests.Metadata
         }
 
         [Fact]
-        public void Can_read_WriteProperty()
+        public void Cant_read_WriteProperty()
         {
             var property = this.Dto[nameof(this.SampleModelDto.WriteProperty)];
-            Assert.True(property.CanRead);
+            Assert.False(property.CanRead);
             Assert.True(property.CanWrite);
-            Assert.Equal(456, (int)property.Read(this.SampleModelDto));
+            Assert.Equal(456, this.SampleModelDto._writeProperty);
             property.Write(this.SampleModelDto, 567);
-            Assert.Equal(567, (int)property.Read(this.SampleModelDto));
-            Assert.Throws<NullReferenceException>(() => property.Write(this.SampleModelDto, null));
+            Assert.Equal(567, this.SampleModelDto._writeProperty);
+            Assert.Throws<InvalidOperationException>(() => property.Read(this.SampleModelDto));
         }
-
 
         [Fact]
         public void Throw_if_no_constructor()
@@ -138,7 +136,7 @@ namespace Faaast.Tests.Metadata
             Assert.NotNull(member);
             Assert.Equal(nameof(SampleClassA.MyComplexMember), member.Name);
             Assert.Equal(typeof(object), member.Type);
-            Assert.Throws<InvalidOperationException>(() => dto.Activator());
+            Assert.Throws<InvalidOperationException>(() => dto.CreateInstance());
         }
 
         [Fact]
@@ -185,7 +183,7 @@ namespace Faaast.Tests.Metadata
                 nbProps++;
             }
 
-            Assert.Equal(9, nbProps);
+            Assert.Equal(10, nbProps);
         }
 
         [Fact]
@@ -197,9 +195,7 @@ namespace Faaast.Tests.Metadata
                 nbProps++;
             }
 
-            Assert.Equal(9, nbProps);
+            Assert.Equal(10, nbProps);
         }
-
-
     }
 }

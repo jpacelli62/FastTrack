@@ -4,19 +4,23 @@ using System.Diagnostics;
 namespace Faaast.Metadata
 {
     [DebuggerDisplay("{Name} ({Type.FullName})")]
-    public class DtoProperty : MetaModel<DtoProperty>
+    public class DtoProperty : MetaModel<IDtoProperty>, IDtoProperty
     {
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
-        public Type Type { get; set; }
+        public virtual Type Type { get; set; }
 
-        public bool CanRead { get; set; }
+        public virtual bool CanRead { get; set; }
 
-        public bool CanWrite { get; set; }
+        public virtual bool CanWrite { get; set; }
 
-        public Func<object, object> Read { get; set; }
+        public virtual Func<object, object> ReadFunc { get; set; }
 
-        public Action<object, object> Write { get; set; }
+        public virtual Action<object, object> WriteFunc { get; set; }
+
+        public virtual object Read(object instance) => this.ReadFunc(instance);
+
+        public virtual void Write(object instance, object value) => this.WriteFunc(instance, value);
 
         public DtoProperty(string name, Type type)
         {

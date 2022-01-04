@@ -10,22 +10,21 @@ namespace Faaast.Orm.Reader
     [DebuggerDisplay("{ColumnName}")]
     public struct ColumnReader
     {
-        public DtoProperty Property { get; private set; }
+        public IDtoProperty Property { get; private set; }
 
         public string ColumnName { get; set; }
 
         public Action<IDataReader, int, object> Call { get; set; }
 
-        public ColumnReader(DtoProperty property, string columnName)
+        public ColumnReader(IDtoProperty property, string columnName)
         {
             this.Property = property;
             this.ColumnName = columnName;
             this.Call = null;
+            this.Call = this.Property?.CanWrite is false or null ? this.DoNothing : this.ReadNullable;
         }
 
-        public ColumnReader(DtoProperty property, string columnName, bool nullable) : this(property, columnName) => this.Call = this.Property?.CanWrite is false or null ? this.DoNothing : this.ReadNullable;
-
-        public ColumnReader(DtoProperty property, ColumnMapping column) : this(property, column.Column.Name, column.Column.Get(DbMeta.Nullable) == true)
+        public ColumnReader(IDtoProperty property, ColumnMapping column) : this(property, column.Column.Name)
         {
 
         }

@@ -117,29 +117,29 @@ namespace Faaast.Orm.Reader
             return results;
         }
 
-        public static CompositeReader DynamicReader(FaaastCommand command, IDataReader reader)
-        {
-            var result = new CompositeReader(command);
-            var dynamicReader = ObjectReader.ForDynamic(reader);
-            result.Readers = new ObjectReader[1] { dynamicReader };
-            result.Matches = new List<Match>();
+        //public static CompositeReader DynamicReader(FaaastCommand command, IDataReader reader)
+        //{
+        //    var result = new CompositeReader(command);
+        //    var dynamicReader = ObjectReader.ForDynamic(reader);
+        //    result.Readers = new ObjectReader[1] { dynamicReader };
+        //    result.Matches = new List<Match>();
 
-            var i = 0;
-            foreach (var item in dynamicReader.Columns)
-            {
-                result.Matches.Add(new Match
-                {
-                    DataIndex = i,
-                    DataName = item.ColumnName,
-                    HasMatch = true,
-                    TargetReader = dynamicReader,
-                    TargetColumn = item,
-                    TargetIndex = i,
-                    TypeIndex = 0
-                });
-            }
+        //    var i = 0;
+        //    foreach (var item in dynamicReader.Columns)
+        //    {
+        //        result.Matches.Add(new Match
+        //        {
+        //            DataIndex = i,
+        //            DataName = item.ColumnName,
+        //            HasMatch = true,
+        //            TargetReader = dynamicReader,
+        //            TargetColumn = item,
+        //            TargetIndex = i,
+        //            TypeIndex = 0
+        //        });
+        //    }
 
-            return result;
-        }
+        //    return result;
+        //}
     }
 }

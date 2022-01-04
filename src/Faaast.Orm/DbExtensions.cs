@@ -116,31 +116,31 @@ namespace Faaast.Orm
             }
         }
 
-        internal static IEnumerable<dynamic> ReadDynamic(this FaaastCommand command)
-        {
-            if (command.HandleConnection)
-            {
-                command.Connection.Open();
-            }
+        //internal static IEnumerable<dynamic> ReadDynamic(this FaaastCommand command)
+        //{
+        //    if (command.HandleConnection)
+        //    {
+        //        command.Connection.Open();
+        //    }
 
-            using (var dbCommand = command.SetupCommand())
-            {
-                dbCommand.Prepare();
-                var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
-                var composite = CompositeReader.DynamicReader(command, dbReader);
+        //    using (var dbCommand = command.SetupCommand())
+        //    {
+        //        dbCommand.Prepare();
+        //        var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
+        //        var composite = CompositeReader.DynamicReader(command, dbReader);
 
-                while (dbReader.Read())
-                {
-                    yield return composite.Read(dbReader)[0];
-                }
-            }
+        //        while (dbReader.Read())
+        //        {
+        //            yield return composite.Read(dbReader)[0];
+        //        }
+        //    }
 
-            if (command.HandleConnection)
-            {
-                command.Connection.Close();
-                command.Connection.Dispose();
-            }
-        }
+        //    if (command.HandleConnection)
+        //    {
+        //        command.Connection.Close();
+        //        command.Connection.Dispose();
+        //    }
+        //}
 
         internal static IEnumerable<object[]> Read(this FaaastCommand command, params Type[] types)
         {
@@ -316,7 +316,7 @@ namespace Faaast.Orm
 
         public static IEnumerable<T> Fetch<T>(this FaaastCommand command) => Read<T>(command);
 
-        public static IEnumerable<dynamic> Fetch(this FaaastCommand command) => ReadDynamic(command);
+        //public static IEnumerable<dynamic> Fetch(this FaaastCommand command) => ReadDynamic(command);
 
         public static IAsyncEnumerable<T> FetchAsync<T>(this FaaastCommand command) => ReadAsync<T>(command);
 

@@ -6,7 +6,7 @@ namespace Faaast.Orm.Mapping
 {
     public class ColumnMapping : MetaModel<ColumnMapping>
     {
-        public DtoProperty Property { get; set; }
+        public IDtoProperty Property { get; set; }
 
         public MemberInfo Member { get; set; }
 

@@ -7,11 +7,11 @@ namespace Faaast.Metadata
 {
     public class DefaultObjectMapper : IObjectMapper
     {
-        private Dictionary<Type, DtoClass> Definitions { get; } = new Dictionary<Type, DtoClass>();
+        private Dictionary<Type, IDtoClass> Definitions { get; } = new Dictionary<Type, IDtoClass>();
 
         private readonly ReadWriteSync _sync = new();
 
-        public DtoClass Get(Type type)
+        public IDtoClass Get(Type type)
         {
             using (_sync.ReadAccess(10000))
             {
@@ -30,7 +30,7 @@ namespace Faaast.Metadata
             }
         }
 
-        public static DtoClass Build(Type type)
+        public static IDtoClass Build(Type type)
         {
             var result = new DtoClass(type);
             var constructor = type.GetConstructor(Array.Empty<Type>());
@@ -39,16 +39,24 @@ namespace Faaast.Metadata
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 var newProp = new DtoProperty(property.Name, property.PropertyType);
-                if (property.CanRead)
+                if (property.CanRead && !(property.GetGetMethod()?.IsPrivate != false))
                 {
-                    newProp.Read = GenerateGetter(type, property);
+                    newProp.ReadFunc = GenerateGetter(type, property);
                     newProp.CanRead = true;
                 }
-
-                if (property.CanWrite)
+                else
                 {
-                    newProp.Write = GenerateSetter(type, property);
+                    newProp.ReadFunc = x => throw new InvalidOperationException();
+                }
+
+                if (property.CanWrite && !(property.GetSetMethod()?.IsPrivate != false))
+                {
+                    newProp.WriteFunc = GenerateSetter(type, property);
                     newProp.CanWrite = true;
+                }
+                else
+                {
+                    newProp.WriteFunc = (x,y) => throw new InvalidOperationException();
                 }
 
                 result[property.Name] = newProp;
@@ -58,8 +66,8 @@ namespace Faaast.Metadata
             {
                 result[field.Name] = new DtoProperty(field.Name, field.FieldType)
                 {
-                    Read = GenerateGetter(type, field),
-                    Write = GenerateSetter(type, field),
+                    ReadFunc = GenerateGetter(type, field),
+                    WriteFunc = GenerateSetter(type, field),
                     CanRead = true,
                     CanWrite = true
                 };

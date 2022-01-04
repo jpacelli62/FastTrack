@@ -8,7 +8,7 @@ namespace Faaast.Orm.Reader
 {
     public struct ObjectReader
     {
-        public DtoClass Model { get; private set; }
+        public IDtoClass Model { get; private set; }
 
         public ColumnReader[] Columns { get; private set; }
 
@@ -29,7 +29,7 @@ namespace Faaast.Orm.Reader
             this.Columns = Columns;
         }
 
-        public object NewInstance() => this.Model.Activator();
+        public object NewInstance() => this.Model.CreateInstance();
 
         public void Read(IDataReader reader, int dataReaderIndex, int mappingIndex, ref object instance)
         {
@@ -39,30 +39,30 @@ namespace Faaast.Orm.Reader
             }
         }
 
-        public static ObjectReader ForDynamic(IDataReader reader)
-        {
-            var dto = new Metadata.DtoClass(typeof(ExpandoObject))
-            {
-                Activator = () => new ExpandoObject(),
-                Name = nameof(ExpandoObject),
-                Type = typeof(ExpandoObject),
-            };
+        //public static ObjectReader ForDynamic(IDataReader reader)
+        //{
+        //    var dto = new Metadata.DtoClass(typeof(ExpandoObject))
+        //    {
+        //        Activator = () => new ExpandoObject(),
+        //        Name = nameof(ExpandoObject),
+        //        Type = typeof(ExpandoObject),
+        //    };
 
-            var cols = new ColumnReader[reader.FieldCount];
-            for (var fieldIndex = 0; fieldIndex < reader.FieldCount; fieldIndex++)
-            {
-                var dataName = reader.GetName(fieldIndex);
-                var property = new Metadata.DtoProperty(dataName, typeof(object))
-                {
-                    CanRead = true,
-                    CanWrite = true,
-                    Read = x => ((IDictionary<string, object>)x)[dataName],
-                    Write = (x, value) => ((IDictionary<string, object>)x)[dataName] = value
-                };
-                cols[fieldIndex] = new ColumnReader(property, dataName, true);
-            }
+        //    var cols = new ColumnReader[reader.FieldCount];
+        //    for (var fieldIndex = 0; fieldIndex < reader.FieldCount; fieldIndex++)
+        //    {
+        //        var dataName = reader.GetName(fieldIndex);
+        //        var property = new Metadata.DtoProperty(dataName, typeof(object))
+        //        {
+        //            CanRead = true,
+        //            CanWrite = true,
+        //            Read = x => ((IDictionary<string, object>)x)[dataName],
+        //            Write = (x, value) => ((IDictionary<string, object>)x)[dataName] = value
+        //        };
+        //        cols[fieldIndex] = new ColumnReader(property, dataName, true);
+        //    }
 
-            return new ObjectReader(dto, cols);
-        }
+        //    return new ObjectReader(dto, cols);
+        //}
     }
 }

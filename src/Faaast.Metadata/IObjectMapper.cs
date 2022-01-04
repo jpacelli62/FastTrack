@@ -4,6 +4,6 @@ namespace Faaast.Metadata
 {
     public interface IObjectMapper
     {
-        DtoClass Get(Type type);
+        IDtoClass Get(Type type);
     }
 }

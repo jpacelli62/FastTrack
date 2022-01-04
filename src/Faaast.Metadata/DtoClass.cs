@@ -4,17 +4,19 @@ using System.Collections.Generic;
 
 namespace Faaast.Metadata
 {
-    public class DtoClass : MetaModel<DtoClass>, IEnumerable<DtoProperty>
+    public class DtoClass : MetaModel<IDtoClass>, IDtoClass
     {
-        public string Name { get; set; }
+        public virtual string Name { get; internal set; }
 
-        public Type Type { get; set; }
+        public virtual Type Type { get; internal set; }
 
-        private Dictionary<string, DtoProperty> Properties { get; set; }
+        protected Dictionary<string, IDtoProperty> Properties { get; set; }
 
-        public Func<object> Activator { get; set; }
+        public virtual Func<object> Activator { get; internal set; }
 
-        public DtoProperty this[string propertyName]
+        public virtual object CreateInstance() => this.Activator();
+
+        public virtual IDtoProperty this[string propertyName]
         {
             get => this.Properties.TryGetValue(propertyName, out var property) ? property : null;
             set => this.Properties[propertyName] = value;
@@ -24,10 +26,10 @@ namespace Faaast.Metadata
         {
             this.Type = type;
             this.Name = type.Name;
-            this.Properties = new Dictionary<string, DtoProperty>(StringComparer.OrdinalIgnoreCase);
+            this.Properties = new Dictionary<string, IDtoProperty>(StringComparer.OrdinalIgnoreCase);
         }
 
-        public IEnumerator<DtoProperty> GetEnumerator() => this.Properties.Values.GetEnumerator();
+        public IEnumerator<IDtoProperty> GetEnumerator() => this.Properties.Values.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => this.Properties.Values.GetEnumerator();
     }

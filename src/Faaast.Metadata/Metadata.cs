@@ -7,9 +7,7 @@
         public Metadata(string name) => this.Name = name;
     }
 
-#pragma warning disable S2326 // Unused type parameters should be removed
-    public class Metadata<TModel, TValue> : Metadata where TModel : class
-#pragma warning restore S2326 // Unused type parameters should be removed
+    public class Metadata<TModel, TValue> : Metadata
     {
         public Metadata(string name) : base(name)
         {

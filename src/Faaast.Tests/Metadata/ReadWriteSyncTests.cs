@@ -13,25 +13,25 @@ namespace Faaast.Tests.Metadata
         public void Multiple_read()
         {
             ReadWriteSync sync = new();
-            bool success = false;
+            var success = false;
             using(var read1 = sync.ReadAccess())
             {
-                using (var read2 = sync.ReadAccess())
-                {
-                    success = true;
-                }
+                using var read2 = sync.ReadAccess();
+                success = true;
             }
+
             Assert.True(success);
         }
         [Fact]
         public void Single_write()
         {
             ReadWriteSync sync = new(1000);
-            bool success = false;
+            var success = false;
             using (var read1 = sync.WriteAccess())
             {
                 success = true;
             }
+
             Assert.True(success);
         }
 
@@ -39,24 +39,21 @@ namespace Faaast.Tests.Metadata
         public void Write_wait_read()
         {
             ReadWriteSync sync = new();
-            using (var read = sync.ReadAccess(10000))
-            {
-                Assert.ThrowsAny<ApplicationException> (() => sync.WriteAccess(1000));
-            }
+            using var read = sync.ReadAccess(10000);
+            Assert.ThrowsAny<ApplicationException>(() => sync.WriteAccess(1000));
         }
 
         [Fact]
         public void Upgrade()
         {
             ReadWriteSync sync = new();
-            bool success = false;
+            var success = false;
             using (var read = sync.ReadAccess())
             {
-                using (var write = sync.UpgradeToWriteAccess())
-                {
-                    success = true;
-                }
+                using var write = sync.UpgradeToWriteAccess();
+                success = true;
             }
+
             Assert.True(success);
         }
     }

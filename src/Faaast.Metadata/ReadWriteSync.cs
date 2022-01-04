@@ -19,25 +19,25 @@ namespace Faaast.Metadata
         private ReaderWriterLock SyncObject { get; set; }
 
         public ReadWriteSync() => this.SyncObject = new ReaderWriterLock();
-        public ReadWriteSync(int timeout) :this() => DefaultTimeout = timeout;
+        public ReadWriteSync(int timeout) :this() => this.DefaultTimeout = timeout;
 
         public SyncToken ReadAccess(int? timeout = null)
         {
-            timeout = timeout ?? this.DefaultTimeout;
+            timeout ??= this.DefaultTimeout;
             this.SyncObject.AcquireReaderLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.ReleaseReaderLock());
         }
 
         public SyncToken WriteAccess(int? timeout = null)
         {
-            timeout = timeout ?? this.DefaultTimeout;
+            timeout ??= this.DefaultTimeout;
             this.SyncObject.AcquireWriterLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.ReleaseWriterLock());
         }
 
         public SyncToken UpgradeToWriteAccess(int? timeout = null)
         {
-            timeout = timeout ?? this.DefaultTimeout;
+            timeout ??= this.DefaultTimeout;
             var token = this.SyncObject.UpgradeToWriterLock(timeout.Value);
             return new SyncToken(() => this.SyncObject.DowngradeFromWriterLock(ref token));
         }
