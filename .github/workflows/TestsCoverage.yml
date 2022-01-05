@@ -58,10 +58,10 @@ jobs:
         dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage /p:CoverletOutputFormat=opencover
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
-#    - name: Test with the dotnet CLI
-#      run: dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=lcov
-#      env:
-#        ASPNETCORE_ENVIRONMENT: Development
+    - name: Test with the dotnet CLI
+      run: dotnet test --no-build src/Faaast.Tests/Faaast.Tests.csproj /p:CollectCoverage=true /p:CoverletOutput=TestResults /p:CoverletOutputFormat=lcov
+      env:
+        ASPNETCORE_ENVIRONMENT: Development
         
     - name: Publish coverage
       if: always()
