@@ -20,7 +20,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="AuthenticationBuilder"/>.</param>
         /// <returns>A reference to <paramref name="builder"/> after the operation has completed.</returns>
         public static AuthenticationBuilder AddFaaastOauth(this AuthenticationBuilder builder)
-            => builder.AddFaaastOauth(FaaastOauthDefaults.AuthenticationScheme, _ => { });
+            => builder.AddFaaastOauth(_ => { });
 
         /// <summary>
         /// Adds OAuth-based authentication to <see cref="AuthenticationBuilder"/> using the default scheme.

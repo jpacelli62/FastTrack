@@ -18,7 +18,7 @@ namespace Faaast.Authentication.OAuth2
             get => _oauthServerUri;
             set
             {
-                _oauthServerUri = value.TrimEnd('/');
+                _oauthServerUri = value?.TrimEnd('/');
                 this.AuthorizationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.AuthorizationEndpoint);
                 this.TokenEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.TokenEndpoint);
                 this.UserInformationEndpoint = string.Concat(_oauthServerUri, FaaastOauthDefaults.UserInformationEndpoint);
@@ -27,6 +27,7 @@ namespace Faaast.Authentication.OAuth2
         }
 
         public string SignOutEndpoint { get; set; }
+
         public string SignOutScheme { get; set; }
 
         public bool UseUserInformationEndpoint { get; set; }
@@ -47,37 +48,35 @@ namespace Faaast.Authentication.OAuth2
         /// </summary>
         public override void Validate()
         {
-#pragma warning disable S3928 // Parameter names used into ArgumentException constructors should match an existing one 
             if (string.IsNullOrEmpty(this.OauthServerUri))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.OauthServerUri)), nameof(this.OauthServerUri));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.OauthServerUri)));
             }
 
             if (string.IsNullOrEmpty(this.AuthorizationEndpoint))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.AuthorizationEndpoint)), nameof(this.AuthorizationEndpoint));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.AuthorizationEndpoint)));
             }
 
             if (string.IsNullOrEmpty(this.TokenEndpoint))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.TokenEndpoint)), nameof(this.TokenEndpoint));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.TokenEndpoint)));
             }
 
-            if (string.IsNullOrEmpty(this.UserInformationEndpoint))
+            if (this.UseUserInformationEndpoint && string.IsNullOrEmpty(this.UserInformationEndpoint))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.UserInformationEndpoint)), nameof(this.UserInformationEndpoint));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.UserInformationEndpoint)));
             }
 
             if (string.IsNullOrEmpty(this.ClientId))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.ClientId)), nameof(this.ClientId));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.ClientId)));
             }
 
             if (string.IsNullOrEmpty(this.ClientSecret))
             {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.ClientSecret)), nameof(this.ClientSecret));
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.ClientSecret)));
             }
-#pragma warning restore S3928 // Parameter names used into ArgumentException constructors should match an existing one 
 
             base.Validate();
         }

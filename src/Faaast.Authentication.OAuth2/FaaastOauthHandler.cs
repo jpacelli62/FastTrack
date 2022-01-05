@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IdentityModel.Tokens.Jwt;
-using System.IO;
 using System.Net.Http;
 using System.Security.Claims;
-using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -14,7 +11,6 @@ using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 
 namespace Faaast.Authentication.OAuth2
@@ -44,33 +40,12 @@ namespace Faaast.Authentication.OAuth2
 
                 // The SignInScheme may be shared with multiple providers, make sure this provider issued the identity.
                 var ticket = result.Ticket;
-                if (ticket != null && ticket.Principal != null && ticket.Properties != null
-                    && ticket.Properties.Items.TryGetValue(".AuthScheme", out var authenticatedScheme)
-                    && string.Equals(this.Scheme.Name, authenticatedScheme, StringComparison.Ordinal))
+                if (this.ShouldHandle(ticket))
                 {
                     if (ticket.Properties.Items.ContainsKey(".Token.expires_at"))
                     {
                         var expire = DateTime.Parse(ticket.Properties.Items[".Token.expires_at"]);
-                        if (expire <= DateTime.Now)
-                        {
-                            this.FaaastLog.LogDebug("Refreshing token");
-                            var oAuthToken = await this.Context.CallRefreshTokenAsync(result, this.Options);
-                            if (oAuthToken == null)
-                            {
-                                this.FaaastLog.LogWarning("Invalid refresh token");
-                                return AuthenticateResult.Fail("Invalid refresh token");
-                            }
-
-                            var principal = this.ReadPrincipalFromToken(oAuthToken.AccessToken);
-
-                            var newTicket = await this.CreateTicketAsync(principal.Identity as ClaimsIdentity, ticket.Properties, oAuthToken);
-                            await this.Context.SignOutAsync(this.SignInScheme);
-                            await this.Context.SignInAsync(this.SignInScheme, principal, ticket.Properties);
-
-                            return AuthenticateResult.Success(newTicket);
-                        }
-
-                        return AuthenticateResult.Success(ticket);
+                        return expire <= DateTime.Now ? await this.RefreshToken(result) : AuthenticateResult.Success(ticket);
                     }
 
                     return AuthenticateResult.Fail("Not authenticated");
@@ -78,6 +53,31 @@ namespace Faaast.Authentication.OAuth2
             }
 
             return AuthenticateResult.Fail("Remote authentication does not directly support AuthenticateAsync");
+        }
+
+        internal bool ShouldHandle(AuthenticationTicket ticket) => ticket != null &&
+                ticket.Principal != null &&
+                ticket.Properties != null &&
+                ticket.Properties.Items.TryGetValue(".AuthScheme", out var authenticatedScheme) &&
+                string.Equals(this.Scheme.Name, authenticatedScheme, StringComparison.Ordinal);
+
+        internal async Task<AuthenticateResult> RefreshToken(AuthenticateResult auth)
+        {
+            this.FaaastLog.LogDebug("Refreshing token");
+            var oAuthToken = await this.Context.CallRefreshTokenAsync(auth, this.Options);
+            if (oAuthToken == null)
+            {
+                this.FaaastLog.LogWarning("Invalid refresh token");
+                return AuthenticateResult.Fail("Invalid refresh token");
+            }
+
+            var principal = HandlerExtensions.ReadPrincipalFromToken(oAuthToken.AccessToken, this.Options);
+            var newTicket = await this.CreateTicketAsync(principal.Identity as ClaimsIdentity, auth.Ticket.Properties, oAuthToken);
+
+            await this.Context.SignOutAsync(this.SignInScheme);
+            await this.Context.SignInAsync(this.SignInScheme, principal, auth.Ticket.Properties);
+
+            return AuthenticateResult.Success(newTicket);
         }
 
         protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
@@ -88,6 +88,7 @@ namespace Faaast.Authentication.OAuth2
             {
                 new AuthenticationToken { Name = "access_token", Value = tokens.AccessToken }
             };
+
             if (!string.IsNullOrEmpty(tokens.RefreshToken))
             {
                 authTokens.Add(new AuthenticationToken { Name = "refresh_token", Value = tokens.RefreshToken });
@@ -124,8 +125,8 @@ namespace Faaast.Authentication.OAuth2
             }
             else
             {
-                identity = this.ReadPrincipalFromToken(tokens.AccessToken).Identity as ClaimsIdentity;
-                userInfos = BuildUserPayload(identity);
+                identity = HandlerExtensions.ReadPrincipalFromToken(tokens.AccessToken,this.Options).Identity as ClaimsIdentity;
+                userInfos = HandlerExtensions.BuildUserPayload(identity);
             }
 
 #if NETSTANDARD2_0 || NET461
@@ -140,59 +141,6 @@ namespace Faaast.Authentication.OAuth2
             await this.Events.CreatingTicket(context);
             return new AuthenticationTicket(context.Principal!, context.Properties, this.Scheme.Name);
 #endif
-        }
-
-        private static string BuildUserPayload(ClaimsIdentity identity)
-        {
-            var excludeList = new[] { "iat", "exp", "iss", "nbf", "scope", "aud" };
-            using var stream = new MemoryStream();
-            using (var writer = new Utf8JsonWriter(stream))
-            {
-                writer.WriteStartObject();
-                foreach (var claim in identity.Claims)
-                {
-                    var add = true;
-                    foreach (var claimToExclude in excludeList)
-                    {
-                        if (string.Equals(claimToExclude, claim.Type))
-                        {
-                            add = false;
-                            break;
-                        }
-                    }
-
-                    if (add)
-                    {
-                        writer.WriteString(claim.Type, claim.Value);
-                    }
-                }
-
-                writer.WriteEndObject();
-            }
-
-            return Encoding.UTF8.GetString(stream.ToArray());
-        }
-
-        private ClaimsPrincipal ReadPrincipalFromToken(string accessToken)
-        {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var keybytes = Encoding.ASCII.GetBytes(this.Options.ClientSecret);
-            SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
-            var validationParams = new TokenValidationParameters
-            {
-                RequireAudience = true,
-                ValidateAudience = true,
-                RequireExpirationTime = true,
-                ValidAudience = this.Options.ClientId,
-                ClockSkew = TimeSpan.FromMinutes(5),
-                ValidateIssuer = false,
-                ValidateLifetime = true,
-                RequireSignedTokens = true,
-                IssuerSigningKey = securityKey,
-                ValidateIssuerSigningKey = true
-            };
-            var principal = tokenHandler.ValidateToken(accessToken, validationParams, out _);
-            return principal;
         }
 
         public async Task SignOutAsync(AuthenticationProperties properties)

@@ -3,9 +3,9 @@ using BenchmarkDotNet.Running;
 
 namespace Benchmark
 {
-    class Program
+    public static class Program
     {
-        static void Main()
+        public static void Main()
         {
             BenchmarkRunner.Run<BenchmarkInstanceCreation>();
             BenchmarkRunner.Run<BenchmarkPropertySetter>();

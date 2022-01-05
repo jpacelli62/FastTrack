@@ -19,7 +19,7 @@ namespace Faaast.Tests.Orm.Fake
 
         public void SetCompiler(Compiler instance) => this._compiler = instance;
 
-        public override ConnectionSettings Connection => ConnectionOverride;
+        public override ConnectionSettings Connection => this.ConnectionOverride;
         public ConnectionSettings ConnectionOverride { get; set; } = new("connectionName", null, "sampleConnectionString");
 
         protected override IEnumerable<SimpleTypeMapping> GetMappings()

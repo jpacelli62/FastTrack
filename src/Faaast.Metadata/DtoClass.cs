@@ -10,7 +10,7 @@ namespace Faaast.Metadata
 
         public virtual Type Type { get; internal set; }
 
-        protected Dictionary<string, IDtoProperty> Properties { get; set; }
+        public Dictionary<string, IDtoProperty> Properties { get; set; }
 
         public abstract object CreateInstance();
 

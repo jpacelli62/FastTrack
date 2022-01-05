@@ -7,7 +7,6 @@ namespace Faaast.Metadata
 {
     public class EmitObjectMapper : IObjectMapper
     {
-        private readonly AssemblyBuilder _assembly;
         private readonly ModuleBuilder _module;
         private Dictionary<Type, IDtoClass> Definitions { get; } = new Dictionary<Type, IDtoClass>();
 
@@ -34,6 +33,7 @@ namespace Faaast.Metadata
 
         public EmitObjectMapper()
         {
+            AssemblyBuilder _assembly;
             var aName = new AssemblyName("GeneratedObjectMapper");
 #if  NET461
             _assembly = AssemblyBuilder.DefineDynamicAssembly(aName, AssemblyBuilderAccess.Run);
@@ -73,7 +73,9 @@ namespace Faaast.Metadata
 
         private static void AddConstructor(Type type, Type baseType, TypeBuilder tb, Dictionary<MemberInfo, ConstructorBuilder> propertyTypes)
         {
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             var baseConstructor = baseType.GetConstructor(BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance, null, new Type[1] { typeof(Type) }, null);
+#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             var constructor = tb.DefineConstructor(MethodAttributes.Public, CallingConventions.HasThis, Type.EmptyTypes);
             var il = constructor.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
@@ -85,7 +87,7 @@ namespace Faaast.Metadata
 
             var dicoType = typeof(Dictionary<string, IDtoProperty>);
             var add = dicoType.GetMethod("Add");
-            var baseDico = typeof(DtoClass).GetProperty("Properties", BindingFlags.NonPublic | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
+            var baseDico = typeof(DtoClass).GetProperty("Properties", BindingFlags.Public | BindingFlags.FlattenHierarchy | BindingFlags.Instance);
             foreach (var property in propertyTypes)
             {
                 il.Emit(OpCodes.Ldarg_0);
@@ -138,8 +140,8 @@ namespace Faaast.Metadata
             Type membertype;
             if (member is PropertyInfo property)
             {
-                canRead = property.CanRead && !(property.GetGetMethod()?.IsPrivate != false);
-                canWrite = property.CanWrite && !(property.GetSetMethod()?.IsPrivate != false);
+                canRead = property.CanRead && property.GetGetMethod()?.IsPrivate == false;
+                canWrite = property.CanWrite && property.GetSetMethod()?.IsPrivate == false;
                 membertype = property.PropertyType;
             }
             else
@@ -175,12 +177,11 @@ namespace Faaast.Metadata
 
         private static void AddReadMethod(MemberInfo member, Type type, TypeBuilder tb)
         {
-            // public object Read(object instance) => ((Customer)instance).Id;
             var method = tb.DefineMethod("Read", MethodAttributes.Public | MethodAttributes.Virtual, typeof(object), new Type[] { typeof(object) });
             var il = method.GetILGenerator();
             if (member is PropertyInfo property)
             {
-                if (property.CanRead && !(property.GetGetMethod()?.IsPrivate != false))
+                if (property.CanRead && property.GetGetMethod()?.IsPrivate == false)
                 {
                     il.Emit(OpCodes.Ldarg_1);
                     il.Emit(OpCodes.Castclass, type);
@@ -208,12 +209,11 @@ namespace Faaast.Metadata
 
         private static void AddWriteMethod(MemberInfo member, Type type, TypeBuilder tb)
         {
-            // public object Read(object instance) => ((Customer)instance).Id;
             var method = tb.DefineMethod("Write", MethodAttributes.Public | MethodAttributes.Virtual, null, new Type[] { typeof(object), typeof(object) });
             var il = method.GetILGenerator();
             if (member is PropertyInfo property)
             {
-                if (property.CanWrite && !(property.GetSetMethod()?.IsPrivate != false))
+                if (property.CanWrite && (property.GetSetMethod()?.IsPrivate == false))
                 {
                     il.Emit(OpCodes.Ldarg_1);
                     il.Emit(OpCodes.Castclass, type);
