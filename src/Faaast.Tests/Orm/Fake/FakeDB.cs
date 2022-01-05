@@ -19,7 +19,8 @@ namespace Faaast.Tests.Orm.Fake
 
         public void SetCompiler(Compiler instance) => this._compiler = instance;
 
-        public override ConnectionSettings Connection => new("connectionName", null, "sampleConnectionString");
+        public override ConnectionSettings Connection => ConnectionOverride;
+        public ConnectionSettings ConnectionOverride { get; set; } = new("connectionName", null, "sampleConnectionString");
 
         protected override IEnumerable<SimpleTypeMapping> GetMappings()
         {
@@ -27,10 +28,10 @@ namespace Faaast.Tests.Orm.Fake
             mapping.ToDatabase("MyDb");
             mapping.ToTable("sampleTable", "dbo");
             mapping.Map(x => x.V1, "v1").IsPrimaryKey().IsIdentity();
-            mapping.Map(x => x.V2, "V2");
+            mapping.Map(x => x.V2, "V2").Length(100).References("otherschema", "othertable", "othercolumn");
             mapping.Map(x => x.V3, "V3");
-            mapping.Map(x => x.V4, "V4");
-            mapping.Map(x => x.V5, "V5");
+            mapping.Map(x => x.V4, "V4").IsComputed();
+            mapping.Map(x => x.V5, "V5").IsNullable();
             mapping.Map(x => x.V6, "V6");
             mapping.Map(x => x.V7, "V7");
             mapping.Map(x => x.V8, "V8");

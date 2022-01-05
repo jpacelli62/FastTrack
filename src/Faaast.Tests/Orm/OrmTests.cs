@@ -1,5 +1,9 @@
-﻿using Faaast.Orm;
+﻿using System;
+using Faaast.Orm;
+using Faaast.Orm.Model;
+using Faaast.Tests.Orm.Fake;
 using Faaast.Tests.Orm.Fixtures;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Faaast.Tests.Orm
@@ -43,6 +47,30 @@ namespace Faaast.Tests.Orm
             Assert.True(mapping.PropertyToColumn[nameof(SimpleModel.V1)].Identity);
             Assert.True(mapping.PropertyToColumn[nameof(SimpleModel.V1)].PrimaryKey);
             Assert.Equal("v1", mapping.PropertyToColumn[nameof(SimpleModel.V1)].Name);
+
+            Assert.True(mapping.PropertyToColumn[nameof(SimpleModel.V4)].Computed);
+            Assert.True(mapping.PropertyToColumn[nameof(SimpleModel.V5)].Get(DbMeta.Nullable).Value);
+            Assert.Equal(100, mapping.PropertyToColumn[nameof(SimpleModel.V2)].Get(DbMeta.Length).Value);
+            Assert.Single(mapping.Table.PrimaryKeyColumns());
+            Assert.Equal("otherschema", mapping.PropertyToColumn[nameof(SimpleModel.V2)].Get(DbMeta.ReferenceSchema));
+            Assert.Equal("othertable", mapping.PropertyToColumn[nameof(SimpleModel.V2)].Get(DbMeta.ReferenceTable));
+            Assert.Equal("othercolumn", mapping.PropertyToColumn[nameof(SimpleModel.V2)].Get(DbMeta.ReferenceColumn));
+        }
+
+        [Fact]
+        public void Throws_argumentException()
+        {
+            Assert.Throws<ArgumentException>(() => new SimpleTypeMapping<SampleDto>().Map(x => x.RefProperty.ToLower(), "test"));
+
+            var services = new ServiceCollection();
+            services.AddFaaastOrm();
+            services.AddSingleton<FakeDB>();
+            var provider = services.BuildServiceProvider();
+            var db = provider.GetRequiredService<FakeDB>();
+            db.ConnectionOverride = null;
+            Assert.Throws<ArgumentException>(() => db.Mappings.Value);
+
+            
         }
     }
 }
