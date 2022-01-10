@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Faaast.Authentication.OAuth2Server {
+namespace Faaast.OAuth2Server {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Faaast.Authentication.OAuth2Server {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Faaast.Authentication.OAuth2Server.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Faaast.OAuth2Server.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -79,11 +79,29 @@ namespace Faaast.Authentication.OAuth2Server {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Forbidden flow.
+        /// </summary>
+        public static string Msg_ForbiddenFlow {
+            get {
+                return ResourceManager.GetString("Msg_ForbiddenFlow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Invalid scheme, only answer with https.
         /// </summary>
         public static string Msg_Insecure {
             get {
                 return ResourceManager.GetString("Msg_Insecure", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Invalid audience.
+        /// </summary>
+        public static string Msg_InvalidAudience {
+            get {
+                return ResourceManager.GetString("Msg_InvalidAudience", resourceCulture);
             }
         }
         
@@ -138,6 +156,24 @@ namespace Faaast.Authentication.OAuth2Server {
         public static string Msg_InvalidToken {
             get {
                 return ResourceManager.GetString("Msg_InvalidToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à Login failed.
+        /// </summary>
+        public static string Msg_LoginFailed {
+            get {
+                return ResourceManager.GetString("Msg_LoginFailed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Recherche une chaîne localisée semblable à The &apos;{0}&apos; parameter is required with &apos;{1}&apos; method(s).
+        /// </summary>
+        public static string Msg_RequestException {
+            get {
+                return ResourceManager.GetString("Msg_RequestException", resourceCulture);
             }
         }
         

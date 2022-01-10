@@ -1,37 +1,32 @@
 ﻿using System;
-using Faaast.Authentication.OAuth2Server.Core;
+using System.Globalization;
+using Faaast.OAuth2Server.Configuration;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Faaast.OAuth2Server
 {
     public static class ApplicationBuilderExtensions
     {
-        const string xFormUrlEncoded = "application/x-www-form-urlencoded";
+        public static IServiceCollection AddFaaastOAuthServer(this IServiceCollection services)
+        {
+            services.TryAddSingleton<ISystemClock, SystemClock>();
+            return services;
+        }
 
-        public static IApplicationBuilder UseFaaastOAuthServer(this IApplicationBuilder app, Action<OAuthServerOptions> configureOptions)
+        public static IOauthBuilder UseFaaastOAuthServer(this IApplicationBuilder app, Action<OAuthServerOptions> configureOptions)
         {
             var serverOptions = new OAuthServerOptions();
             configureOptions(serverOptions);
-            app.MapWhen(context => IsValidRequest(context, serverOptions),
-                appBuilder => appBuilder.UseMiddleware<OAuthServerMiddleware>(serverOptions));
+            if (string.IsNullOrEmpty(serverOptions.Issuer))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.Issuer)));
+            }
 
-            return app;
+            var builder = new OauthBuilder(app, serverOptions);
+            return builder;
         }
-
-        private static bool IsValidRequest(HttpContext context, OAuthServerOptions options) => IsAuthorizeRequest(context, options) || IsValidTokenRequest(context, options) || IsUserRequest(context, options) || IsLogOutRequest(context, options);
-
-        private static bool IsValidTokenRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Post &&
-                   context.Request.ContentType == xFormUrlEncoded &&
-                   options.TokenEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsAuthorizeRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
-                   options.AuthorizeEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsUserRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
-                   options.UserEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
-
-        private static bool IsLogOutRequest(HttpContext context, OAuthServerOptions options) => context.Request.Method == HttpMethods.Get &&
-                   options.LogoutPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase);
     }
 }

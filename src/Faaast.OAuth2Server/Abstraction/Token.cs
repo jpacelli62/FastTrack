@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Faaast.Authentication.OAuth2Server
+namespace Faaast.OAuth2Server.Abstraction
 {
     public class Token
     {

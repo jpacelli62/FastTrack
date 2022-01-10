@@ -20,7 +20,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Orm.QueryBuilder", "src\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj", "{3A49B3B9-0254-490D-B787-8C327CCC91CA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Authentication.OAuth2Server", "src\Faaast.OAuth2Server\Faaast.Authentication.OAuth2Server.csproj", "{C407C076-3F26-4E98-837B-78136E71A675}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.OAuth2Server", "src\Faaast.OAuth2Server\Faaast.OAuth2Server.csproj", "{C407C076-3F26-4E98-837B-78136E71A675}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Faaast.Tests", "src\Faaast.Tests\Faaast.Tests.csproj", "{1098A113-2402-4E75-8723-ED773F93DC22}"
 EndProject
@@ -34,7 +34,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OAuth2", "OAuth2", "{800715
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Routing", "Routing", "{D735E87B-3875-417A-BA5D-CA0D724D1252}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmark", "Samples\Benchmark\Benchmark.csproj", "{291F23C6-EC1C-485D-80A4-0DC91739ADD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Benchmark", "Samples\Benchmark\Benchmark.csproj", "{291F23C6-EC1C-485D-80A4-0DC91739ADD6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

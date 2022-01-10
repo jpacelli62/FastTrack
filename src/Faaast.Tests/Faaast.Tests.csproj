@@ -53,7 +53,7 @@
     <ProjectReference Include="..\Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj" />
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
     <ProjectReference Include="..\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj" />
-    <ProjectReference Include="..\Faaast.OAuth2Server\Faaast.Authentication.OAuth2Server.csproj" />
+    <ProjectReference Include="..\Faaast.OAuth2Server\Faaast.OAuth2Server.csproj" />
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
     <ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
   </ItemGroup>

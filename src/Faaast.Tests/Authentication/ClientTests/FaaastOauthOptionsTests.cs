@@ -42,15 +42,15 @@ namespace Faaast.Tests.Authentication.ClientTests
         [Fact]
         public void Check_argumentEceptions()
         {
-            this.AssertThrowsArgumentException(x => x.OauthServerUri = null);
-            this.AssertThrowsArgumentException(x => x.AuthorizationEndpoint = null);
-            this.AssertThrowsArgumentException(x => x.TokenEndpoint = null);
-            this.AssertThrowsArgumentException(x => x.UserInformationEndpoint = null);
-            this.AssertThrowsArgumentException(x => x.ClientId = null);
-            this.AssertThrowsArgumentException(x => x.ClientSecret = null);
+            AssertThrowsArgumentException(x => x.OauthServerUri = null);
+            AssertThrowsArgumentException(x => x.AuthorizationEndpoint = null);
+            AssertThrowsArgumentException(x => x.TokenEndpoint = null);
+            AssertThrowsArgumentException(x => x.UserInformationEndpoint = null);
+            AssertThrowsArgumentException(x => x.ClientId = null);
+            AssertThrowsArgumentException(x => x.ClientSecret = null);
         }
 
-        private void AssertThrowsArgumentException(Action<FaaastOauthOptions> action)
+        private static void AssertThrowsArgumentException(Action<FaaastOauthOptions> action)
         {
             var options = GetOptions();
             action(options);

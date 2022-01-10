@@ -206,7 +206,6 @@ namespace Faaast.Tests.Routing
             Assert.Equal(source, result);
         }
 
-
         [Fact]
         public void TestMatchStrictConstraints()
         {

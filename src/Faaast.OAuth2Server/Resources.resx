@@ -123,8 +123,14 @@
   <data name="Msg_ClientCredentialsDisabled" xml:space="preserve">
     <value>client_credentials grant type is disabled because ClientCredentials callback is null in OauthServerOptions</value>
   </data>
+  <data name="Msg_ForbiddenFlow" xml:space="preserve">
+    <value>Forbidden flow</value>
+  </data>
   <data name="Msg_Insecure" xml:space="preserve">
     <value>Invalid scheme, only answer with https</value>
+  </data>
+  <data name="Msg_InvalidAudience" xml:space="preserve">
+    <value>Invalid audience</value>
   </data>
   <data name="Msg_InvalidClient" xml:space="preserve">
     <value>Invalid client</value>
@@ -143,6 +149,12 @@
   </data>
   <data name="Msg_InvalidToken" xml:space="preserve">
     <value>Invalid token</value>
+  </data>
+  <data name="Msg_LoginFailed" xml:space="preserve">
+    <value>Login failed</value>
+  </data>
+  <data name="Msg_RequestException" xml:space="preserve">
+    <value>The '{0}' parameter is required with '{1}' method(s)</value>
   </data>
   <data name="Msg_SuccessClientCredentials" xml:space="preserve">
     <value>Success login with client credentials flow for {0}</value>
