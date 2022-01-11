@@ -29,8 +29,8 @@ namespace Faaast.Tests.Authentication.ServerTests
             this.Server = fixture.CreateServerApp(null, builder => builder.AddClientCredentialsGrant());
         }
 
-        //[Fact]
-        //public void Empty_issuer_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.Issuer = null, builder => { }));
+        [Fact]
+        public void Empty_issuer_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.Issuer = null, builder => { }));
 
         [Fact]
         public async Task Insecure_fails_when_disabled()

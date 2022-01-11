@@ -70,15 +70,6 @@ namespace Faaast.OAuth2Server {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à client_credentials grant type is disabled because ClientCredentials callback is null in OauthServerOptions.
-        /// </summary>
-        public static string Msg_ClientCredentialsDisabled {
-            get {
-                return ResourceManager.GetString("Msg_ClientCredentialsDisabled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Forbidden flow.
         /// </summary>
         public static string Msg_ForbiddenFlow {
@@ -124,15 +115,6 @@ namespace Faaast.OAuth2Server {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Invalid grand type.
-        /// </summary>
-        public static string Msg_InvalidGrantType {
-            get {
-                return ResourceManager.GetString("Msg_InvalidGrantType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Invalid redirection uri.
         /// </summary>
         public static string Msg_InvalidRedirectUri {
@@ -151,15 +133,6 @@ namespace Faaast.OAuth2Server {
         }
         
         /// <summary>
-        ///   Recherche une chaîne localisée semblable à Invalid token.
-        /// </summary>
-        public static string Msg_InvalidToken {
-            get {
-                return ResourceManager.GetString("Msg_InvalidToken", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Recherche une chaîne localisée semblable à Login failed.
         /// </summary>
         public static string Msg_LoginFailed {
@@ -174,15 +147,6 @@ namespace Faaast.OAuth2Server {
         public static string Msg_RequestException {
             get {
                 return ResourceManager.GetString("Msg_RequestException", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Recherche une chaîne localisée semblable à Success login with client credentials flow for {0}.
-        /// </summary>
-        public static string Msg_SuccessClientCredentials {
-            get {
-                return ResourceManager.GetString("Msg_SuccessClientCredentials", resourceCulture);
             }
         }
     }
