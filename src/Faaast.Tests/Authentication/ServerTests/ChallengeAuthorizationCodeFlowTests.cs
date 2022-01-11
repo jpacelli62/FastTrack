@@ -140,7 +140,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public void Test_nominal()
         {
-            lock (this.Fixture)
+            //lock (this.Fixture)
             {
                 this.Fixture.Code = null;
                 var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
@@ -164,7 +164,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public void Test_nominal_withoutState()
         {
-            lock (this.Fixture)
+            //lock (this.Fixture)
             {
                 this.Fixture.Code = null;
                 var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
