@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -40,9 +40,9 @@ jobs:
         
     - name: Install SonarCloud scanner
       if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: powershell
+      shell: bash
       run: |
-        New-Item -Path .\.sonar\scanner -ItemType Directory
+        mkdir .\.sonar\scanner
         dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 #        dotnet tool update dotnet-reportgenerator-globaltool -g --version 4.8.7
 
@@ -51,7 +51,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         ASPNETCORE_ENVIRONMENT: Development
-      shell: powershell
+      shell: bash
       run: |
         .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=src/Faaast.Tests/coverage.opencover.xml 
         dotnet build --no-restore Faaast.sln
