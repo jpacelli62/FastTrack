@@ -191,7 +191,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.NotNull(this.Fixture.Token.NameIdentifier);
         }
 
-        [Fact]
-        public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.TokenEndpointPath = null, builder => builder.AddResourceOwnerPasswordCredentialsFlow()));
+        //[Fact]
+        //public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.TokenEndpointPath = null, builder => builder.AddResourceOwnerPasswordCredentialsFlow()));
     }
 }
