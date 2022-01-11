@@ -80,15 +80,15 @@ namespace Faaast.Tests.Authentication.ServerTests
         }
 
         [Fact]
-        public void Test_invalid_code()
+        public async Task Test_invalid_code()
         {
             //lock (this.Fixture)
             {
                 this.Fixture.Code = null;
-                var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
+                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
                     this.Fixture.Client.ClientSecret,
                     null,
-                    "code").Result;
+                    "code");
                 Assert.Null(this.Fixture.Code);
                 Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
                 Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
@@ -96,7 +96,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         }
 
         [Fact]
-        public void Test_nominal()
+        public async Task Test_nominal()
         {
             //lock (this.Fixture)
             {
@@ -117,19 +117,19 @@ namespace Faaast.Tests.Authentication.ServerTests
                     Ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, properties, CookieAuthenticationDefaults.AuthenticationScheme)
                 };
 
-                var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
+                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
                     this.Fixture.Client.ClientSecret,
                     null,
-                    this.Fixture.Code.Code).Result;
+                    this.Fixture.Code.Code);
 
                 Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
                 Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
 
                 this.Fixture.Code.Expires = this.Fixture.Clock.UtcNow + TimeSpan.FromMinutes(5);
-                transaction = this.QueryAsync(this.Fixture.Client.ClientId,
+                transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
                    this.Fixture.Client.ClientSecret,
                    null,
-                   this.Fixture.Code.Code).Result;
+                   this.Fixture.Code.Code);
 
                 Assert.Equal(HttpStatusCode.OK, transaction.Response.StatusCode);
             }

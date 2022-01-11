@@ -138,16 +138,16 @@ namespace Faaast.Tests.Authentication.ServerTests
         }
 
         [Fact]
-        public void Test_nominal()
+        public async Task Test_nominal()
         {
             //lock (this.Fixture)
             {
                 this.Fixture.Code = null;
-                var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
+                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
                     TestClient.Scope,
                     null,
                     true,
-                    true).Result;
+                    true);
 
                 Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
                 var redirectPath = transaction.Response.Headers.Location.OriginalString;
@@ -162,16 +162,16 @@ namespace Faaast.Tests.Authentication.ServerTests
         }
 
         [Fact]
-        public void Test_nominal_withoutState()
+        public async Task Test_nominal_withoutState()
         {
             //lock (this.Fixture)
             {
                 this.Fixture.Code = null;
-                var transaction = this.QueryAsync(this.Fixture.Client.ClientId,
+                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
                     TestClient.Scope,
                     null,
                     false,
-                    true).Result;
+                    true);
 
                 Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
                 var redirectPath = transaction.Response.Headers.Location.OriginalString;
