@@ -23,29 +23,34 @@ jobs:
     - name: Restore Nuget dependencies
       run: dotnet restore Faaast.sln
 
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v1
-      with:
-        path: ~\sonar\cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
+    #- name: Cache SonarCloud packages
+    #  uses: actions/cache@v1
+    #  with:
+    #    path: ~\sonar\cache
+    #    key: ${{ runner.os }}-sonar
+    #    restore-keys: ${{ runner.os }}-sonar
         
-    - name: Cache SonarCloud scanner
-      id: cache-sonar-scanner
-      uses: actions/cache@v1
-      with:
-        path: .\.sonar\scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
+    #- name: Cache SonarCloud scanner
+    #  id: cache-sonar-scanner
+    #  uses: actions/cache@v1
+    #  with:
+    #    path: .\.sonar\scanner
+    #    key: ${{ runner.os }}-sonar-scanner
+    #    restore-keys: ${{ runner.os }}-sonar-scanner
         
-    - name: Install SonarCloud scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: bash
-      run: |
-        mkdir .\.sonar\scanner
-        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    #- name: Install SonarCloud scanner
+    #  if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+    #  shell: bash
+    #  run: |
+    #    mkdir .\.sonar\scanner
+    #    dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
 #        dotnet tool update dotnet-reportgenerator-globaltool -g --version 4.8.7
 
+    - name: Install SonarCloud scanner
+      shell: bash
+      run: |
+        dotnet tool install --global dotnet-sonarscanner
+    
     - name: Build and analyze
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
@@ -53,7 +58,7 @@ jobs:
         ASPNETCORE_ENVIRONMENT: Development
       shell: bash
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=src/Faaast.Tests/coverage.opencover.xml 
+        dotnet sonarscanner begin /k:"jpacelli62_Faaast" /o:"jpacelli62" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths=src/Faaast.Tests/coverage.opencover.xml 
         dotnet build --no-restore Faaast.sln
         dotnet test --no-build /p:CollectCoverage=true /p:CoverletOutput=coverage /p:CoverletOutputFormat=opencover
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
