@@ -82,57 +82,55 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_invalid_code()
         {
-            //lock (this.Fixture)
-            {
-                this.Fixture.Code = null;
-                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
-                    this.Fixture.Client.ClientSecret,
-                    null,
-                    "code");
-                Assert.Null(this.Fixture.Code);
-                Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
-                Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
-            }
+            var fixture = new ServerFixture();
+            var server = fixture.CreateServerApp(null, builder => builder.AddAuthorizationCodeFlow());
+
+            var transaction = await this.QueryAsync(server, fixture.Client.ClientId,
+                fixture.Client.ClientSecret,
+                null,
+                "code");
+            Assert.Null(fixture.Code);
+            Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
+            Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
         }
 
         [Fact]
         public async Task Test_nominal()
         {
-            //lock (this.Fixture)
+            var fixture = new ServerFixture();
+            var server = fixture.CreateServerApp(null, builder => builder.AddAuthorizationCodeFlow());
+
+            List<Claim> claims = new();
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, "123"));
+            var principal = new System.Security.Claims.ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
+            var properties = new AuthenticationProperties
             {
-                this.Fixture.Code = null;
-                List<Claim> claims = new();
-                claims.Add(new Claim(ClaimTypes.NameIdentifier, "123"));
-                var principal = new System.Security.Claims.ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
-                var properties = new AuthenticationProperties
-                {
-                    IssuedUtc = this.Fixture.Clock.UtcNow,
-                    ExpiresUtc = this.Fixture.Clock.UtcNow + TimeSpan.FromMinutes(5)
-                };
-                properties.SetString("Scope", "identity");
-                this.Fixture.Code = new OAuth2Server.AuthorizationCode()
-                {
-                    Code = Guid.NewGuid().ToString(),
-                    Expires = this.Fixture.Clock.UtcNow,
-                    Ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, properties, CookieAuthenticationDefaults.AuthenticationScheme)
-                };
+                IssuedUtc = fixture.Clock.UtcNow,
+                ExpiresUtc = fixture.Clock.UtcNow + TimeSpan.FromMinutes(5)
+            };
+            properties.SetString("Scope", "identity");
+            fixture.Code = new OAuth2Server.AuthorizationCode()
+            {
+                Code = Guid.NewGuid().ToString(),
+                Expires = fixture.Clock.UtcNow,
+                Ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, properties, CookieAuthenticationDefaults.AuthenticationScheme)
+            };
 
-                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
-                    this.Fixture.Client.ClientSecret,
-                    null,
-                    this.Fixture.Code.Code);
+            var transaction = await this.QueryAsync(server, fixture.Client.ClientId,
+                fixture.Client.ClientSecret,
+                null,
+                fixture.Code.Code);
 
-                Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
-                Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
+            Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
+            Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidCode, transaction.ResponseText);
 
-                this.Fixture.Code.Expires = this.Fixture.Clock.UtcNow + TimeSpan.FromMinutes(5);
-                transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
-                   this.Fixture.Client.ClientSecret,
-                   null,
-                   this.Fixture.Code.Code);
+            fixture.Code.Expires = fixture.Clock.UtcNow + TimeSpan.FromMinutes(5);
+            transaction = await this.QueryAsync(server, fixture.Client.ClientId,
+                fixture.Client.ClientSecret,
+                null,
+                fixture.Code.Code);
 
-                Assert.Equal(HttpStatusCode.OK, transaction.Response.StatusCode);
-            }
+            Assert.Equal(HttpStatusCode.OK, transaction.Response.StatusCode);
         }
 
         [Fact]

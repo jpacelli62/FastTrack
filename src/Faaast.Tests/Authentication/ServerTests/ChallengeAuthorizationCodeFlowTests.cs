@@ -140,49 +140,49 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_nominal()
         {
-            //lock (this.Fixture)
-            {
-                this.Fixture.Code = null;
-                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
-                    TestClient.Scope,
-                    null,
-                    true,
-                    true);
+            var fixture = new ServerFixture();
+            var server = fixture.CreateServerApp(null, builder => builder.AddAuthorizationCodeFlow());
 
-                Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
-                var redirectPath = transaction.Response.Headers.Location.OriginalString;
-                var uri = new UriBuilder(redirectPath);
-                Assert.Equal(this.Fixture.ClientHost, uri.Host);
-                Assert.Equal("/faaastoauth/signin", uri.Path);
-                var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
-                Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
-                Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["state"])));
-                Assert.NotNull(this.Fixture.Code);
-            }
+            fixture.Code = null;
+            var transaction = await this.QueryAsync(server, fixture.Client.ClientId,
+                TestClient.Scope,
+                null,
+                true,
+                true);
+
+            Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
+            var redirectPath = transaction.Response.Headers.Location.OriginalString;
+            var uri = new UriBuilder(redirectPath);
+            Assert.Equal(fixture.ClientHost, uri.Host);
+            Assert.Equal("/faaastoauth/signin", uri.Path);
+            var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
+            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["state"])));
+            Assert.NotNull(fixture.Code);
         }
 
         [Fact]
         public async Task Test_nominal_withoutState()
         {
-            //lock (this.Fixture)
-            {
-                this.Fixture.Code = null;
-                var transaction = await this.QueryAsync(this.Fixture.Client.ClientId,
-                    TestClient.Scope,
-                    null,
-                    false,
-                    true);
+            var fixture = new ServerFixture();
+            var server = fixture.CreateServerApp(null, builder => builder.AddAuthorizationCodeFlow());
 
-                Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
-                var redirectPath = transaction.Response.Headers.Location.OriginalString;
-                var uri = new UriBuilder(redirectPath);
-                Assert.Equal(this.Fixture.ClientHost, uri.Host);
-                Assert.Equal("/faaastoauth/signin", uri.Path);
-                var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
-                Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
-                Assert.NotNull(System.Web.HttpUtility.UrlDecode(queryDictionary["state"]));
-                Assert.NotNull(this.Fixture.Code);
-            }
+            fixture.Code = null;
+            var transaction = await this.QueryAsync(server, fixture.Client.ClientId,
+                TestClient.Scope,
+                null,
+                false,
+                true);
+
+            Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
+            var redirectPath = transaction.Response.Headers.Location.OriginalString;
+            var uri = new UriBuilder(redirectPath);
+            Assert.Equal(fixture.ClientHost, uri.Host);
+            Assert.Equal("/faaastoauth/signin", uri.Path);
+            var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
+            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
+            Assert.NotNull(System.Web.HttpUtility.UrlDecode(queryDictionary["state"]));
+            Assert.NotNull(fixture.Code);
         }
 
         [Fact]
