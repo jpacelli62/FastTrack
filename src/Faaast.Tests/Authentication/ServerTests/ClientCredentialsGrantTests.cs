@@ -68,7 +68,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(HttpStatusCode.OK, transaction.Response.StatusCode);
         }
 
-        //[Fact]
-        //public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.TokenEndpointPath = null, builder => builder.AddClientCredentialsGrant()));
+        [Fact]
+        public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.TokenEndpointPath = null, builder => builder.AddClientCredentialsGrant()));
     }
 }

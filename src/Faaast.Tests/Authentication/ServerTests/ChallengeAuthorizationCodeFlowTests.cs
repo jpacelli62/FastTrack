@@ -185,7 +185,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             }
         }
 
-        //[Fact]
-        //public void Empty_authorizationEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.AuthorizeEndpointPath = null, builder => builder.AddAuthorizationCodeFlow()));
+        [Fact]
+        public void Empty_authorizationEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.AuthorizeEndpointPath = null, builder => builder.AddAuthorizationCodeFlow()));
     }
 }
