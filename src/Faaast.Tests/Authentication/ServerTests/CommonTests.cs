@@ -2,17 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Http;
-using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
-using Faaast.OAuth2Server;
 using Faaast.OAuth2Server.Core;
 using Faaast.Tests.Authentication.Utility;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Moq;
 using Xunit;
 
 namespace Faaast.Tests.Authentication.ServerTests
@@ -21,27 +15,24 @@ namespace Faaast.Tests.Authentication.ServerTests
     {
         public ServerFixture Fixture { get; set; }
 
-        public TestServer Server { get; set; }
-
         public CommonTests(ServerFixture fixture)
         {
             this.Fixture = fixture;
-            this.Server = fixture.CreateServerApp(null, builder => builder.AddClientCredentialsGrant());
         }
 
         [Fact]
-        public void Empty_issuer_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.Issuer = null, builder => { }));
+        public void Empty_issuer_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServer(builder => { }, options => options.Issuer = null));
 
         [Fact]
         public async Task Insecure_fails_when_disabled()
         {
-            var server = this.Fixture.CreateServerApp(options => options.AllowInsecureHttp = false, builder => builder.AddClientCredentialsGrant());
-            var transaction = await ServerUtils.SendPostAsync(server, this.Fixture.TokenEndpoint.Replace("https", "http"), new Dictionary<string, string>
+            var server = this.Fixture.CreateServer(builder => builder.AddClientCredentialsGrantFlow(), options => options.AllowInsecureHttp = false);
+            var transaction = await server.SendPostAsync(this.Fixture.TokenEndpoint.Replace("https", "http"), new Dictionary<string, string>
             {
                 { "grant_type", "client_credentials" },
                 { "client_id", this.Fixture.Client.ClientId},
                 { "client_secret", this.Fixture.Client.ClientSecret },
-                { "audience", TestClient.Audience }
+                { "audience", this.Fixture.Client.Audience }
             });
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal(Faaast.OAuth2Server.Resources.Msg_Insecure, transaction.ResponseText);
@@ -50,14 +41,20 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_internal_crash()
         {
-            var server = this.Fixture.CreateServerApp(options => { }, builder => builder.AddClientCredentialsGrant());
-            var transaction = await ServerUtils.SendPostAsync(server, this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            var server = this.Fixture.CreateServer(builder => builder.AddResourceOwnerPasswordCredentialsGrantFlow(), options => { });
+            var transaction = await server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
             {
-                { "grant_type",  "client_credentials" },
-                { "client_id","throw" },
+                { "grant_type", "password" },
+                { "client_id", this.Fixture.Client.ClientId},
                 { "client_secret", this.Fixture.Client.ClientSecret },
-                { "audience", TestClient.Audience }
-            });
+                { "username", "login" },
+                { "password", "password" },
+                { "audience", this.Fixture.Client.Audience },
+                { "scope", this.Fixture.Client.Scope }
+            },
+            request => request.Headers.Add("PasswordSignInAsync", "crash")
+            );
+
             Assert.Equal(HttpStatusCode.InternalServerError, transaction.Response.StatusCode);
             Assert.Equal("ArgumentException : test error message", transaction.ResponseText);
         }
@@ -65,14 +62,20 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_disabled_detailedError_crash()
         {
-            var server = this.Fixture.CreateServerApp(options => options.DisplayDetailedErrors = false, builder => builder.AddClientCredentialsGrant());
-            var transaction = await ServerUtils.SendPostAsync(server, this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            var server = this.Fixture.CreateServer(builder => builder.AddResourceOwnerPasswordCredentialsGrantFlow(), options => options.DisplayDetailedErrors = false);
+            var transaction = await server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
             {
-                { "grant_type",  "client_credentials" },
-                { "client_id","throw" },
+                { "grant_type", "password" },
+                { "client_id", this.Fixture.Client.ClientId},
                 { "client_secret", this.Fixture.Client.ClientSecret },
-                { "audience", TestClient.Audience }
-            });
+                { "username", "login" },
+                { "password", "password" },
+                { "audience", this.Fixture.Client.Audience },
+                { "scope", this.Fixture.Client.Scope }
+            },
+            request => request.Headers.Add("PasswordSignInAsync", "crash")
+            );
+            
             Assert.Equal(HttpStatusCode.InternalServerError, transaction.Response.StatusCode);
             Assert.Equal("internal server error", transaction.ResponseText);
         }
@@ -80,13 +83,13 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_disabled_detailedError_badrequest()
         {
-            var server = this.Fixture.CreateServerApp(options => options.DisplayDetailedErrors = false, builder => builder.AddClientCredentialsGrant());
-            var transaction = await ServerUtils.SendPostAsync(server, this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            var server = this.Fixture.CreateServer(builder => builder.AddClientCredentialsGrantFlow(), options => options.DisplayDetailedErrors = false);
+            var transaction = await server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
             {
                 { "grant_type",  "client_credentials" },
                 { "client_id", "empty" },
                 { "client_secret", this.Fixture.Client.ClientSecret },
-                { "audience", TestClient.Audience }
+                { "audience", this.Fixture.Client.Audience }
             });
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal("bad request", transaction.ResponseText);
@@ -95,8 +98,8 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_missing_required_parameter()
         {
-            var server = this.Fixture.CreateServerApp(options => options.AllowInsecureHttp = false, builder => builder.AddClientCredentialsGrant());
-            var transaction = await ServerUtils.SendPostAsync(server, this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            var server = this.Fixture.CreateServer(builder => builder.AddClientCredentialsGrantFlow(), options => options.DisplayDetailedErrors = true);
+            var transaction = await server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
             {
                 { "grant_type", "client_credentials" }
             });

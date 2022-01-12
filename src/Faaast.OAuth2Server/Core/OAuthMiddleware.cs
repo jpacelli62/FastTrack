@@ -10,7 +10,6 @@ using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 
@@ -48,7 +47,7 @@ namespace Faaast.OAuth2Server.Core
                     return;
                 }
 
-                await this.HandleAsync(request);
+                await this.InvokeAsync(request);
             }
             else
             {
@@ -56,12 +55,11 @@ namespace Faaast.OAuth2Server.Core
             }
         }
 
-        private async Task HandleAsync(RequestContext request)
+        private async Task InvokeAsync(RequestContext request)
         {
-            var provider = request.HttpContext.RequestServices.GetRequiredService<IOauthServerProvider>();
             try
             {
-                var result = await this.HandleAsync(request, provider);
+                var result = await this.HandleAsync(request);
                 if (result != null)
                 {
                     if (result.IsValidated)
@@ -89,7 +87,7 @@ namespace Faaast.OAuth2Server.Core
 
         protected abstract bool ShouldHandle(RequestContext context);
 
-        protected abstract Task<RequestResult<string>> HandleAsync(RequestContext context, IOauthServerProvider provider);
+        protected abstract Task<RequestResult<string>> HandleAsync(RequestContext context);
 
         protected Task Failed(RequestResult<string> result) => this.Failed(result.Context.HttpContext, result.Error, result.StatusCode);
 
@@ -134,6 +132,7 @@ namespace Faaast.OAuth2Server.Core
                 Expires = expires.UtcDateTime,
                 Subject = ticket.Principal.Identity as ClaimsIdentity
             });
+
             return this.TokenHandler.WriteToken(jwtToken);
         }
 

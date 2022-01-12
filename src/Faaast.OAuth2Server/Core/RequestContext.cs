@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Text;
-using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Http;
 
 namespace Faaast.OAuth2Server.Core
@@ -17,34 +15,20 @@ namespace Faaast.OAuth2Server.Core
             string value = null;
             if (parameter.AllowedMethods.Any(x => this.HttpContext.Request.Method.Equals(x.Method, StringComparison.OrdinalIgnoreCase)))
             {
-                switch (this.HttpContext.Request.Method.ToLower())
+                value = this.HttpContext.Request.Method.ToLower() switch
                 {
-                    case "get":
-                        value = this.HttpContext.Request.Query[parameter.ParameterName].FirstOrDefault();
-                        break;
-
-                    case "post":
-                        value = this.HttpContext.Request.Form[parameter.ParameterName].FirstOrDefault();
-
-                        if (string.Equals(parameter.ParameterName, Parameters.ClientId.ParameterName) || string.Equals(parameter.ParameterName, Parameters.ClientSecret.ParameterName)) // Special case for swagger
-                        {
-                            var basic = this.HttpContext.Request.Headers["Authorization"].FirstOrDefault();
-                            if (!string.IsNullOrWhiteSpace(basic) && basic.StartsWith("Basic ", StringComparison.InvariantCultureIgnoreCase))
-                            {
-                                var credentials = Encoding.ASCII.GetString(Convert.FromBase64String(basic.Substring(6))).Split(':');
-                                if (credentials.Length == 2)
-                                {
-                                    value = parameter.Equals(Parameters.ClientId) ? credentials[0] : credentials[1];
-                                }
-                            }
-                        }
-
-                        break;
-                }
+                    "get" => ReadGet(this.HttpContext.Request, parameter),
+                    "post" => ReadPost(this.HttpContext.Request, parameter),
+                    _ => value
+                };
             }
 
             return value;
         }
+
+        private string ReadGet(HttpRequest request, Parameters parameter) => request.Query[parameter.ParameterName].FirstOrDefault();
+
+        private string ReadPost(HttpRequest request, Parameters parameter) => request.Form[parameter.ParameterName].FirstOrDefault();
 
         public string Require(Parameters parameter)
         {

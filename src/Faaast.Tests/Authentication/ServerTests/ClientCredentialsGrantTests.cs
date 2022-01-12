@@ -13,34 +13,35 @@ namespace Faaast.Tests.Authentication.ServerTests
     {
         public ServerFixture Fixture { get; set; }
 
-        public TestServer Server { get; set; }
+        public CustomTestServer Server { get; set; }
 
         public ClientCredentialsGrantTests(ServerFixture fixture)
         {
             this.Fixture = fixture;
-            this.Server = fixture.CreateServerApp(null, builder => builder.AddClientCredentialsGrant());
+            this.Server = fixture.CreateServer(builder => builder.AddClientCredentialsGrantFlow());
         }
 
-        private async Task<Transaction> QueryAsync(string clientId, string clientSecret, string audience) => await ServerUtils.SendPostAsync(this.Server, this.Fixture.TokenEndpoint, new Dictionary<string, string>
-        {
-            { "grant_type", "client_credentials" },
-            { "client_id", clientId},
-            { "client_secret", clientSecret },
-            { "audience", audience }
-        });
+        private async Task<Transaction> QueryAsync(string clientId, string clientSecret, string audience) =>
+            await Server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            {
+                { "grant_type", "client_credentials" },
+                { "client_id", clientId},
+                { "client_secret", clientSecret },
+                { "audience", audience }
+            });
 
         [Fact]
         public async Task Test_should_not_handle()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, this.Fixture.TokenEndpoint);
-            var transaction =  await ServerUtils.SendAsync(this.Server, request);
+            var transaction = await Server.SendAsync(request);
             Assert.Equal(HttpStatusCode.NotFound, transaction.Response.StatusCode);
         }
 
         [Fact]
         public async Task Test_invalid_client()
         {
-            var transaction = await this.QueryAsync("wrongid", this.Fixture.Client.ClientSecret, TestClient.Audience);
+            var transaction = await this.QueryAsync("wrongid", this.Fixture.Client.ClientSecret, this.Fixture.Client.Audience);
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidClient, transaction.ResponseText);
         }
@@ -48,7 +49,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_invalid_password()
         {
-            var transaction = await this.QueryAsync(this.Fixture.Client.ClientId, "wrongpassword", TestClient.Audience);
+            var transaction = await this.QueryAsync(this.Fixture.Client.ClientId, "wrongpassword", this.Fixture.Client.Audience);
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidClient, transaction.ResponseText);
         }
@@ -64,11 +65,17 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_nominal()
         {
-            var transaction = await this.QueryAsync(this.Fixture.Client.ClientId, this.Fixture.Client.ClientSecret, TestClient.Audience);
+            var transaction = await this.QueryAsync(this.Fixture.Client.ClientId, this.Fixture.Client.ClientSecret, this.Fixture.Client.Audience);
             Assert.Equal(HttpStatusCode.OK, transaction.Response.StatusCode);
+
+            var payload = this.Fixture.Read(transaction.ResponseText, false);
+            Assert.NotNull(payload);
+            Assert.Equal(this.Fixture.Client.Audience, payload["aud"]?.ToString());
+            Assert.Equal(this.Fixture.Client.ClientId, payload["role"]?.ToString());
+            Assert.Equal("-1", payload["nameid"]?.ToString());
         }
 
         [Fact]
-        public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServerApp(options => options.TokenEndpointPath = null, builder => builder.AddClientCredentialsGrant()));
+        public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServer(builder => builder.AddClientCredentialsGrantFlow(), options => options.TokenEndpointPath = null));
     }
 }

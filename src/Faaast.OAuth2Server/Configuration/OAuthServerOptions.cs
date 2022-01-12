@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Faaast.OAuth2Server.Configuration
 {
@@ -21,7 +20,5 @@ namespace Faaast.OAuth2Server.Configuration
         public string TokenEndpointPath { get; set; } = "/oauth/token";
 
         public string AuthorizeEndpointPath { get; set; } = "/oauth/authorize";
-
-        public string UserConsentPath { get; set; } = "/oauth/user-consent";
     }
 }

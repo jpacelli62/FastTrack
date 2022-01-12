@@ -141,6 +141,9 @@
   <data name="Msg_InvalidScope" xml:space="preserve">
     <value>Invalid scope</value>
   </data>
+  <data name="Msg_InvalidToken" xml:space="preserve">
+    <value>Invalid token</value>
+  </data>
   <data name="Msg_LoginFailed" xml:space="preserve">
     <value>Login failed</value>
   </data>

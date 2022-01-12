@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Threading.Tasks;
 using Faaast.OAuth2Server.Core;
 using Microsoft.IdentityModel.Tokens;
 
@@ -20,9 +19,5 @@ namespace Faaast.OAuth2Server.Abstraction
         public bool IsAllowedRedirectUrl(string redirectUrl, RequestContext context);
 
         public SigningCredentials GetSigninCredentials(RequestContext context);
-
-        Task<ClaimsIdentity> CreateClientIdentityAsync(RequestContext context);
-
-        Task<RequestResult<ClaimsIdentity>> PasswordSignInAsync(string username, string password, RequestContext context);
     }
 }

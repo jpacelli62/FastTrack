@@ -5,13 +5,14 @@ using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Faaast.OAuth2Server.Core
+namespace Faaast.OAuth2Server.Core.Flows
 {
-    public class AuthorizationCodeFlow : OAuthMiddleware
+    public class AuthorizationCodeGrantFlow : OAuthMiddleware
     {
-        public AuthorizationCodeFlow(RequestDelegate next, OAuthServerOptions options, ILoggerFactory loggerFactory, ISystemClock clock) : base(next, options, loggerFactory, clock)
+        public AuthorizationCodeGrantFlow(RequestDelegate next, OAuthServerOptions options, ILoggerFactory loggerFactory, ISystemClock clock) : base(next, options, loggerFactory, clock)
         {
         }
 
@@ -21,18 +22,19 @@ namespace Faaast.OAuth2Server.Core
 
         private static bool IsExchangeCode(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.AuthorizationCode, context.Read(Parameters.GrantType));
 
-        protected override async Task<RequestResult<string>> HandleAsync(RequestContext context, IOauthServerProvider provider) => IsChallenge(context) ? await this.HandleChallengeAsync(context, provider) : await this.HandleExchangeCodeAsync(context, provider);
+        protected override async Task<RequestResult<string>> HandleAsync(RequestContext context) => IsChallenge(context) ? await this.HandleChallengeAsync(context) : await this.HandleExchangeCodeAsync(context);
 
-        private async Task<RequestResult<string>> HandleChallengeAsync(RequestContext context, IOauthServerProvider provider)
+        private async Task<RequestResult<string>> HandleChallengeAsync(RequestContext context)
         {
             var result = new RequestResult<string>(context);
-            var client = await provider.GetClientAsync(context.Require(Parameters.ClientId));
+            var clientProvider = context.HttpContext.RequestServices.GetRequiredService<IOauthServerProvider>();
+            var client = await clientProvider.GetClientAsync(context.Require(Parameters.ClientId));
             if (client is null)
             {
                 return await result.RejectAsync(Resources.Msg_InvalidClient);
             }
 
-            if (!client.IsAllowedFlow(nameof(AuthorizationCodeFlow), context))
+            if (!client.IsAllowedFlow(nameof(AuthorizationCodeGrantFlow), context))
             {
                 return await result.RejectAsync(Resources.Msg_ForbiddenFlow);
             }
@@ -57,9 +59,10 @@ namespace Faaast.OAuth2Server.Core
             var scope = context.Read(Parameters.Scope);
             if (!client.IsAllowedScope(scope, context.HttpContext.User.Identity as ClaimsIdentity, context))
             {
-                return !string.IsNullOrEmpty(this.Options.UserConsentPath)
-                    ? await this.RedirectAsync(context, this.Options.UserConsentPath)
-                    : await result.RejectAsync(Resources.Msg_InvalidScope);
+                //return !string.IsNullOrEmpty(this.Options.UserConsentPath)
+                //    ? await this.RedirectAsync(context, this.Options.UserConsentPath)
+                //    : await result.RejectAsync(Resources.Msg_InvalidScope);
+                return await result.RejectAsync(Resources.Msg_InvalidScope);
             }
 
             var code = CodeGenerator.GenerateRandomNumber(32);
@@ -74,8 +77,9 @@ namespace Faaast.OAuth2Server.Core
                 ExpiresUtc = this.Clock.UtcNow + TimeSpan.FromMinutes(5)
             };
 
-            properties.SetString("Scope", scope);
-            await provider.OnCreateAuthorizationCodeAsync(new AuthorizationCode
+            ((ClaimsIdentity)context.HttpContext.User.Identity).AddClaim(new Claim("scope", scope));
+            var flowProvider = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationCodeProvider>();
+            await flowProvider.OnCreateAuthorizationCodeAsync(new AuthorizationCode
             {
                 Expires = properties.ExpiresUtc.Value,
                 Code = code,
@@ -86,16 +90,17 @@ namespace Faaast.OAuth2Server.Core
             return await result.Success(null);
         }
 
-        private async Task<RequestResult<string>> HandleExchangeCodeAsync(RequestContext context, IOauthServerProvider provider)
+        private async Task<RequestResult<string>> HandleExchangeCodeAsync(RequestContext context)
         {
             var result = new RequestResult<string>(context);
-            var client = await provider.GetClientAsync(context.Require(Parameters.ClientId));
+            var clientProvider = context.HttpContext.RequestServices.GetRequiredService<IOauthServerProvider>();
+            var client = await clientProvider.GetClientAsync(context.Require(Parameters.ClientId));
             if (client is null || !client.ClientSecret.Equals(context.Require(Parameters.ClientSecret)))
             {
                 return await result.RejectAsync(Resources.Msg_InvalidClient);
             }
 
-            if (!client.IsAllowedFlow(nameof(AuthorizationCodeFlow), context))
+            if (!client.IsAllowedFlow(nameof(AuthorizationCodeGrantFlow), context))
             {
                 return await result.RejectAsync(Resources.Msg_ForbiddenFlow);
             }
@@ -106,7 +111,8 @@ namespace Faaast.OAuth2Server.Core
                 return await result.RejectAsync(Resources.Msg_InvalidRedirectUri);
             }
 
-            var code = await provider.OnExchangeAuthorizationCodeAsync(context.Require(Parameters.Code));
+            var flowProvider = context.HttpContext.RequestServices.GetRequiredService<IAuthorizationCodeProvider>();
+            var code = await flowProvider.OnExchangeAuthorizationCodeAsync(context.Require(Parameters.Code));
             if (code is null || code.Expires <= this.Clock.UtcNow)
             {
                 return await result.RejectAsync(Resources.Msg_InvalidCode);
@@ -117,12 +123,17 @@ namespace Faaast.OAuth2Server.Core
             {
                 AccessToken = this.CreateJwtToken(context, client, null, ticket),
                 AccessTokenExpiresUtc = this.Clock.UtcNow.UtcDateTime + this.Options.AccessTokenExpireTimeSpan,
-                NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value,
-                RefreshToken = CodeGenerator.GenerateRandomNumber(32),
-                RefreshTokenExpiresUtc = this.Clock.UtcNow.UtcDateTime + this.Options.RefreshTokenExpireTimeSpan
+                NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value
             };
 
-            await provider.StoreAsync(token);
+            var refreshTokenProvider = context.HttpContext.RequestServices.GetRequiredService<IRefreshTokenProvider>();
+            if (refreshTokenProvider != null)
+            {
+                token.RefreshToken = CodeGenerator.GenerateRandomNumber(32);
+                token.RefreshTokenExpiresUtc = this.Clock.UtcNow.UtcDateTime + this.Options.RefreshTokenExpireTimeSpan;
+                await refreshTokenProvider.StoreAsync(token);
+            }
+
             return await result.Success(this.CreateJwtResponse(token));
         }
     }

@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Authentication;
 
-namespace Faaast.OAuth2Server
+namespace Faaast.OAuth2Server.Abstraction
 {
     public class AuthorizationCode
     {

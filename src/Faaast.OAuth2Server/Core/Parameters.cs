@@ -1,6 +1,6 @@
 ﻿using System.Net.Http;
 
-namespace Faaast.OAuth2Server.Configuration
+namespace Faaast.OAuth2Server.Core
 {
     public class Parameters
     {
@@ -16,6 +16,7 @@ namespace Faaast.OAuth2Server.Configuration
 
         public static readonly string ClientCredentials = "client_credentials";
         public static readonly string AuthorizationCode = "authorization_code";
+        public static readonly string Token = "token";
 
         public static readonly Parameters GrantType = new("grant_type", HttpMethod.Post);
         public static readonly Parameters RefreshToken = new("refresh_token", HttpMethod.Post);

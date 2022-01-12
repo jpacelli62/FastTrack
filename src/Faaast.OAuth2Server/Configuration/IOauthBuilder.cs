@@ -2,12 +2,14 @@
 {
     public interface IOauthBuilder
     {
-        IOauthBuilder AddAuthorizationCodeFlow();
+        IOauthBuilder AddAuthorizationCodeGrantFlow();
 
-        //IOauthBuilder AddImplicitGrant();
+        IOauthBuilder AddImplicitGrantFlow();
 
-        IOauthBuilder AddResourceOwnerPasswordCredentialsFlow();
+        IOauthBuilder AddResourceOwnerPasswordCredentialsGrantFlow();
 
-        IOauthBuilder AddClientCredentialsGrant();
+        IOauthBuilder AddClientCredentialsGrantFlow();
+
+        IOauthBuilder AddRefreshTokenFlow();
     }
 }

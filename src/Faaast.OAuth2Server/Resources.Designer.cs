@@ -133,6 +133,15 @@ namespace Faaast.OAuth2Server {
         }
         
         /// <summary>
+        ///   Recherche une chaîne localisée semblable à Invalid token.
+        /// </summary>
+        public static string Msg_InvalidToken {
+            get {
+                return ResourceManager.GetString("Msg_InvalidToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Recherche une chaîne localisée semblable à Login failed.
         /// </summary>
         public static string Msg_LoginFailed {

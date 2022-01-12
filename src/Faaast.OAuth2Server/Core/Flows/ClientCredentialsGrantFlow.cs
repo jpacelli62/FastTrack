@@ -4,9 +4,10 @@ using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Faaast.OAuth2Server.Core
+namespace Faaast.OAuth2Server.Core.Flows
 {
     public class ClientCredentialsGrantFlow : OAuthMiddleware
     {
@@ -16,11 +17,12 @@ namespace Faaast.OAuth2Server.Core
 
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.ClientCredentials, context.Read(Parameters.GrantType));
 
-        protected override async Task<RequestResult<string>> HandleAsync(RequestContext context, IOauthServerProvider provider)
+        protected override async Task<RequestResult<string>> HandleAsync(RequestContext context)
         {
             var result = new RequestResult<string>(context);
             var clientId = context.Require(Parameters.ClientId);
-            var client = await provider.GetClientAsync(clientId);
+            var clientProvider = context.HttpContext.RequestServices.GetRequiredService<IOauthServerProvider>();
+            var client = await clientProvider.GetClientAsync(clientId);
             if(client != null && client.IsAllowedFlow(nameof(ClientCredentialsGrantFlow), context))
             {
                 var clientSecret = context.Require(Parameters.ClientSecret);
@@ -29,7 +31,8 @@ namespace Faaast.OAuth2Server.Core
                     var audience = context.Read(Parameters.Audience);
                     if (client.IsAllowedAudience(audience, context))
                     {
-                        var identity = await client.CreateClientIdentityAsync(context);
+                        var flowProvider = context.HttpContext.RequestServices.GetRequiredService<IClientCredentialsProvider>();
+                        var identity = await flowProvider.CreateClientIdentityAsync(context, client);
                         var ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(identity), "Default");
                         Token token = new()
                         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -8,26 +9,26 @@ using Xunit;
 
 namespace Faaast.Tests.Authentication.ServerTests
 {
-    public class ChallengeAuthorizationCodeFlowTests : IClassFixture<ServerFixture>
+    public class ImplicitGrantFlowTests : IClassFixture<ServerFixture>
     {
         public ServerFixture Fixture { get; set; }
 
         public CustomTestServer Server { get; set; }
 
-        public ChallengeAuthorizationCodeFlowTests(ServerFixture fixture)
+        public ImplicitGrantFlowTests(ServerFixture fixture)
         {
             this.Fixture = fixture;
-            this.Server = fixture.CreateServer(builder => builder.AddAuthorizationCodeGrantFlow());
+            this.Server = fixture.CreateServer(builder => builder.AddImplicitGrantFlow());
         }
 
         private async Task<Transaction> QueryAsync(CustomTestServer server, string clientId, string scopes, string redirectUri, bool state, Action<HttpRequestMessage> configure = null)
         {
             var dic = new Dictionary<string, string>
             {
+                {"response_type", "token" },
                 {"client_id", clientId},
-                {"scope", scopes },
-                {"response_type", "code" },
                 {"redirect_uri", redirectUri ?? $"https://{this.Fixture.ClientHost}/faaastoauth/signin" },
+                {"scope", scopes },
                 { "state", state ? "CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb" : string.Empty}
             };
             return await server.SendGetAsync(this.Fixture.AuthorizeEndpoint, dic, configure);
@@ -116,7 +117,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
             Assert.Single(queryDictionary);
             Assert.Equal(
-                $"https://sso.mycompany.com/oauth/authorize?client_id=MyClientId&scope=identity&response_type=code&redirect_uri=https://{this.Fixture.ClientHost}/faaastoauth/signin&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb",
+                $"https://sso.mycompany.com/oauth/authorize?response_type=token&client_id=MyClientId&redirect_uri=https://www.mycompany.com/faaastoauth/signin&scope=identity&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb",
                 System.Web.HttpUtility.UrlDecode(queryDictionary["returnUrl"]));
         }
 
@@ -145,7 +146,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         [Fact]
         public async Task Test_invalidScope()
         {
-            var server = this.Fixture.CreateServer(builder => builder.AddAuthorizationCodeGrantFlow(), options => { });
+            var server = this.Fixture.CreateServer(builder => builder.AddImplicitGrantFlow(), options => { });
             var transaction = await this.QueryAsync(
                 server, 
                 this.Fixture.Client.ClientId,
@@ -163,7 +164,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         public async Task Test_nominal()
         {
             var fixture = new ServerFixture();
-            var server = fixture.CreateServer(builder => builder.AddAuthorizationCodeGrantFlow(), options => { });
+            var server = fixture.CreateServer(builder => builder.AddImplicitGrantFlow(), options => { });
             var transaction = await this.QueryAsync(
                 server,
                 fixture.Client.ClientId,
@@ -178,18 +179,24 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(fixture.ClientHost, uri.Host);
             Assert.Equal("/faaastoauth/signin", uri.Path);
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
-            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["state"])));
-            Assert.NotNull(fixture.Code);
+            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["access_token"])));
+            Assert.Equal("bearer", System.Web.HttpUtility.UrlDecode(queryDictionary["token_type"]));
+            Assert.Equal(fixture.Options.AccessTokenExpireTimeSpan.TotalSeconds.ToString(), System.Web.HttpUtility.UrlDecode(queryDictionary["expires_in"]));
+            Assert.Equal(fixture.Client.Scope, System.Web.HttpUtility.UrlDecode(queryDictionary["scope"]));
+            Assert.Equal("CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb", System.Web.HttpUtility.UrlDecode(queryDictionary["state"]));
+
+            JwtSecurityToken token = new JwtSecurityToken(System.Web.HttpUtility.UrlDecode(queryDictionary["access_token"]));
+            var payload = token.Payload;
+            Assert.Equal(fixture.Options.Issuer, payload.Iss);
+            Assert.Equal(fixture.Client.Scope, payload["scope"]?.ToString());
+            Assert.Equal("John Doe", payload["unique_name"]?.ToString());
         }
 
         [Fact]
         public async Task Test_nominal_withoutState()
         {
             var fixture = new ServerFixture();
-            var server = fixture.CreateServer(builder => builder.AddAuthorizationCodeGrantFlow(), options => { });
-
-            fixture.Code = null;
+            var server = fixture.CreateServer(builder => builder.AddImplicitGrantFlow(), options => { });
             var transaction = await this.QueryAsync(
                 server,
                 fixture.Client.ClientId,
@@ -204,9 +211,17 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(fixture.ClientHost, uri.Host);
             Assert.Equal("/faaastoauth/signin", uri.Path);
             var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
-            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["code"])));
-            Assert.NotNull(System.Web.HttpUtility.UrlDecode(queryDictionary["state"]));
-            Assert.NotNull(fixture.Code);
+            Assert.False(string.IsNullOrWhiteSpace(System.Web.HttpUtility.UrlDecode(queryDictionary["access_token"])));
+            Assert.Equal("bearer", System.Web.HttpUtility.UrlDecode(queryDictionary["token_type"]));
+            Assert.Equal(fixture.Options.AccessTokenExpireTimeSpan.TotalSeconds.ToString(), System.Web.HttpUtility.UrlDecode(queryDictionary["expires_in"]));
+            Assert.Equal(fixture.Client.Scope, System.Web.HttpUtility.UrlDecode(queryDictionary["scope"]));
+            Assert.Equal("", System.Web.HttpUtility.UrlDecode(queryDictionary["state"]));
+       
+            JwtSecurityToken token = new JwtSecurityToken(System.Web.HttpUtility.UrlDecode(queryDictionary["access_token"]));
+            var payload = token.Payload;
+            Assert.Equal(fixture.Options.Issuer, payload.Iss);
+            Assert.Equal(fixture.Client.Scope, payload["scope"]?.ToString());
+            Assert.Equal("John Doe", payload["unique_name"]?.ToString());
         }
 
         [Fact]
