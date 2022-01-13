@@ -67,14 +67,16 @@ namespace Faaast.OAuth2Server.Core.Flows
                     return await result.RejectAsync(Resources.Msg_InvalidScope);
                 }
 
+                var ticket = refreshProvider.CreateTicket(principal.Identity, context);
+
                 var descriptor = new SecurityTokenDescriptor()
                 {
-                    Audience = string.Join(" ", jwt.Audiences?.ToArray() ?? new string[0]),
+                    Audience = string.Join(" ", jwt.Audiences?.ToArray() ?? Array.Empty<string>()),
                     Issuer = this.Options.Issuer,
                     SigningCredentials = client.GetSigninCredentials(context),
                     IssuedAt = this.Clock.UtcNow.UtcDateTime,
                     Expires = this.Clock.UtcNow.UtcDateTime + this.Options.AccessTokenExpireTimeSpan,
-                    Subject = principal.Identity as ClaimsIdentity
+                    Subject = ticket.Principal.Identity as ClaimsIdentity
                 };
 
                 token.AccessToken = tokenHandler.CreateEncodedJwt(descriptor);

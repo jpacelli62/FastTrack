@@ -57,14 +57,13 @@ namespace Faaast.Tests.Authentication.Utility
             };
         }
 
-
         public virtual async Task<Transaction> SendPostAsync(string uri, Dictionary<string, string> values, Action<HttpRequestMessage> configure = null)
         {
             var request = new HttpRequestMessage(HttpMethod.Post, uri);
             var content = new FormUrlEncodedContent(values.Select(x => new KeyValuePair<string, string>(x.Key, x.Value)));
             request.Content = content;
             configure?.Invoke(request);
-            return await SendAsync(request);
+            return await this.SendAsync(request);
         }
 
         public virtual async Task<Transaction> SendGetAsync(string uri, Dictionary<string, string> values, Action<HttpRequestMessage> configure = null)
@@ -77,7 +76,7 @@ namespace Faaast.Tests.Authentication.Utility
             var request = new HttpRequestMessage(HttpMethod.Get, targetUri);
             configure?.Invoke(request);
 
-            return await SendAsync(request);
+            return await this.SendAsync(request);
         }
 
         public virtual async Task<Transaction> SendAsync(HttpRequestMessage request)

@@ -24,7 +24,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         {
             this.Fixture = fixture;
             this.Server = fixture.CreateServer(builder => builder.AddRefreshTokenFlow());
-            this.CreateToken(this.Fixture);
+            CreateToken(this.Fixture);
         }
 
         private async Task<Transaction> QueryAsync(CustomTestServer server, string clientId, string refreshToken, Action<HttpRequestMessage> req = null) =>
@@ -35,7 +35,7 @@ namespace Faaast.Tests.Authentication.ServerTests
                 { "refresh_token", refreshToken }
             }, req);
 
-        private void CreateToken(ServerFixture fixture, Action<SecurityTokenDescriptor> jwt = null)
+        private static void CreateToken(ServerFixture fixture, Action<SecurityTokenDescriptor> jwt = null)
         {
             List<Claim> claims = new();
             claims.Add(new Claim(ClaimTypes.Name, "John Doe"));
@@ -58,7 +58,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             jwt?.Invoke(descriptor);
             var jwtToken = tokenHandler.CreateJwtSecurityToken(descriptor);
 
-            string accessToken = tokenHandler.WriteToken(jwtToken);
+            var accessToken = tokenHandler.WriteToken(jwtToken);
             fixture.Token = new OAuth2Server.Abstraction.Token()
             {
                 AccessToken = accessToken,
@@ -73,7 +73,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         public async Task Test_should_not_handle()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, this.Fixture.TokenEndpoint);
-            var transaction = await Server.SendAsync(request);
+            var transaction = await this.Server.SendAsync(request);
             Assert.Equal(HttpStatusCode.NotFound, transaction.Response.StatusCode);
         }
 
@@ -84,7 +84,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidClient, transaction.ResponseText);
         }
-
 
         [Fact]
         public async Task Test_invalid_token()

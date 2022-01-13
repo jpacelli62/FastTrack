@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Security.Principal;
+using System.Threading.Tasks;
 using Faaast.OAuth2Server.Core;
+using Microsoft.AspNetCore.Authentication;
 
 namespace Faaast.OAuth2Server.Abstraction
 {
@@ -8,5 +10,7 @@ namespace Faaast.OAuth2Server.Abstraction
         Task StoreAsync(Token token);
 
         Task<Token> OnRefreshTokenReceivedAsync(string refreshToken, RequestContext context);
+
+        AuthenticationTicket CreateTicket(IIdentity identity, RequestContext context);
     }
 }

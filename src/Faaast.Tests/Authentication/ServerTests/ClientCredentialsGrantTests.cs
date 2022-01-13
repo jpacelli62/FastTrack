@@ -22,7 +22,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         }
 
         private async Task<Transaction> QueryAsync(string clientId, string clientSecret, string audience) =>
-            await Server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
+            await this.Server.SendPostAsync(this.Fixture.TokenEndpoint, new Dictionary<string, string>
             {
                 { "grant_type", "client_credentials" },
                 { "client_id", clientId},
@@ -34,7 +34,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         public async Task Test_should_not_handle()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, this.Fixture.TokenEndpoint);
-            var transaction = await Server.SendAsync(request);
+            var transaction = await this.Server.SendAsync(request);
             Assert.Equal(HttpStatusCode.NotFound, transaction.Response.StatusCode);
         }
 

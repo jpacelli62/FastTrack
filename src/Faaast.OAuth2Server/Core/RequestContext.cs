@@ -26,9 +26,9 @@ namespace Faaast.OAuth2Server.Core
             return value;
         }
 
-        private string ReadGet(HttpRequest request, Parameters parameter) => request.Query[parameter.ParameterName].FirstOrDefault();
+        private static string ReadGet(HttpRequest request, Parameters parameter) => request.Query[parameter.ParameterName].FirstOrDefault();
 
-        private string ReadPost(HttpRequest request, Parameters parameter) => request.Form[parameter.ParameterName].FirstOrDefault();
+        private static string ReadPost(HttpRequest request, Parameters parameter) => request.Form[parameter.ParameterName].FirstOrDefault();
 
         public string Require(Parameters parameter)
         {

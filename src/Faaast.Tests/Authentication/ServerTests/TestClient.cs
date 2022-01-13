@@ -20,7 +20,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             new(new SymmetricSecurityKey(Encoding.Default.GetBytes(this.ClientSecret)), SecurityAlgorithms.HmacSha256);
 
         public bool IsAllowedAudience(string audience, RequestContext context) => 
-            audience == Audience;
+            audience == this.Audience;
 
         public bool IsAllowedFlow(string flowName, RequestContext context) => 
             !(context.HttpContext.Request.Headers.TryGetValue(nameof(IsAllowedFlow), out var value) && value == "0");
@@ -29,6 +29,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             !(context.HttpContext.Request.Headers.TryGetValue(nameof(IsAllowedRedirectUrl), out var value) && value == "0");
 
         public bool IsAllowedScope(string scope, ClaimsIdentity identity, RequestContext context) => 
-            scope == Scope;
+            scope == this.Scope;
     }
 }

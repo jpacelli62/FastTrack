@@ -55,7 +55,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         public async Task Test_should_not_handle()
         {
             var request = new HttpRequestMessage(HttpMethod.Get, this.Fixture.TokenEndpoint);
-            var transaction = await Server.SendAsync(request);
+            var transaction = await this.Server.SendAsync(request);
             Assert.Equal(HttpStatusCode.NotFound, transaction.Response.StatusCode);
         }
 
@@ -120,28 +120,6 @@ namespace Faaast.Tests.Authentication.ServerTests
                 System.Web.HttpUtility.UrlDecode(queryDictionary["returnUrl"]));
         }
 
-        //[Fact]
-        //public async Task Test_invalidScope_toUserConsent()
-        //{
-        //    var transaction = await this.QueryAsync(
-        //        this.Server,
-        //        this.Fixture.Client.ClientId,
-        //        "wrongScope",
-        //        null,
-        //        true);
-
-        //    Assert.Equal(HttpStatusCode.Redirect, transaction.Response.StatusCode);
-        //    var redirectPath = transaction.Response.Headers.Location.OriginalString;
-        //    var uri = new UriBuilder(redirectPath);
-        //    Assert.Equal(this.Fixture.Options.Issuer, uri.Host);
-        //    Assert.Equal("/oauth/user-consent", uri.Path);
-        //    var queryDictionary = System.Web.HttpUtility.ParseQueryString(uri.Query);
-        //    Assert.Single(queryDictionary);
-        //    Assert.Equal(
-        //        $"https://sso.mycompany.com/oauth/authorize?client_id=MyClientId&scope=wrongScope&response_type=code&redirect_uri=https://www.mycompany.com/faaastoauth/signin&state=CfDJ8Np1eFHOzoVJni6nVfHZpxxtPlOOOHr8csuyU7jfcKYoseFfn7kHq_e1yKbTVbDqvDoMNPIaoB0emAX8DhXQc7eOyIzHsYZYxwcsDLzcQIdrAMVre16lL2ni2c2F7s_6lY2p136sPyBtUi503YOndrnaKp6j3rlb",
-        //        System.Web.HttpUtility.UrlDecode(queryDictionary["returnUrl"]));
-        //}
-
         [Fact]
         public async Task Test_invalidScope()
         {
@@ -153,7 +131,6 @@ namespace Faaast.Tests.Authentication.ServerTests
                 redirectUri: null,
                 state: true,
                  req => Authenticated(req));
-
 
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
             Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidScope, transaction.ResponseText);

@@ -18,7 +18,6 @@ namespace Faaast.OAuth2Server.Core.Flows
 
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsGet(context.HttpContext.Request.Method) && string.Equals(Parameters.Token, context.Read(Parameters.ResponseType));
 
-
         protected override async Task<RequestResult<string>> HandleAsync(RequestContext context)
         {
             var result = new RequestResult<string>(context);
@@ -54,9 +53,6 @@ namespace Faaast.OAuth2Server.Core.Flows
             var scope = context.Read(Parameters.Scope);
             if (!client.IsAllowedScope(scope, context.HttpContext.User.Identity as ClaimsIdentity, context))
             {
-                //return !string.IsNullOrEmpty(this.Options.UserConsentPath)
-                //    ? await this.RedirectAsync(context, this.Options.UserConsentPath)
-                //    : await result.RejectAsync(Resources.Msg_InvalidScope);
                 return await result.RejectAsync(Resources.Msg_InvalidScope);
             }
 
@@ -69,7 +65,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             };
             var ticket = new AuthenticationTicket(context.HttpContext.User, properties, "Default");
 
-            string accessToken = this.CreateJwtToken(context, client, null, ticket);
+            var accessToken = this.CreateJwtToken(context, client, null, ticket);
 
             var uri = new Uri(redirectUri);
             var query = string.Format("?access_token={0}&token_type={1}&expires_in={2}&scope={3}&state={4}",

@@ -82,6 +82,5 @@ namespace Faaast.OAuth2Server.Configuration
                 app => app.UseMiddleware<ImplicitGrantFlow>(this.Options));
             return this;
         }
-
     }
 }

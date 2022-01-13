@@ -59,9 +59,6 @@ namespace Faaast.OAuth2Server.Core.Flows
             var scope = context.Read(Parameters.Scope);
             if (!client.IsAllowedScope(scope, context.HttpContext.User.Identity as ClaimsIdentity, context))
             {
-                //return !string.IsNullOrEmpty(this.Options.UserConsentPath)
-                //    ? await this.RedirectAsync(context, this.Options.UserConsentPath)
-                //    : await result.RejectAsync(Resources.Msg_InvalidScope);
                 return await result.RejectAsync(Resources.Msg_InvalidScope);
             }
 

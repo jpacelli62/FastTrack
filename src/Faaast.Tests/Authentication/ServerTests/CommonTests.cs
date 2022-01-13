@@ -15,10 +15,7 @@ namespace Faaast.Tests.Authentication.ServerTests
     {
         public ServerFixture Fixture { get; set; }
 
-        public CommonTests(ServerFixture fixture)
-        {
-            this.Fixture = fixture;
-        }
+        public CommonTests(ServerFixture fixture) => this.Fixture = fixture;
 
         [Fact]
         public void Empty_issuer_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServer(builder => { }, options => options.Issuer = null));

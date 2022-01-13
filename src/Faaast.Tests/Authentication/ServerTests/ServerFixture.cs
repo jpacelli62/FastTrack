@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Principal;
 using System.Threading.Tasks;
 using Faaast.OAuth2Server;
 using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Faaast.OAuth2Server.Core;
 using Faaast.Tests.Authentication.Utility;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -22,9 +24,9 @@ namespace Faaast.Tests.Authentication.ServerTests
     {
         public readonly string ClientHost = "www.mycompany.com";
 
-        public string TokenEndpoint { get => $"https://{Options.Issuer}{Options.TokenEndpointPath}"; }
+        public string TokenEndpoint => $"https://{this.Options.Issuer}{this.Options.TokenEndpointPath}";
 
-        public string AuthorizeEndpoint { get => $"https://{Options.Issuer}{Options.AuthorizeEndpointPath}"; }
+        public string AuthorizeEndpoint => $"https://{this.Options.Issuer}{this.Options.AuthorizeEndpointPath}";
 
         public TestClient Client { get; set; }
 
@@ -34,14 +36,11 @@ namespace Faaast.Tests.Authentication.ServerTests
 
         public OAuthServerOptions Options { get; set; }
 
-        public ServerFixture()
-        {
-            this.Client = new TestClient();
-        }
+        public ServerFixture() => this.Client = new TestClient();
 
         public CustomTestServer CreateServer(Action<IOauthBuilder> oauth, Action<OAuthServerOptions> options = null)
         {
-            CustomTestServer server = new CustomTestServer()
+            var server = new CustomTestServer()
             {
                 ConfigureServices = services =>
                 {
@@ -50,8 +49,8 @@ namespace Faaast.Tests.Authentication.ServerTests
                     services.TryAddSingleton<IRefreshTokenProvider>(this);
                     services.TryAddSingleton<IResourceOwnerPasswordProvider>(this);
                     services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie(options => options.LoginPath = "/login");
-                    services.Configure<OAuthServerOptions>(Configuration.GetSection("OAuthServerOptions"));
-                    services.Configure<TestClient>(Configuration.GetSection("TestClient"));
+                    services.Configure<OAuthServerOptions>(this.Configuration.GetSection("OAuthServerOptions"));
+                    services.Configure<TestClient>(this.Configuration.GetSection("TestClient"));
                     services.AddFaaastOAuthServer<ServerFixture>(this, options);
                 },
                 Configure = app =>
@@ -64,8 +63,10 @@ namespace Faaast.Tests.Authentication.ServerTests
 
                         if (request.Headers.ContainsKey("fakeLoggedUser"))
                         {
-                            var claims = new List<Claim>();
-                            claims.Add(new Claim(ClaimTypes.Name, "John Doe"));
+                            var claims = new List<Claim>
+                            {
+                                new Claim(ClaimTypes.Name, "John Doe")
+                            };
                             context.User = new System.Security.Claims.ClaimsPrincipal(new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme));
                         }
 
@@ -78,7 +79,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             server.Start();
             return server;
         }
-
 
         public Task<IClient> GetClientAsync(string clientId) => clientId == this.Client.ClientId ? Task.FromResult<IClient>(this.Client) : Task.FromResult<IClient>(null);
 
@@ -147,11 +147,13 @@ namespace Faaast.Tests.Authentication.ServerTests
                 Assert.NotNull(refresh_token);
             }
 
-            JwtSecurityToken token = new JwtSecurityToken(access_token);
+            var token = new JwtSecurityToken(access_token);
             var payload = token.Payload;
             Assert.Equal(this.Options.Issuer, payload.Iss);
         
             return payload;
         }
+
+        public AuthenticationTicket CreateTicket(IIdentity identity, RequestContext context) => new(new ClaimsPrincipal(identity), "default");
     }
 }

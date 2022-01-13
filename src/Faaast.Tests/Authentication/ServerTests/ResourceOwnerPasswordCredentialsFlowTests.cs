@@ -37,20 +37,10 @@ namespace Faaast.Tests.Authentication.ServerTests
 
             return await server.SendPostAsync(this.Fixture.TokenEndpoint, parameters, req);
         }
-        private static void DisabledFlow(HttpRequestMessage req)
-        {
-            req.Headers.Add("IsAllowedFlow", "0");
-        }
+        private static void DisabledFlow(HttpRequestMessage req) => req.Headers.Add("IsAllowedFlow", "0");
 
-        private static void InvalidRedirectUri(HttpRequestMessage req)
-        {
-            req.Headers.Add("IsAllowedRedirectUrl", "0");
-        }
-        private static void Behaviour(HttpRequestMessage req, string name)
-        {
-            req.Headers.Add("PasswordSignInAsync", name);
-        }
-        
+        private static void Behaviour(HttpRequestMessage req, string name) => req.Headers.Add("PasswordSignInAsync", name);
+
         [Fact]
         public async Task Test_should_not_handle()
         {
@@ -208,32 +198,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal("123", payload["nameid"]?.ToString());
             Assert.Equal(this.Fixture.Client.Scope, payload["scope"]?.ToString());
             Assert.Equal(this.Fixture.Client.Audience, payload["aud"]?.ToString());
-
         }
-
-        //[Fact]
-        //public async Task Test_clientCredentials_in_header()
-        //{
-        //    var parameters = new Dictionary<string, string>
-        //    {
-        //        { "grant_type", "password" },
-        //        { "username", "Login" },
-        //        { "password", "Password" },
-        //        { "audience", this.Fixture.Client.Audience },
-        //        { "scope", this.Fixture.Client.Scope }
-        //    };
-
-        //    var authorization = $"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes(string.Concat(this.Fixture.Client.ClientId, ":", this.Fixture.Client.ClientSecret)))}";
-        //    var transaction = await this.Server.SendPostAsync(this.Fixture.TokenEndpoint, parameters, request => request.Headers.Add("Authorization", authorization));
-
-        //    Assert.True(transaction.Response.IsSuccessStatusCode);
-        //    Assert.NotNull(this.Fixture.Token);
-        //    Assert.Equal(this.Server.Clock.UtcNow.DateTime + TimeSpan.FromMinutes(10), this.Fixture.Token.AccessTokenExpiresUtc);
-        //    Assert.Equal(this.Server.Clock.UtcNow.DateTime + TimeSpan.FromMinutes(100), this.Fixture.Token.RefreshTokenExpiresUtc);
-        //    Assert.NotNull(this.Fixture.Token.AccessToken);
-        //    Assert.NotNull(this.Fixture.Token.RefreshToken);
-        //    Assert.NotNull(this.Fixture.Token.NameIdentifier);
-        //}
 
         [Fact]
         public void Empty_tokenEndpoint_throws_exception() => Assert.Throws<ArgumentException>(() => this.Fixture.CreateServer(builder => builder.AddResourceOwnerPasswordCredentialsGrantFlow(), options => options.TokenEndpointPath = null));

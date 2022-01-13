@@ -37,15 +37,9 @@ namespace Faaast.Tests.Authentication.ServerTests
             return await server.SendPostAsync(this.Fixture.TokenEndpoint, dic, req);
         }
 
-        private static void DisabledFlow(HttpRequestMessage req)
-        {
-            req.Headers.Add("IsAllowedFlow", "0");
-        }
+        private static void DisabledFlow(HttpRequestMessage req) => req.Headers.Add("IsAllowedFlow", "0");
 
-        private static void InvalidRedirectUri(HttpRequestMessage req)
-        {
-            req.Headers.Add("IsAllowedRedirectUrl", "0");
-        }
+        private static void InvalidRedirectUri(HttpRequestMessage req) => req.Headers.Add("IsAllowedRedirectUrl", "0");
 
         [Fact]
         public async Task Test_should_not_handle()
