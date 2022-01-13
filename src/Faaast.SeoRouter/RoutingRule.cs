@@ -49,6 +49,11 @@ namespace Faaast.SeoRouter
 
         internal void InitConstraints(IServiceProvider services)
         {
+            if (this.Target == null)
+            {
+                this.Target = new MvcAction();
+            }
+
             var vpdConstraints = new Dictionary<string, object>();
             var targetConstraints = this.Target.Value.Constraints.GetQueryDictionnary();
             var targetValues = this.Target.ToRouteValueDictionary();
@@ -95,7 +100,7 @@ namespace Faaast.SeoRouter
             {
                 foreach (var kvp in constraints)
                 {
-                    if (!string.IsNullOrWhiteSpace(kvp.Key))
+                    if (!string.IsNullOrWhiteSpace(kvp.Key) && kvp.Value != null)
                     {
                         switch (kvp.Value.ToString())
                         {
