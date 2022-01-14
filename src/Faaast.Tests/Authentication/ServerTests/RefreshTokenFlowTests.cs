@@ -143,7 +143,7 @@ namespace Faaast.Tests.Authentication.ServerTests
 
             var transaction = await this.QueryAsync(server, fixture.Client.ClientId, fixture.Token.RefreshToken);
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
-            Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidAudience, transaction.ResponseText);
+            Assert.Equal(Faaast.OAuth2Server.Resources.Msg_InvalidToken, transaction.ResponseText);
         }
 
         [Fact]

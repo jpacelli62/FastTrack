@@ -16,6 +16,11 @@ namespace Faaast.OAuth2Server.Core.Flows
         {
         }
 
+        protected override bool MatchEndpoint(RequestContext context)
+        {
+            return this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase) || this.Options.AuthorizeEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
+        }
+
         protected override bool ShouldHandle(RequestContext context) => IsChallenge(context) || IsExchangeCode(context);
 
         private static bool IsChallenge(RequestContext context) => HttpMethods.IsGet(context.HttpContext.Request.Method) && string.Equals(Parameters.Code.ParameterName, context.Read(Parameters.ResponseType));
@@ -102,6 +107,12 @@ namespace Faaast.OAuth2Server.Core.Flows
                 return await result.RejectAsync(Resources.Msg_ForbiddenFlow);
             }
 
+            var audience = context.Read(Parameters.Audience);
+            if (!client.IsAllowedAudience(audience, context))
+            {
+                return await result.RejectAsync(Resources.Msg_InvalidAudience);
+            }
+
             var redirectUri = context.Read(Parameters.RedirectUri);
             if (!client.IsAllowedRedirectUrl(redirectUri, context))
             {
@@ -118,7 +129,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             var ticket = code.Ticket;
             Token token = new()
             {
-                AccessToken = this.CreateJwtToken(context, client, null, ticket),
+                AccessToken = this.CreateJwtToken(context, client, string.IsNullOrWhiteSpace(audience) ? client.Audience : audience, ticket),
                 AccessTokenExpiresUtc = this.Clock.UtcNow.UtcDateTime + this.Options.AccessTokenExpireTimeSpan,
                 NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value
             };

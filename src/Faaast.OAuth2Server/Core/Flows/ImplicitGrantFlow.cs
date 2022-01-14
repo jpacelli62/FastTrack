@@ -16,6 +16,11 @@ namespace Faaast.OAuth2Server.Core.Flows
         {
         }
 
+        protected override bool MatchEndpoint(RequestContext context)
+        {
+            return this.Options.AuthorizeEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
+        }
+
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsGet(context.HttpContext.Request.Method) && string.Equals(Parameters.Token, context.Read(Parameters.ResponseType));
 
         protected override async Task<RequestResult<string>> HandleAsync(RequestContext context)
@@ -65,7 +70,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             };
             var ticket = new AuthenticationTicket(context.HttpContext.User, properties, "Default");
 
-            var accessToken = this.CreateJwtToken(context, client, null, ticket);
+            var accessToken = this.CreateJwtToken(context, client, client.Audience, ticket);
 
             var uri = new Uri(redirectUri);
             var query = string.Format("?access_token={0}&token_type={1}&expires_in={2}&scope={3}&state={4}",

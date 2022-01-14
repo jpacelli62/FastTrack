@@ -19,8 +19,8 @@ namespace Faaast.Tests.Authentication.ServerTests
         public SigningCredentials GetSigninCredentials(RequestContext context) => 
             new(new SymmetricSecurityKey(Encoding.Default.GetBytes(this.ClientSecret)), SecurityAlgorithms.HmacSha256);
 
-        public bool IsAllowedAudience(string audience, RequestContext context) => 
-            audience == this.Audience;
+        public bool IsAllowedAudience(string audience, RequestContext context) =>
+            audience == null || audience == this.Audience;
 
         public bool IsAllowedFlow(string flowName, RequestContext context) => 
             !(context.HttpContext.Request.Headers.TryGetValue(nameof(IsAllowedFlow), out var value) && value == "0");

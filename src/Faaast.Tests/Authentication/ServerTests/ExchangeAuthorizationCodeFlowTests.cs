@@ -148,6 +148,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.NotNull(payload);
             Assert.Equal(this.Fixture.Client.Scope, payload["scope"]?.ToString());
             Assert.Equal("123", payload["nameid"]?.ToString());
+            Assert.Equal(this.Fixture.Client.Audience, payload["aud"]?.ToString());
         }
 
         [Fact]

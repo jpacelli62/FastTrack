@@ -13,7 +13,7 @@ namespace Faaast.SeoRouter
 
         public static string NormalizeUrl(this string url)
         {
-            url = url.ToLower();
+            url = url?.ToLower();
             if (!string.IsNullOrEmpty(url) && url[0] == '/')
             {
                 url = url.Substring(1);

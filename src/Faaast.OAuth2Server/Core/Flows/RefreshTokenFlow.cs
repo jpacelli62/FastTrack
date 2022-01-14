@@ -20,6 +20,11 @@ namespace Faaast.OAuth2Server.Core.Flows
         {
         }
 
+        protected override bool MatchEndpoint(RequestContext context)
+        {
+            return this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
+        }
+
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.RefreshToken.ParameterName, context.Read(Parameters.GrantType));
 
         protected override async Task<RequestResult<string>> HandleAsync(RequestContext context)
@@ -96,9 +101,9 @@ namespace Faaast.OAuth2Server.Core.Flows
             var signinCredentials = client.GetSigninCredentials(context);
             return new TokenValidationParameters
             {
-                RequireAudience = false,
-                ValidateAudience = false,
-                //ValidAudience = client.ClientId,
+                RequireAudience = true,
+                ValidateAudience = true,
+                ValidAudience = client.Audience,
 
                 RequireExpirationTime = true,
                 ClockSkew = TimeSpan.Zero,

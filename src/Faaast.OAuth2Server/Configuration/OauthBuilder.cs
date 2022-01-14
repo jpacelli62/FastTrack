@@ -24,7 +24,7 @@ namespace Faaast.OAuth2Server.Configuration
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.TokenEndpointPath)));
             }
 
-            this.Application.Map(new Microsoft.AspNetCore.Http.PathString(this.Options.TokenEndpointPath), app => app.UseMiddleware<ClientCredentialsGrantFlow>(this.Options));
+            this.Application.UseMiddleware<ClientCredentialsGrantFlow>(this.Options);
             return this;
         }
 
@@ -35,7 +35,7 @@ namespace Faaast.OAuth2Server.Configuration
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.TokenEndpointPath)));
             }
 
-            this.Application.Map(new Microsoft.AspNetCore.Http.PathString(this.Options.TokenEndpointPath), app => app.UseMiddleware<ResourceOwnerPasswordCredentialsGrantFlow>(this.Options));
+            this.Application.UseMiddleware<ResourceOwnerPasswordCredentialsGrantFlow>(this.Options);
             return this;
         }
 
@@ -51,9 +51,7 @@ namespace Faaast.OAuth2Server.Configuration
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.TokenEndpointPath)));
             }
 
-            this.Application.UseWhen(context =>
-                this.Options.TokenEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase) || this.Options.AuthorizeEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase), 
-                app => app.UseMiddleware<AuthorizationCodeGrantFlow>(this.Options));
+            this.Application.UseMiddleware<AuthorizationCodeGrantFlow>(this.Options);
             return this;
         }
 
@@ -64,9 +62,7 @@ namespace Faaast.OAuth2Server.Configuration
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.TokenEndpointPath)));
             }
 
-            this.Application.UseWhen(context =>
-                this.Options.TokenEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase),
-                app => app.UseMiddleware<RefreshTokenFlow>(this.Options));
+            this.Application.UseMiddleware<RefreshTokenFlow>(this.Options);
             return this;
         }
 
@@ -77,9 +73,7 @@ namespace Faaast.OAuth2Server.Configuration
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.AuthorizeEndpointPath)));
             }
 
-            this.Application.UseWhen(context =>
-                this.Options.AuthorizeEndpointPath.Equals(context.Request.Path, StringComparison.OrdinalIgnoreCase),
-                app => app.UseMiddleware<ImplicitGrantFlow>(this.Options));
+            this.Application.UseMiddleware<ImplicitGrantFlow>(this.Options);
             return this;
         }
     }

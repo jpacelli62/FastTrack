@@ -39,7 +39,7 @@ namespace Faaast.OAuth2Server.Core
         public async Task InvokeAsync(HttpContext context)
         {
             var request = new RequestContext(context);
-            if (this.ShouldHandle(request))
+            if (this.MatchEndpoint(request) && this.ShouldHandle(request))
             {
                 if (!this.Options.AllowInsecureHttp && !context.Request.IsHttps)
                 {
@@ -84,6 +84,9 @@ namespace Faaast.OAuth2Server.Core
                 await this.Fatal(request.HttpContext, ex);
             }
         }
+
+        protected abstract bool MatchEndpoint(RequestContext context);
+
 
         protected abstract bool ShouldHandle(RequestContext context);
 

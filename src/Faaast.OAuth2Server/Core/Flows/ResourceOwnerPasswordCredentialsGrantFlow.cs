@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
@@ -13,6 +14,11 @@ namespace Faaast.OAuth2Server.Core.Flows
     {
         public ResourceOwnerPasswordCredentialsGrantFlow(RequestDelegate next, OAuthServerOptions options, ILoggerFactory loggerFactory, ISystemClock clock) : base(next, options, loggerFactory, clock)
         {
+        }
+
+        protected override bool MatchEndpoint(RequestContext context)
+        {
+            return this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
         }
 
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.Password.ParameterName, context.Read(Parameters.GrantType));
@@ -56,7 +62,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             var ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(new System.Security.Claims.ClaimsPrincipal(authResult.Result), "Default");
             Token token = new()
             {
-                AccessToken = this.CreateJwtToken(context, client, audience, ticket),
+                AccessToken = this.CreateJwtToken(context, client, string.IsNullOrWhiteSpace(audience) ? client.Audience : audience, ticket),
                 AccessTokenExpiresUtc = this.Clock.UtcNow.UtcDateTime + this.Options.AccessTokenExpireTimeSpan,
                 NameIdentifier = ticket.Principal.FindFirst(ClaimTypes.NameIdentifier).Value
             };

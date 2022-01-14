@@ -10,6 +10,8 @@ namespace Faaast.OAuth2Server.Abstraction
 
         public string ClientSecret { get; }
 
+        public string Audience { get; }
+
         public bool IsAllowedScope(string scope, ClaimsIdentity identity, RequestContext context);
 
         public bool IsAllowedAudience(string audience, RequestContext context);

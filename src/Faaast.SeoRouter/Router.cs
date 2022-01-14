@@ -8,7 +8,6 @@ namespace Faaast.SeoRouter
 {
     public class Router : IRouter
     {
-        public static readonly RoutingRule NotFound = new(null, "NotFound",RuleKind.Global, HandlerType.NotFound, null, null);
         public const string ControllerKey = "controller";
         public const string ActionKey = "action";
 
@@ -58,10 +57,8 @@ namespace Faaast.SeoRouter
                     return provider.HandleRedirectAsync(context, rule, vpd);
                 }
             }
-            else//not found
-            {
-                return provider.HandleAsync(context, NotFound);
-            }
+            
+            return Task.CompletedTask;
         }
 
         public RoutingRule FindRouteRule(string url, IServiceProvider provider, out RouteValueDictionary routeValues)

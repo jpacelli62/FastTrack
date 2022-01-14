@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddMetadata(this IServiceCollection services)
         {
-            services.TryAddSingleton<IObjectMapper, EmitObjectMapper>();
+            services.TryAddSingleton<IObjectMapper, DefaultObjectMapper>();
             return services;
         }
     }

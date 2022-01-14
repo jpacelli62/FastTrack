@@ -167,6 +167,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(fixture.Options.Issuer, payload.Iss);
             Assert.Equal(fixture.Client.Scope, payload["scope"]?.ToString());
             Assert.Equal("John Doe", payload["unique_name"]?.ToString());
+            Assert.Equal(fixture.Client.Audience, payload["aud"]?.ToString());
         }
 
         [Fact]
@@ -199,6 +200,7 @@ namespace Faaast.Tests.Authentication.ServerTests
             Assert.Equal(fixture.Options.Issuer, payload.Iss);
             Assert.Equal(fixture.Client.Scope, payload["scope"]?.ToString());
             Assert.Equal("John Doe", payload["unique_name"]?.ToString());
+            Assert.Equal(fixture.Client.Audience, payload["aud"]?.ToString());
         }
 
         [Fact]
