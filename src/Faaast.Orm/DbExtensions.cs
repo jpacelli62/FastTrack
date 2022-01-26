@@ -15,7 +15,11 @@ namespace Faaast.Orm
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CommandType? commandType = null,
-            CancellationToken cancellationToken = default) => new(db.DbStore[db.Connection.Name],
+            CancellationToken cancellationToken = default)
+        {
+            bool handleConnection = connection == null;
+
+            return new(db.DbStore[db.Connection.Name],
             db.Mapper,
             connection ?? db.CreateConnection(),
             sql,
@@ -23,8 +27,9 @@ namespace Faaast.Orm
             transaction,
             commandTimeout,
             commandType,
-            connection == null,
+            handleConnection,
             cancellationToken);
+        }
 
         internal static Task TryPrepareAsync(this DbCommand dbCommand, CancellationToken cancellationToken)
         {
