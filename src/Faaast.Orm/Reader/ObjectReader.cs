@@ -23,7 +23,7 @@ namespace Faaast.Orm.Reader
             }
         }
 
-        public ObjectReader(DtoClass dto, params ColumnReader[] Columns)
+        public ObjectReader(IDtoClass dto, params ColumnReader[] Columns)
         {
             this.Model = dto;
             this.Columns = Columns;

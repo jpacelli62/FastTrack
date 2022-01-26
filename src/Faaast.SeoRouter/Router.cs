@@ -17,7 +17,7 @@ namespace Faaast.SeoRouter
 
         public async Task<RoutingRules> GetRulesAsync(IServiceProvider services)
         {
-            if(this.Log is null)
+            if (this.Log is null)
             {
                 this.Log = services.GetRequiredService<ILoggerFactory>().CreateLogger("SeoRouter");
             }
@@ -47,7 +47,16 @@ namespace Faaast.SeoRouter
             {
                 if (rule == origin)
                 {
+                    var routers = context.RouteData?.Routers;
                     context.RouteData = new RouteData(values);
+                    if(routers != null)
+                    {
+                        foreach (var router in routers)
+                        {
+                            context.RouteData.Routers.Add(router);
+                        }
+                    }
+
                     return provider.HandleAsync(context, rule);
                 }
                 else
@@ -57,7 +66,7 @@ namespace Faaast.SeoRouter
                     return provider.HandleRedirectAsync(context, rule, vpd);
                 }
             }
-            
+
             return Task.CompletedTask;
         }
 
