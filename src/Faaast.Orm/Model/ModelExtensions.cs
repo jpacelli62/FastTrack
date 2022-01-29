@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
-using Faaast.Orm.Model;
 
-namespace Faaast.Orm
+namespace Faaast.Orm.Model
 {
     public static class ColumnExtensions
     {

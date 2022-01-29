@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Model;
 
@@ -26,30 +27,32 @@ namespace Faaast.Orm.Reader
         public FaaastCommand(
             IDatabase database,
             IObjectMapper mapper,
-            DbConnection connection,
             string commandText,
-            object parameters = null,
-            DbTransaction transaction = null,
-            int? commandTimeout = null,
-            CommandType? commandType = null,
-            bool handleConnection = true,
-            CancellationToken cancellationToken = default)
+            object parameters = null
+            )
         {
             this.Database = database;
             this.Mapper = mapper;
-            this.Connection = connection;
+            this.Connection = null;
             this.CommandText = commandText;
             this.Parameters = parameters;
-            this.Transaction = transaction;
-            this.CommandTimeout = commandTimeout;
-            this.CommandType = commandType;
-            this.CancellationToken = cancellationToken;
+            this.Transaction = null;
+            this.CommandTimeout = null;
+            this.CommandType = System.Data.CommandType.Text;
+            this.CancellationToken = default;
             this.CommandBehavior = CommandBehavior.SequentialAccess;
-            this.HandleConnection = handleConnection;
+            this.HandleConnection = false;
         }
 
         internal DbCommand SetupCommand()
         {
+            if (this.Connection == null)
+            {
+                this.HandleConnection = true;
+                this.Connection = this.Database.Connexion.Engine.Create();
+                this.Connection.ConnectionString = this.Database.Connexion.ConnectionString(this.Database.Connexion);
+            }
+
             var cmd = this.Connection.CreateCommand();
             cmd.CommandText = this.CommandText;
 
@@ -109,6 +112,52 @@ namespace Faaast.Orm.Reader
             }
 
             command.Parameters.Add(parameter);
+        }
+
+        internal static Task TryPrepareAsync(DbCommand dbCommand, CancellationToken cancellationToken)
+        {
+#if NET_5
+            return dbCommand.PrepareAsync(cancellationToken);
+#endif
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                dbCommand.Prepare();
+            }
+
+            return Task.CompletedTask;
+        }
+
+        internal Task TryCloseAsync(CancellationToken cancellationToken)
+        {
+            if (this.HandleConnection)
+            {
+#if NET_5
+            return this.Connection.CloseAsync(cancellationToken);
+#else
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    this.Connection.Close();
+                }
+#endif
+            }
+            return Task.CompletedTask;
+        }
+
+        internal Task TryDisposeAsync(CancellationToken cancellationToken)
+        {
+            if (this.HandleConnection)
+            {
+#if NET_5
+            return this.Connection.DisposeAsync(cancellationToken);
+#else
+                if (!cancellationToken.IsCancellationRequested)
+                {
+                    this.Connection.Dispose();
+                }
+#endif
+            }
+            return Task.CompletedTask;
+
         }
     }
 }

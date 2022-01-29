@@ -4,6 +4,7 @@ using System.Data.Common;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
 using Faaast.Orm.Model;
+using Faaast.Orm.Reader;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.Orm
@@ -84,5 +85,7 @@ namespace Faaast.Orm
             db.Set(Meta.Readers, new System.Collections.Concurrent.ConcurrentDictionary<Type, Reader.ObjectReader>());
             return db;
         }
+
+        public virtual FaaastCommand Command(string sql, object parameters = null) => new FaaastCommand(this.Mappings.Value.Source, this.Mapper, sql, parameters);
     }
 }
