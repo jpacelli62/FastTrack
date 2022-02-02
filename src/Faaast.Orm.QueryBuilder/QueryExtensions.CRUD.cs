@@ -7,12 +7,6 @@ namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {
-        public static TableMapping Mapping<TClass>(this FaaastQueryDb db)
-        {
-            var mapping = db.Mappings.Value;
-            return mapping.TypeToMapping[typeof(TClass)];
-        }
-
         public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
         {
             var mapping = db.Mapping<T>();

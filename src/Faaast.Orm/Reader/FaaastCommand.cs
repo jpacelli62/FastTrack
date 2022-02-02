@@ -6,7 +6,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Faaast.Metadata;
-using Faaast.Orm.Model;
 
 namespace Faaast.Orm.Reader
 {
@@ -19,41 +18,33 @@ namespace Faaast.Orm.Reader
         public CommandType? CommandType { get; set; }
         public CancellationToken CancellationToken { get; set; }
         public DbConnection Connection { get; set; }
-        public IObjectMapper Mapper { get; set; }
-        public IDatabase Database { get; set; }
         public CommandBehavior CommandBehavior { get; set; }
+
+        public IObjectMapper Mapper { get; set; }
+        public FaaastDb Db { get; set; }
         public bool HandleConnection { get; set; }
 
         public FaaastCommand(
-            IDatabase database,
-            IObjectMapper mapper,
+            FaaastDb db,
             string commandText,
             object parameters = null
             )
         {
-            this.Database = database;
-            this.Mapper = mapper;
+            this.Db = db;
+            this.Mapper = db.Mapper;
             this.Connection = null;
             this.CommandText = commandText;
             this.Parameters = parameters;
             this.Transaction = null;
             this.CommandTimeout = null;
             this.CommandType = System.Data.CommandType.Text;
-            this.CancellationToken = default;
+            this.CancellationToken = CancellationToken.None;
             this.CommandBehavior = CommandBehavior.SequentialAccess;
             this.HandleConnection = false;
         }
 
-        internal DbCommand SetupCommand()
+        public void Setup(DbCommand cmd)
         {
-            if (this.Connection == null)
-            {
-                this.HandleConnection = true;
-                this.Connection = this.Database.Connexion.Engine.Create();
-                this.Connection.ConnectionString = this.Database.Connexion.ConnectionString(this.Database.Connexion);
-            }
-
-            var cmd = this.Connection.CreateCommand();
             cmd.CommandText = this.CommandText;
 
             if (this.Transaction != null)
@@ -90,8 +81,6 @@ namespace Faaast.Orm.Reader
                     }
                 }
             }
-
-            return cmd;
         }
 
         internal static void AddParameter(DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
@@ -114,50 +103,98 @@ namespace Faaast.Orm.Reader
             command.Parameters.Add(parameter);
         }
 
-        internal static Task TryPrepareAsync(DbCommand dbCommand, CancellationToken cancellationToken)
+        public DbCommand PreCall()
         {
-#if NET_5
-            return dbCommand.PrepareAsync(cancellationToken);
-#endif
-            if (!cancellationToken.IsCancellationRequested)
+            if (this.Connection == null)
             {
-                dbCommand.Prepare();
+                this.HandleConnection = true;
+                this.Connection = this.Db.Connection.Engine.Create();
+                this.Connection.ConnectionString = this.Db.Connection.ConnectionString(this.Db.Connection);
+                this.Connection.Open();
             }
 
-            return Task.CompletedTask;
+            var cmd = this.Connection.CreateCommand();
+            this.Setup(cmd);
+            cmd.Prepare();
+            return cmd;
         }
 
-        internal Task TryCloseAsync(CancellationToken cancellationToken)
+        public async Task<DbCommand> PreCallAsync()
         {
+            if (this.Connection == null)
+            {
+                this.HandleConnection = true;
+                this.Connection = this.Db.Connection.Engine.Create();
+                this.Connection.ConnectionString = this.Db.Connection.ConnectionString(this.Db.Connection);
+                await this.Connection.OpenAsync(this.CancellationToken).ConfigureAwait(false);
+            }
+
+            var cmd = this.Connection.CreateCommand();
+            this.Setup(cmd);
+#if NET_5
+            cmd.PrepareAsync(this.CancellationToken).ConfigureAwait(false);
+#else
+            cmd.Prepare();
+#endif            
+            return cmd;
+        }
+        public void PostCall(DbCommand cmd)
+        {
+            cmd.Dispose();
             if (this.HandleConnection)
             {
-#if NET_5
-            return this.Connection.CloseAsync(cancellationToken);
-#else
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    this.Connection.Close();
-                }
-#endif
+                this.Connection.Close();
+                this.Connection.Dispose();
             }
-            return Task.CompletedTask;
         }
 
-        internal Task TryDisposeAsync(CancellationToken cancellationToken)
+        public async Task PostCallAsync(DbCommand cmd)
         {
+#if NET_5
+            await cmd.DisposeAsync(this.CancellationToken).ConfigureAwait(false);
             if (this.HandleConnection)
             {
-#if NET_5
-            return this.Connection.DisposeAsync(cancellationToken);
-#else
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    this.Connection.Dispose();
-                }
-#endif
+                await this.Connection.CloseAsync().ConfigureAwait(false);
+                await this.Connection.DisposeAsync().ConfigureAwait(false);
             }
-            return Task.CompletedTask;
+#else
+            this.PostCall(cmd);
+            await Task.CompletedTask;
+#endif
+        }
 
+        public async Task<int> ExecuteNonQueryAsync()
+        {
+            var dbCommand = await this.PreCallAsync().ConfigureAwait(false);
+            var result = await dbCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+            await this.PostCallAsync(dbCommand).ConfigureAwait(false);
+
+            return result;
+        }
+
+        public int ExecuteNonQuery()
+        {
+            var dbCommand = this.PreCall();
+            var result = dbCommand.ExecuteNonQuery();
+            this.PostCall(dbCommand);
+
+            return result;
+        }
+
+        public async Task<FaaastRowReader> ExecuteReaderAsync()
+        {
+            var dbCommand = await this.PreCallAsync().ConfigureAwait(false);
+            var reader = new FaaastRowReader(this, dbCommand);
+            await reader.PrepareAsync().ConfigureAwait(false);
+            return reader;
+        }
+
+        public FaaastRowReader ExecuteReader()
+        {
+            var dbCommand = this.PreCall();
+            var reader = new FaaastRowReader(this, dbCommand);
+            reader.Prepare();
+            return reader;
         }
     }
 }

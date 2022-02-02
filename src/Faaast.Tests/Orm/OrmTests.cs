@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data;
 using Faaast.Orm;
 using Faaast.Orm.Model;
 using Faaast.Tests.Orm.Fake;
@@ -69,8 +70,43 @@ namespace Faaast.Tests.Orm
             var db = provider.GetRequiredService<FakeDB>();
             db.ConnectionOverride = null;
             Assert.Throws<ArgumentException>(() => db.Mappings.Value);
+        }
 
-            
+        [Fact]
+        public void Check_Reader()
+        {
+            var db = this.Fixture.Db;
+            var sql = "select * from sample";
+            var parameters = new { @id = 123 };
+
+            var command = db.CreateCommand(sql, parameters);
+            var reader = command.ExecuteReader();
+
+            Assert.Equal(sql, command.CommandText);
+            Assert.Equal(parameters, command.Parameters);
+
+            Assert.False(command.CancellationToken.IsCancellationRequested);
+            Assert.Equal(System.Data.CommandBehavior.SequentialAccess, command.CommandBehavior);
+            Assert.Equal(sql, reader.Command.CommandText);
+            Assert.Equal(System.Data.CommandType.Text, reader.Command.CommandType);
+            Assert.Null(reader.Command.Transaction);
+            Assert.Single(reader.Command.Parameters);
+            //Assert.Equal(ConnectionState.Open, reader.Command.Connection.State);
+
+            var param = reader.Command.Parameters[0];
+            Assert.Equal("id", param.ParameterName);
+            Assert.Equal(123, param.Value);
+            Assert.Equal(System.Data.DbType.Int32, param.DbType);
+            Assert.Equal(ParameterDirection.Input, param.Direction);
+
+            var v1Read = reader.AddReader<int>();
+            var dicoRead = reader.AddDictionaryReader();
+            while (reader.Read())
+            {
+                var v1 = v1Read.Value;
+                var dico1 = dicoRead.Value;
+
+            }
         }
     }
 }

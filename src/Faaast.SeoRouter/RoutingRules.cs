@@ -18,7 +18,6 @@ namespace Faaast.SeoRouter
 
         public IReadOnlyCollection<RoutingRule> Rules => _allRules.ToArray();
 
-
         public void Add(RoutingRule rule)
         {
             _syncLock.AcquireWriterLock(5000);

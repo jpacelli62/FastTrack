@@ -1,28 +1,43 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Faaast.Orm;
 using Faaast.Orm.Model;
+using Faaast.Tests.Orm.FakeConnection;
 using Faaast.Tests.Orm.Fixtures;
-using SqlKata.Compilers;
 
 namespace Faaast.Tests.Orm.Fake
 {
-    public class FakeDB : FaaastQueryDb
+    public class FakeDB : FaaastDb
     {
-        Compiler _compiler;
-        public FakeDB(IServiceProvider provider) : base(provider) => _compiler = new SqlServerCompiler();
+        public FakeDB(IServiceProvider provider) : base(provider)
+        {
+            this.Engine = new FakeEngine()
+            {
+                FakeConnection = new FakeDbConnection
+                {
+                    Command = new FakeCommand
+                    {
+                        Reader = new FakeDataReader()
+                        {
+                            columns = this.LoadMappings().First().Table.Table.Columns.Select(x=>x.Name).ToList()
+                        }
+                    }
+                }
+            };
 
-        protected override Compiler Compiler => _compiler;
+            this.ConnectionOverride = new("connectionName", this.Engine, "sampleConnectionString");
+        }
 
-        public void SetCompiler(Compiler instance) => this._compiler = instance;
+        public FakeDataReader Data { get => this.Engine.FakeConnection.Command.Reader; }
 
         public override ConnectionSettings Connection => this.ConnectionOverride;
-        public ConnectionSettings ConnectionOverride { get; set; } = new("connectionName", null, "sampleConnectionString");
 
-        protected override IEnumerable<SimpleTypeMapping> GetMappings()
+        public FakeEngine Engine { get; set; } 
+
+        public ConnectionSettings ConnectionOverride { get; set; }
+
+        protected override IEnumerable<SimpleTypeMapping> LoadMappings()
         {
             var mapping = new SimpleTypeMapping<SimpleModel>();
             mapping.ToDatabase("MyDb");

@@ -1,54 +1,81 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 
 namespace Faaast.Tests.Orm.FakeConnection
 {
-    public class FakeCommand : IDbCommand
+    public class FakeCommand : DbCommand
     {
-        private class DataParameters : List<IDbDataParameter>, IDataParameterCollection
+        private class FakeDbParameter : DbParameter
         {
-            object IDataParameterCollection.this[string parameterName] { get => ((List<IDbDataParameter>)this)[this.IndexOf(parameterName)]; set => ((List<IDbDataParameter>)this)[this.IndexOf(parameterName)] = (IDbDataParameter)value; }
+            public override DbType DbType { get; set; }
+            public override ParameterDirection Direction { get; set; }
+            public override bool IsNullable { get; set; }
+            public override string ParameterName { get; set; }
+            public override int Size { get; set; }
+            public override string SourceColumn { get; set; }
+            public override bool SourceColumnNullMapping { get; set; }
+            public override object Value { get; set; }
 
-            public bool Contains(string parameterName) => this.Any(x => x.ParameterName == parameterName);
+            public override void ResetDbType() => this.DbType = DbType.AnsiString;
+        }
+        private class DataParameters : DbParameterCollection
+        {
+            private readonly List<DbParameter> Parameters = new();
 
-            public int IndexOf(string parameterName) => this.IndexOf(this.FirstOrDefault(x => x.ParameterName == parameterName));
 
-            public void RemoveAt(string parameterName) => this.Remove(this.FirstOrDefault(x => x.ParameterName == parameterName));
+            public override int Count => this.Parameters.Count;
+
+            public override object SyncRoot => throw new NotImplementedException();
+
+            public override int Add(object value) 
+            { 
+                Parameters.Add((DbParameter)value); 
+                return Parameters.Count; 
+            }
+
+            public override void AddRange(Array values) => throw new NotImplementedException();
+            public override void Clear() => throw new NotImplementedException();
+            public override bool Contains(string value) => this.Parameters.Any(x => x.ParameterName == value);
+            public override bool Contains(object value) => throw new NotImplementedException();
+            public override void CopyTo(Array array, int index) => throw new NotImplementedException();
+            public override IEnumerator GetEnumerator() => Parameters.GetEnumerator();
+            public override int IndexOf(string parameterName) => this.IndexOf(this.Parameters.FirstOrDefault(x => x.ParameterName == parameterName));
+            public override int IndexOf(object value) => throw new NotImplementedException();
+            public override void Insert(int index, object value) => throw new NotImplementedException();
+            public override void Remove(object value) => throw new NotImplementedException();
+            public override void RemoveAt(string parameterName) => this.Remove(this.Parameters.FirstOrDefault(x => x.ParameterName == parameterName));
+            public override void RemoveAt(int index) => throw new NotImplementedException();
+            protected override DbParameter GetParameter(int index) => Parameters[index];
+            protected override DbParameter GetParameter(string parameterName) => throw new NotImplementedException();
+            protected override void SetParameter(int index, DbParameter value) => throw new NotImplementedException();
+            protected override void SetParameter(string parameterName, DbParameter value) => throw new NotImplementedException();
         }
         public bool Prepared { get; set; }
 
-        public string CommandText { get; set; }
-        public int CommandTimeout { get; set; }
-        public CommandType CommandType { get; set; }
-        public IDbConnection Connection { get; set; }
-
-        public IDataParameterCollection Parameters { get; set; } = new DataParameters();
-
-        public IDbTransaction Transaction { get; set; }
-
-        public UpdateRowSource UpdatedRowSource { get; set; }
-
         public FakeDataReader Reader { get; set; }
+        public override string CommandText { get; set; }
+        public override int CommandTimeout { get; set; }
+        public override CommandType CommandType { get; set; }
+        protected override DbConnection DbConnection { get; set; }
 
-        public void Cancel()
-        {
-            //Do nothing
-        }
+        protected override DbParameterCollection DbParameterCollection { get; } = new DataParameters();
 
-        public IDbDataParameter CreateParameter() => throw new NotImplementedException();
+        protected override DbTransaction DbTransaction { get; set; }
+        public override bool DesignTimeVisible { get; set; }
+        public override UpdateRowSource UpdatedRowSource { get; set; }
 
-        public void Dispose() => GC.SuppressFinalize(this);
+        public override int ExecuteNonQuery() => 18;
 
-        public int ExecuteNonQuery() => throw new NotImplementedException();
+        public override object ExecuteScalar() => new();
 
-        public IDataReader ExecuteReader() => this.Reader;
+        public override void Prepare() => this.Prepared = true;
 
-        public IDataReader ExecuteReader(CommandBehavior behavior) => this.Reader;
-
-        public object ExecuteScalar() => throw new NotImplementedException();
-
-        public void Prepare() => this.Prepared = true;
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => this.Reader ?? new FakeDataReader();
+        public override void Cancel() => throw new NotImplementedException();
+        protected override DbParameter CreateDbParameter() => new FakeDbParameter();
     }
 }

@@ -11,6 +11,6 @@ namespace Faaast.Orm
     {
         public static readonly Metadata<IDatabase, DatabaseMapping> Mapping = new(nameof(Mapping));
 
-        public static readonly Metadata<IDatabase, ConcurrentDictionary<Type, ObjectReader>> Readers = new(nameof(Readers));
+        //public static readonly Metadata<IDatabase, ConcurrentDictionary<Type, ObjectReader>> Readers = new(nameof(Readers));
     }
 }

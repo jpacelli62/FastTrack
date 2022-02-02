@@ -87,7 +87,6 @@ namespace Faaast.OAuth2Server.Core
 
         protected abstract bool MatchEndpoint(RequestContext context);
 
-
         protected abstract bool ShouldHandle(RequestContext context);
 
         protected abstract Task<RequestResult<string>> HandleAsync(RequestContext context);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
 using Faaast.Orm.Model;
@@ -15,22 +14,17 @@ namespace Faaast.Orm
 
         internal virtual IDatabaseStore DbStore { get; set; }
 
+        internal virtual IDatabase Database{ get; set; }
+
         public virtual Lazy<DatabaseMapping> Mappings { get; }
 
         public abstract ConnectionSettings Connection { get; }
-
-        public virtual DbConnection CreateConnection()
-        {
-            var connection = this.Connection.Engine.Create();
-            connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
-            return connection;
-        }
 
         private FaaastDb()
         {
         }
 
-        protected abstract IEnumerable<SimpleTypeMapping> GetMappings();
+        protected abstract IEnumerable<SimpleTypeMapping> LoadMappings();
 
         protected FaaastDb(IServiceProvider services) : this()
         {
@@ -43,14 +37,14 @@ namespace Faaast.Orm
         {
             if (this.Connection != null)
             {
-                var database = this.DbStore[this.Connection.Name];
-                if (database == null)
+                this.Database = this.DbStore[this.Connection.Name];
+                if (this.Database == null)
                 {
-                    database = Initialize(this.Connection, this.Mapper, this.GetMappings());
-                    this.DbStore[this.Connection.Name] = database;
+                    this.Database = Initialize(this.Connection, this.Mapper, this.LoadMappings());
+                    this.DbStore[this.Connection.Name] = this.Database;
                 }
 
-                return database.Get(Meta.Mapping);
+                return this.Database.Get(Meta.Mapping);
             }
 
             throw new ArgumentException(nameof(this.Connection));
@@ -82,10 +76,17 @@ namespace Faaast.Orm
             };
 
             db.Set(Meta.Mapping, dbMap);
-            db.Set(Meta.Readers, new System.Collections.Concurrent.ConcurrentDictionary<Type, Reader.ObjectReader>());
             return db;
         }
 
-        public virtual FaaastCommand Command(string sql, object parameters = null) => new FaaastCommand(this.Mappings.Value.Source, this.Mapper, sql, parameters);
+        public virtual FaaastCommand CreateCommand(string sql, object parameters = null) => new(this, sql, parameters);
+
+        public TableMapping Mapping<TClass>() => this.Mapping(typeof(TClass));
+
+        public TableMapping Mapping(Type type)
+        {
+            var mapping = this.Mappings.Value;
+            return mapping.TypeToMapping[type];
+        }
     }
 }

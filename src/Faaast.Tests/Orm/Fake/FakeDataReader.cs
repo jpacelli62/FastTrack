@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 
 namespace Faaast.Tests.Orm.FakeConnection
 {
-    public class FakeDataReader : IDataReader
+    public class FakeDataReader : DbDataReader
     {
         public List<string> columns = new();
 
@@ -14,73 +16,74 @@ namespace Faaast.Tests.Orm.FakeConnection
 
         public int Count { get; set; } = 10000000;
 
-        public object this[int i] => this.GetValue(i);
+        public override object this[int i] => this.GetValue(i);
 
-        public object this[string name] => this.GetValue(this.GetOrdinal(name));
+        public override object this[string name] => this.GetValue(this.GetOrdinal(name));
 
-        public int Depth => throw new NotImplementedException();
+        public override int Depth => throw new NotImplementedException();
 
-        public bool IsClosed => false;
+        public override bool IsClosed => false;
 
-        public int RecordsAffected => -1;
+        public override int RecordsAffected => -1;
 
-        public int FieldCount => columns.Count;
+        public override int FieldCount => columns.Count;
 
-        public void Close()
+        public override bool HasRows => true;
+
+        public override void Close()
         {
             // Do nothing
         }
 
-        public void Dispose() => GC.SuppressFinalize(this);
+        public override bool GetBoolean(int ordinal) => (bool)this.GetValue(ordinal);
 
-        public bool GetBoolean(int i) => (bool)this.GetValue(i);
+        public override byte GetByte(int ordinal) => (byte)this.GetValue(ordinal);
 
-        public byte GetByte(int i) => (byte)this.GetValue(i);
+        public override long GetBytes(int ordinal, long dataOffset, byte[] buffer, int bufferOffset, int length) => (long)this.GetValue(ordinal);
 
-        public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length) => (long)this.GetValue(i);
+        public override char GetChar(int ordinal) => (char)this.GetValue(ordinal);
 
-        public char GetChar(int i) => (char)this.GetValue(i);
+        public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => (long)this.GetValue(ordinal);
 
-        public long GetChars(int i, long fieldoffset, char[] buffer, int bufferoffset, int length) => (long)this.GetValue(i);
+        //public override IDataReader GetData(int i) => throw new NotImplementedException();
 
-        public IDataReader GetData(int i) => throw new NotImplementedException();
+        public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
 
-        public string GetDataTypeName(int i) => throw new NotImplementedException();
+        public override DateTime GetDateTime(int ordinal) => (DateTime)this.GetValue(ordinal);
 
-        public DateTime GetDateTime(int i) => (DateTime)this.GetValue(i);
+        public override decimal GetDecimal(int ordinal) => (decimal)this.GetValue(ordinal);
 
-        public decimal GetDecimal(int i) => (decimal)this.GetValue(i);
+        public override double GetDouble(int ordinal) => (double)this.GetValue(ordinal);
 
-        public double GetDouble(int i) => (double)this.GetValue(i);
+        public override Type GetFieldType(int ordinal) => this.GetValue(ordinal)?.GetType();
 
-        public Type GetFieldType(int i) => this.GetValue(i)?.GetType();
+        public override float GetFloat(int ordinal) => (float)this.GetValue(ordinal);
 
-        public float GetFloat(int i) => (float)this.GetValue(i);
+        public override Guid GetGuid(int ordinal) => (Guid)this.GetValue(ordinal);
 
-        public Guid GetGuid(int i) => (Guid)this.GetValue(i);
+        public override short GetInt16(int ordinal) => (short)this.GetValue(ordinal);
 
-        public short GetInt16(int i) => (short)this.GetValue(i);
+        public override int GetInt32(int ordinal) => (int)this.GetValue(ordinal);
 
-        public int GetInt32(int i) => (int)this.GetValue(i);
+        public override long GetInt64(int ordinal) => (long)this.GetValue(ordinal);
 
-        public long GetInt64(int i) => (long)this.GetValue(i);
+        public override string GetName(int ordinal) => columns[ordinal];
 
-        public string GetName(int i) => columns[i];
+        public override int GetOrdinal(string name) => columns.IndexOf(name);
 
-        public int GetOrdinal(string name) => columns.IndexOf(name);
+        public override DataTable GetSchemaTable() => throw new NotImplementedException();
 
-        public DataTable GetSchemaTable() => throw new NotImplementedException();
+        public override string GetString(int ordinal) => (string)this.GetValue(ordinal);
 
-        public string GetString(int i) => (string)this.GetValue(i);
+        public override object GetValue(int ordinal) => this.Values[ordinal];
 
-        public object GetValue(int i) => this.Values[i];
+        public override int GetValues(object[] values) => throw new NotImplementedException();
 
-        public int GetValues(object[] values) => throw new NotImplementedException();
+        public override bool IsDBNull(int ordinal) => this.Values[ordinal] == null;
 
-        public bool IsDBNull(int i) => this.Values[i] == null;
+        public override bool NextResult() => this.CurrentIndex++ < this.Count;
 
-        public bool NextResult() => this.CurrentIndex++ < this.Count;
-
-        public bool Read() => this.CurrentIndex++ < this.Count;
+        public override bool Read() => this.CurrentIndex++ < this.Count;
+        public override IEnumerator GetEnumerator() => throw new NotImplementedException();
     }
 }

@@ -1,35 +1,38 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 
 namespace Faaast.Tests.Orm.FakeConnection
 {
-    public class FakeDbConnection : IDbConnection
+    public class FakeDbConnection : DbConnection
     {
-        public string ConnectionString { get; set; }
+        public override string ConnectionString { get; set; }
 
-        public int ConnectionTimeout { get; set; }
+        public override int ConnectionTimeout { get;  }
 
-        public string Database { get; set; }
+        public override  string Database { get; }
 
         public FakeCommand Command { get; set; }
 
-        public ConnectionState State { get; set; }
+        public override ConnectionState State { get => PrivateState; }
 
-        public IDbTransaction BeginTransaction() => throw new NotImplementedException();
+        public override string DataSource => throw new NotImplementedException();
 
-        public IDbTransaction BeginTransaction(IsolationLevel il) => throw new NotImplementedException();
+        public override string ServerVersion => throw new NotImplementedException();
 
-        public void ChangeDatabase(string databaseName)
+        private ConnectionState PrivateState;
+
+        public override void ChangeDatabase(string databaseName)
         {
             //Do nothing
         }
 
-        public void Close() => this.State = ConnectionState.Closed;
+        public override void Close() => PrivateState = ConnectionState.Closed;
 
-        public IDbCommand CreateCommand() => this.Command ?? new FakeCommand();
 
-        public void Dispose() => GC.SuppressFinalize(this);
 
-        public void Open() => this.State = ConnectionState.Open;
+        public override void Open() => PrivateState = ConnectionState.Open;
+        protected override DbTransaction BeginDbTransaction(IsolationLevel isolationLevel) => throw new NotImplementedException();
+        protected override DbCommand CreateDbCommand() => this.Command ?? new FakeCommand();
     }
 }
