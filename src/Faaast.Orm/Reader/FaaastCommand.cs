@@ -105,7 +105,7 @@ namespace Faaast.Orm.Reader
 
             if (parameter.DbType == DbType.String)
             {
-                parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+                parameter.Size = value == null ? 0 : Encoding.Unicode.GetByteCount((string)value);
             }
 
             command.Parameters.Add(parameter);
