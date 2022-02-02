@@ -9,7 +9,7 @@
     <Company />
     <LangVersion>9</LangVersion>
 
-    <Version>0.0.19-alpha</Version>
+    <Version>0.0.20-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
@@ -26,13 +26,13 @@
     <!--<PackageReleaseNotes>https://github.com/jpacelli62/Faaast/releasenotes#$(Version)</PackageReleaseNotes>-->
   </PropertyGroup>
   
-  <PropertyGroup Condition="'$(Configuration)'=='Publish'">
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Optimize>true</Optimize>
     <PackageIcon>icon.png</PackageIcon>
   </PropertyGroup>
   
-  <ItemGroup Condition="'$(Configuration)'=='Publish'">
+  <ItemGroup Condition="'$(Configuration)'=='Release'">
     <None Include="..\..\icon.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
