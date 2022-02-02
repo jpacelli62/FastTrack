@@ -93,8 +93,27 @@ namespace Faaast.Orm
             }
             else
             {
-                object id = await cmd.SingleAsync(identityColumn.Property.Type);
-                identityColumn.Property.Write(record, id);
+                if (cmd.HandleConnection)
+                {
+                    cmd.Connection.Open();
+                }
+
+                using (IDbCommand dbCommand = cmd.SetupCommand())
+                {
+                    dbCommand.Prepare();
+                    var dbReader = dbCommand.ExecuteReader(cmd.CommandBehavior);
+                    if(dbReader.Read())
+                    {
+                        object id = dbReader.GetValue(0);
+                        identityColumn.Property.Write(record, id);
+                    }
+                }
+
+                if (cmd.HandleConnection)
+                {
+                    cmd.Connection.Close();
+                    cmd.Connection.Dispose();
+                }
             }
 
             return 1;
