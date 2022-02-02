@@ -89,7 +89,6 @@ namespace Faaast.Orm.Reader
             return reader;
         }
 
-
         public async Task<bool> ReadAsync() => this.FillBuffer(await this.Reader.ReadAsync(this.Source.CancellationToken));
 
         public bool Read() => this.FillBuffer(this.Reader.Read());

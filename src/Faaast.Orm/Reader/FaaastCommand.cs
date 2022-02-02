@@ -89,6 +89,7 @@ namespace Faaast.Orm.Reader
             parameter.ParameterName = name.Sanitize();
             parameter.Value = value;
             parameter.Direction = direction;
+            parameter.IsNullable = value == null;
 
             if (valueType != null)
             {

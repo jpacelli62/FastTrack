@@ -4,17 +4,24 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 
-namespace Faaast.Tests.Orm.FakeConnection
+namespace Faaast.Tests.Orm.FakeDb
 {
-    public class FakeDataReader : DbDataReader
+    public class FakeDbDataReader : DbDataReader
     {
-        public List<string> columns = new();
+        public Dictionary<string, object> Data { get; set; }
 
-        public object[] Values { get; set; }
+        public int CurrentRow { get; set; } = 0;
 
-        public int CurrentIndex { get; set; } = 0;
+        public int RowsCount { get; set; }
+        
+        private bool _isClosed;
 
-        public int Count { get; set; } = 10000000;
+        public FakeDbDataReader(Dictionary<string, object> data, int rowsCount)
+        {
+            this.Data = data;
+            this.RowsCount = rowsCount;
+            this._isClosed = false;
+        }
 
         public override object this[int i] => this.GetValue(i);
 
@@ -22,18 +29,15 @@ namespace Faaast.Tests.Orm.FakeConnection
 
         public override int Depth => throw new NotImplementedException();
 
-        public override bool IsClosed => false;
+        public override bool IsClosed => this._isClosed;
 
         public override int RecordsAffected => -1;
 
-        public override int FieldCount => columns.Count;
+        public override int FieldCount => this.Data.Count;
 
-        public override bool HasRows => true;
+        public override bool HasRows => this.RowsCount >0;
 
-        public override void Close()
-        {
-            // Do nothing
-        }
+        public override void Close() => this._isClosed = true;
 
         public override bool GetBoolean(int ordinal) => (bool)this.GetValue(ordinal);
 
@@ -44,8 +48,6 @@ namespace Faaast.Tests.Orm.FakeConnection
         public override char GetChar(int ordinal) => (char)this.GetValue(ordinal);
 
         public override long GetChars(int ordinal, long dataOffset, char[] buffer, int bufferOffset, int length) => (long)this.GetValue(ordinal);
-
-        //public override IDataReader GetData(int i) => throw new NotImplementedException();
 
         public override string GetDataTypeName(int ordinal) => throw new NotImplementedException();
 
@@ -67,23 +69,66 @@ namespace Faaast.Tests.Orm.FakeConnection
 
         public override long GetInt64(int ordinal) => (long)this.GetValue(ordinal);
 
-        public override string GetName(int ordinal) => columns[ordinal];
+        public override string GetName(int ordinal)
+        {
+            var i = 0;
+            foreach (var item in this.Data)
+            {
+                if (i == ordinal)
+                {
+                    return item.Key;
+                }
 
-        public override int GetOrdinal(string name) => columns.IndexOf(name);
+                i++;
+            }
+
+            return null;
+        }
+
+        public override int GetOrdinal(string name)
+        {
+            var i = 0;
+            foreach (var item in this.Data)
+            {
+                if(string.Equals(item.Key, name))
+                {
+                    return i;
+                }
+
+                i++;
+            }
+
+            return -1;
+        }
 
         public override DataTable GetSchemaTable() => throw new NotImplementedException();
 
         public override string GetString(int ordinal) => (string)this.GetValue(ordinal);
 
-        public override object GetValue(int ordinal) => this.Values[ordinal];
+        public override object GetValue(int ordinal)
+        {
+            var i = 0;
+            foreach (var item in this.Data)
+            {
+                if (i == ordinal)
+                {
+                    return item.Value;
+                }
+
+                i++;
+            }
+
+            return null;
+        }
 
         public override int GetValues(object[] values) => throw new NotImplementedException();
 
-        public override bool IsDBNull(int ordinal) => this.Values[ordinal] == null;
+        public override bool IsDBNull(int ordinal) => this.GetValue(ordinal) == null;
 
-        public override bool NextResult() => this.CurrentIndex++ < this.Count;
+        public override bool NextResult() => this.CurrentRow++ < this.RowsCount;
 
-        public override bool Read() => this.CurrentIndex++ < this.Count;
+        public override bool Read() => this.NextResult();
+
         public override IEnumerator GetEnumerator() => throw new NotImplementedException();
     }
 }

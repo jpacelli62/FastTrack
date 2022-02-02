@@ -6,12 +6,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="FakesAssemblies\**" />
-    <EmbeddedResource Remove="FakesAssemblies\**" />
-    <None Remove="FakesAssemblies\**" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
@@ -52,14 +46,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj" />
     <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-    <ProjectReference Include="..\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj" />
     <ProjectReference Include="..\Faaast.OAuth2Server\Faaast.OAuth2Server.csproj" />
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
     <ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <AdditionalDesignTimeBuildInput Remove="FakesAssemblies\**" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Faaast.Orm;
 using Faaast.Orm.Model;
-using Faaast.Tests.Orm.FakeConnection;
-using Faaast.Tests.Orm.Fixtures;
+using Faaast.Tests.Orm.FakeDb;
 
-namespace Faaast.Tests.Orm.Fake
+namespace Faaast.Tests.Orm
 {
     public class FakeDB : FaaastDb
     {
         public FakeDB(IServiceProvider provider) : base(provider)
         {
+            var data = new Dictionary<string, object>()
+            {
+                { "v1", 123 },
+                { "V2", "lorem ipsum"},
+                { "V3", DateTime.Today},
+                { "V4", Guid.NewGuid()},
+                { "V5", 3.14f},
+                { "V6", 156651L},
+                { "V7", 3.141592653d},
+                { "V8", true}
+            };
+
             this.Engine = new FakeEngine()
             {
-                FakeConnection = new FakeDbConnection
-                {
-                    Command = new FakeCommand
-                    {
-                        Reader = new FakeDataReader()
-                        {
-                            columns = this.LoadMappings().First().Table.Table.Columns.Select(x=>x.Name).ToList()
-                        }
-                    }
-                }
+                FakeConnection = new FakeDbConnection(data, 1000)
             };
 
             this.ConnectionOverride = new("connectionName", this.Engine, "sampleConnectionString");
         }
-
-        public FakeDataReader Data { get => this.Engine.FakeConnection.Command.Reader; }
 
         public override ConnectionSettings Connection => this.ConnectionOverride;
 
