@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Faaast.Orm.Mapping;
@@ -105,7 +106,8 @@ namespace Faaast.Orm
                     if(dbReader.Read())
                     {
                         object id = dbReader.GetValue(0);
-                        identityColumn.Property.Write(record, id);
+                        var convertedId = Convert.ChangeType(id, identityColumn.Property.Type);
+                        identityColumn.Property.Write(record, convertedId);
                     }
                 }
 
