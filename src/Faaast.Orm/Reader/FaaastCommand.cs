@@ -117,15 +117,23 @@ namespace Faaast.Orm.Reader
             parameter.ParameterName = name.Sanitize();
             parameter.Value = value;
             parameter.Direction = direction;
-
-            if (valueType != null)
+            parameter.Size = 0;
+            if(value == null || value == DBNull.Value)
             {
-                parameter.DbType = valueType.ToDbType();
+                parameter.Value = DBNull.Value;
+                parameter.IsNullable = true;
             }
-
-            if (parameter.DbType == DbType.String)
+            else
             {
-                parameter.Size = value == null ? 0 : Encoding.Unicode.GetByteCount((string)value);
+                if (valueType != null)
+                {
+                    parameter.DbType = valueType.ToDbType();
+                }
+
+                if (parameter.DbType == DbType.String)
+                {
+                    parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+                }
             }
 
             command.Parameters.Add(parameter);
