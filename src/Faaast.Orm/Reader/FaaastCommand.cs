@@ -92,22 +92,22 @@ namespace Faaast.Orm.Reader
             return cmd;
         }
 
-        public async Task<DbCommand> PreprareAsync()
+        public async Task<DbCommand> PrepareAsync()
         {
             var cmd = this.Setup();
-#if NET_5
-            await cmd.PrepareAsync(this.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
-#else
-            cmd.Prepare();
-            await Task.CompletedTask;
-#endif
+//#if NET_5
+//            await cmd.PrepareAsync(this.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+//#else
+//            cmd.Prepare();
+//            await Task.CompletedTask;
+//#endif
             return cmd;
         }
 
-        public DbCommand Preprare()
+        public DbCommand Prepare()
         {
             var cmd = this.Setup();
-            cmd.Prepare();
+            //cmd.Prepare();
             return cmd;
         }
 

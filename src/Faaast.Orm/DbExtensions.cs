@@ -31,19 +31,6 @@ namespace Faaast.Orm
             cancellationToken);
         }
 
-        internal static Task TryPrepareAsync(this DbCommand dbCommand, CancellationToken cancellationToken)
-        {
-#if NET_5
-            return dbCommand.PrepareAsync(cancellationToken);
-#endif
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                dbCommand.Prepare();
-            }
-
-            return Task.CompletedTask;
-        }
-
         internal static Task TryCloseAsync(this DbConnection connection, CancellationToken cancellationToken)
         {
 #if NET_5
@@ -80,7 +67,7 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = await command.PreprareAsync())
+            using (var dbCommand = await command.PrepareAsync())
             {
                 result = await dbCommand.ExecuteNonQueryAsync(command.CancellationToken).ConfigureAwait(false);
             }
@@ -101,7 +88,7 @@ namespace Faaast.Orm
                 command.Connection.Open();
             }
 
-            using (var dbCommand = command.Preprare())
+            using (var dbCommand = command.Prepare())
             {
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
                 var composite = new CompositeReader(command, dbReader, typeof(T));
@@ -128,7 +115,6 @@ namespace Faaast.Orm
 
         //    using (var dbCommand = command.SetupCommand())
         //    {
-        //        dbCommand.Prepare();
         //        var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
         //        var composite = CompositeReader.DynamicReader(command, dbReader);
 
@@ -152,7 +138,7 @@ namespace Faaast.Orm
                 command.Connection.Open();
             }
 
-            using (IDbCommand dbCommand = command.Preprare())
+            using (IDbCommand dbCommand = command.Prepare())
             {
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
                 var composite = new CompositeReader(command, dbReader, types);
@@ -177,7 +163,7 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = await command.PreprareAsync())
+            using (var dbCommand = await command.PrepareAsync())
             {
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
                 var composite = new CompositeReader(command, dbReader, typeof(T));
@@ -202,7 +188,7 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = await command.PreprareAsync())
+            using (var dbCommand = await command.PrepareAsync())
             {
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
                 var composite = new CompositeReader(command, dbReader, types);
