@@ -98,7 +98,7 @@ namespace Faaast.Orm
                     cmd.Connection.Open();
                 }
 
-                using (IDbCommand dbCommand = cmd.SetupCommand())
+                using (IDbCommand dbCommand = await command.Value.PreprareAsync())
                 {
                     dbCommand.Prepare();
                     var dbReader = dbCommand.ExecuteReader(cmd.CommandBehavior);

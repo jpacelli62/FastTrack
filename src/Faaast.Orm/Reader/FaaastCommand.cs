@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Model;
 
@@ -48,7 +49,7 @@ namespace Faaast.Orm.Reader
             this.HandleConnection = handleConnection;
         }
 
-        internal DbCommand SetupCommand()
+        internal DbCommand Setup()
         {
             var cmd = this.Connection.CreateCommand();
             cmd.CommandText = this.CommandText;
@@ -88,6 +89,25 @@ namespace Faaast.Orm.Reader
                 }
             }
 
+            return cmd;
+        }
+
+        public async Task<DbCommand> PreprareAsync()
+        {
+            var cmd = this.Setup();
+#if NET_5
+            await cmd.PrepareAsync(this.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+#else
+            cmd.Prepare();
+            await Task.CompletedTask;
+#endif
+            return cmd;
+        }
+
+        public DbCommand Preprare()
+        {
+            var cmd = this.Setup();
+            cmd.Prepare();
             return cmd;
         }
 

@@ -80,9 +80,8 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = command.SetupCommand())
+            using (var dbCommand = await command.PreprareAsync())
             {
-                await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 result = await dbCommand.ExecuteNonQueryAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
@@ -102,9 +101,8 @@ namespace Faaast.Orm
                 command.Connection.Open();
             }
 
-            using (var dbCommand = command.SetupCommand())
+            using (var dbCommand = command.Preprare())
             {
-                dbCommand.Prepare();
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
                 var composite = new CompositeReader(command, dbReader, typeof(T));
 
@@ -154,9 +152,8 @@ namespace Faaast.Orm
                 command.Connection.Open();
             }
 
-            using (IDbCommand dbCommand = command.SetupCommand())
+            using (IDbCommand dbCommand = command.Preprare())
             {
-                dbCommand.Prepare();
                 var dbReader = dbCommand.ExecuteReader(command.CommandBehavior);
                 var composite = new CompositeReader(command, dbReader, types);
 
@@ -180,9 +177,8 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = command.SetupCommand())
+            using (var dbCommand = await command.PreprareAsync())
             {
-                await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
                 var composite = new CompositeReader(command, dbReader, typeof(T));
 
@@ -206,9 +202,8 @@ namespace Faaast.Orm
                 await command.Connection.OpenAsync(command.CancellationToken).ConfigureAwait(false);
             }
 
-            using (var dbCommand = command.SetupCommand())
+            using (var dbCommand = await command.PreprareAsync())
             {
-                await dbCommand.TryPrepareAsync(command.CancellationToken).ConfigureAwait(false);
                 var dbReader = await dbCommand.ExecuteReaderAsync(command.CommandBehavior, command.CancellationToken).ConfigureAwait(false);
                 var composite = new CompositeReader(command, dbReader, types);
 
