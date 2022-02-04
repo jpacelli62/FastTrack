@@ -43,7 +43,7 @@ namespace Faaast.Orm.Reader
             this.HandleConnection = false;
         }
 
-        public void Setup(DbCommand cmd)
+        internal DbCommand Setup()
         {
             cmd.CommandText = this.CommandText;
 
@@ -81,6 +81,27 @@ namespace Faaast.Orm.Reader
                     }
                 }
             }
+
+            return cmd;
+        }
+
+        public async Task<DbCommand> PrepareAsync()
+        {
+            var cmd = this.Setup();
+//#if NET_5
+//            await cmd.PrepareAsync(this.CancellationToken ?? CancellationToken.None).ConfigureAwait(false);
+//#else
+//            cmd.Prepare();
+//            await Task.CompletedTask;
+//#endif
+            return cmd;
+        }
+
+        public DbCommand Prepare()
+        {
+            var cmd = this.Setup();
+            //cmd.Prepare();
+            return cmd;
         }
 
         internal static void AddParameter(DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
@@ -89,16 +110,23 @@ namespace Faaast.Orm.Reader
             parameter.ParameterName = name.Sanitize();
             parameter.Value = value;
             parameter.Direction = direction;
-            parameter.IsNullable = value == null;
-
-            if (valueType != null)
+            parameter.Size = 0;
+            if(value == null || value == DBNull.Value)
             {
-                parameter.DbType = valueType.ToDbType();
+                parameter.Value = DBNull.Value;
+                parameter.IsNullable = true;
             }
-
-            if (parameter.DbType == DbType.String)
+            else
             {
-                parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+                if (valueType != null)
+                {
+                    parameter.DbType = valueType.ToDbType();
+                }
+
+                if (parameter.DbType == DbType.String)
+                {
+                    parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+                }
             }
 
             command.Parameters.Add(parameter);

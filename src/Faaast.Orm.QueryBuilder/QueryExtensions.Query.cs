@@ -15,7 +15,7 @@ namespace Faaast.Orm
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
-            var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
+            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             return command.FirstOrDefaultAsync<TClass>();
         }
 
@@ -25,11 +25,11 @@ namespace Faaast.Orm
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
-            var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
+            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             return command.FirstOrDefaultAsync<TClass>();
         }
 
-        public static FaaastCommand Prepare(this FaaastQuery query,
+        public static FaaastCommand CreateCommand(this FaaastQuery query,
             DbConnection connection = null,
             DbTransaction transaction = null,
             int? commandTimeout = null,
@@ -53,7 +53,7 @@ namespace Faaast.Orm
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
-            var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
+            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             var result = new List<TClass>();
             await foreach (var row in command.FetchAsync<TClass>())
             {
@@ -69,7 +69,7 @@ namespace Faaast.Orm
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
-            var command = query.Prepare(connection, transaction, commandTimeout, cancellationToken);
+            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             var result = new List<TClass>();
             await foreach (var row in command.FetchAsync<TClass>())
             {

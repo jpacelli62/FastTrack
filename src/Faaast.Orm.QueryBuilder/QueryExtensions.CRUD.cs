@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Faaast.Orm.Mapping;
@@ -87,8 +88,27 @@ namespace Faaast.Orm
             }
             else
             {
-                object id = await cmd.SingleAsync(identityColumn.Property.Type);
-                identityColumn.Property.Write(record, id);
+                if (cmd.HandleConnection)
+                {
+                    cmd.Connection.Open();
+                }
+
+                using (IDbCommand dbCommand = await command.Value.PrepareAsync())
+                {
+                    var dbReader = dbCommand.ExecuteReader(cmd.CommandBehavior);
+                    if(dbReader.Read())
+                    {
+                        object id = dbReader.GetValue(0);
+                        var convertedId = Convert.ChangeType(id, identityColumn.Property.Type);
+                        identityColumn.Property.Write(record, convertedId);
+                    }
+                }
+
+                if (cmd.HandleConnection)
+                {
+                    cmd.Connection.Close();
+                    cmd.Connection.Dispose();
+                }
             }
 
             return 1;
