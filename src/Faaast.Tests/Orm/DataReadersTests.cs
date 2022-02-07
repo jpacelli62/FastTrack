@@ -2,16 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using Faaast.Orm.Reader;
+using Faaast.Tests.Orm.FakeDb;
+using Faaast.Tests.Orm.Fixtures;
 using Xunit;
 
 namespace Faaast.Tests.Orm
 {
-    public class DataReadersTests
+    public class DataReadersTests : IClassFixture<FaaastOrmFixture>
     {
+        public FaaastOrmFixture Fixture { get; set; }
+
+        public DataReadersTests(FaaastOrmFixture fixture) => this.Fixture = fixture;
 
         public FaaastRowReader BuildReader(Dictionary<string, object> data)
         {
-            return new FaaastRowReader()
+            var conn = new FakeDbConnection();
+            return new FaaastRowReader(new FaaastCommand(this.Fixture.Db, conn, string.Empty))
             {
                 FieldsCount = data.Count,
                 Columns = data.Keys.ToArray(),
@@ -22,11 +28,11 @@ namespace Faaast.Tests.Orm
         [Fact]
         public void Test_SingleValueReader_normal()
         {
-            SingleValueReader<int> reader = new SingleValueReader<int>()
+            var reader = new SingleValueReader<int>()
             {
                 Start = 0,
                 End = 1,
-                RowReader = BuildReader(new Dictionary<string, object>() { { "id", 123 } })
+                RowReader = this.BuildReader(new Dictionary<string, object>() { { "id", 123 } })
             };
             reader.Read();
             Assert.Equal(123, reader.Value);
@@ -39,7 +45,7 @@ namespace Faaast.Tests.Orm
             {
                 Start = 0,
                 End = 1,
-                RowReader = BuildReader(new Dictionary<string, object>() { { "id", DBNull.Value } })
+                RowReader = this.BuildReader(new Dictionary<string, object>() { { "id", DBNull.Value } })
             };
 
             reader.Read();
@@ -53,7 +59,7 @@ namespace Faaast.Tests.Orm
             {
                 Start = 0,
                 End = 3,
-                RowReader = BuildReader(new Dictionary<string, object>() { 
+                RowReader = this.BuildReader(new Dictionary<string, object>() { 
                     { "id", 123 },
                     { "label", "Lorem ipsum"},
                     { "description", DBNull.Value}

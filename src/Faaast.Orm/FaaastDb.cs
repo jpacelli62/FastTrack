@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
 using Faaast.Orm.Model;
@@ -79,7 +82,43 @@ namespace Faaast.Orm
             return db;
         }
 
-        public virtual FaaastCommand CreateCommand(string sql, object parameters = null) => new(this, sql, parameters);
+        public virtual FaaastCommand CreateCommand(string sql, object parameters = null, DbConnection dbConnection = null)
+        {
+            var connection = dbConnection;
+            var handleConnection = dbConnection == null;
+            if (handleConnection)
+            {
+                connection = this.Connection.Engine.Create();
+                connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
+                connection.Open();
+            }
+
+            var command = new FaaastCommand(this, connection, sql, parameters)
+            {
+                AutoClose = true
+            };
+
+            return command;
+        }
+
+        public virtual async Task<AsyncFaaastCommand> CreateCommandAsync(string sql, object parameters = null, DbConnection dbConnection = null)
+        {
+            var connection = dbConnection;
+            var handleConnection = dbConnection == null;
+            if (handleConnection)
+            {
+                connection = this.Connection.Engine.Create();
+                connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
+                await connection.OpenAsync();
+            }
+
+            var command = new AsyncFaaastCommand(this, connection, sql, parameters)
+            {
+                AutoClose = true
+            };
+
+            return command;
+        }
 
         public TableMapping Mapping<TClass>() => this.Mapping(typeof(TClass));
 

@@ -30,6 +30,12 @@ namespace Faaast.Tests.Orm.FakeDb
             Reader = new FakeDbDataReader(data, rowsCount)
         };
 
+        public FakeDbConnection() => this.Command = new FakeDbCommand()
+        {
+            Connection = this,
+            Reader = new FakeDbDataReader(new Dictionary<string, object>() { { "Foo", "bar" } }, 100)
+        };
+
         public override void ChangeDatabase(string databaseName)
         {
             //Do nothing

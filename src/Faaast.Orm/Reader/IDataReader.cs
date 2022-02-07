@@ -7,7 +7,7 @@
 
     public abstract class DataReader
     {
-        internal FaaastRowReader RowReader { get; set; }
+        internal BaseRowReader RowReader { get; set; }
 
         public int Start { get; set; }
 
