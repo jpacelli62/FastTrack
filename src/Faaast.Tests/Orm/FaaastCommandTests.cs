@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Faaast.Orm.Reader;
 using Faaast.Tests.Orm.FakeDb;
@@ -16,28 +18,124 @@ namespace Faaast.Tests.Orm
         public FaaastCommandTests(FaaastOrmFixture fixture) => this.Fixture = fixture;
 
         [Fact]
-        public void Check_CreateCommand()
+        public void Test_ExecuteNonQuery()
         {
             var sql = "Faaast is awsome";
+            bool called = false;
             using var command = this.Fixture.Db.CreateCommand(sql);
-            command.CreateInternalCommand();
-            Assert.Equal(sql, command.CommandText);
-            Assert.NotNull(command.Connection);
-            Assert.Equal(ConnectionState.Open, command.Connection.State);
+            {
+                Assert.Equal(ConnectionState.Open, command.Connection.State);
+                var con = (FakeDbConnection)command.Connection;
+                con.Command.OnExecuteNonQuery = () =>
+                {
+                    called = true;
+                    Assert.Equal(sql, command.CommandText);
+                    Assert.NotNull(command.Connection);
+                    Assert.Equal(ConnectionState.Open, command.Connection.State);
+                    return 18;
+                };
+            }
+
+            var result = command.ExecuteNonQuery();
+            Assert.True(called);
+            Assert.Equal(18, result);
+            Assert.Equal(ConnectionState.Closed, command.Connection.State);
         }
 
         [Fact]
-        public async Task Check_CreateCommandAsync()
+        public async Task Test_ExecuteNonQueryAsync()
+        {
+            var sql = "Faaast is awsome";
+            bool called = false;
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            {
+                Assert.Equal(ConnectionState.Open, command.Connection.State);
+                var con = (FakeDbConnection)command.Connection;
+                con.Command.OnExecuteNonQuery = () =>
+                {
+                    called = true;
+                    Assert.Equal(sql, command.CommandText);
+                    Assert.NotNull(command.Connection);
+                    Assert.Equal(ConnectionState.Open, command.Connection.State);
+                    return 18;
+                };
+             
+                var result = await command.ExecuteNonQueryAsync();
+                Assert.True(called);
+                Assert.Equal(18, result);
+                Assert.Equal(ConnectionState.Closed, command.Connection.State);
+            }
+        }
+
+        [Fact]
+        public void Check_ExecuteNonQuery_Handle_Exception()
+        {
+            var sql = "Faaast is awsome";
+            using var command = this.Fixture.Db.CreateCommand(sql);
+            {
+                Assert.Equal(ConnectionState.Open, command.Connection.State);
+                var con = (FakeDbConnection)command.Connection;
+                con.Command.OnExecuteNonQuery = () =>
+                {
+                    Assert.Equal(ConnectionState.Open, command.Connection.State);
+                    throw new Exception("test");
+                };
+
+                Assert.Throws<Exception>(() => command.ExecuteNonQuery());
+                Assert.Equal(ConnectionState.Closed, command.Connection.State);
+            }
+        }
+
+        [Fact]
+        public async Task Check_ExecuteNonQueryAsync_Handle_Exception()
         {
             var sql = "Faaast is awsome";
             await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
-            command.CreateInternalCommand();
-            Assert.Equal(sql, command.CommandText);
-            Assert.NotNull(command.Connection);
-            Assert.Equal(ConnectionState.Open, command.Connection.State);
-            var result = await command.ExecuteNonQueryAsync();
-            Assert.Equal(18, result);
+            {
+                Assert.Equal(ConnectionState.Open, command.Connection.State);
+                var con = (FakeDbConnection)command.Connection;
+                con.Command.OnExecuteNonQuery = () =>
+                {
+                    Assert.Equal(ConnectionState.Open, command.Connection.State);
+                    throw new Exception("test");
+                };
+
+                await Assert.ThrowsAsync<Exception>(async () => await command.ExecuteNonQueryAsync());
+                Assert.Equal(ConnectionState.Closed, command.Connection.State);
+            }
         }
+        [Fact]
+        public void Check_ExecuteReader()
+        {
+            var sql = "Faaast is awsome";
+            using var command = this.Fixture.Db.CreateCommand(sql);
+            {
+                var con = (FakeDbConnection)command.Connection;
+                using var reader = command.ExecuteReader();
+                Assert.NotNull(reader.Reader);
+                Assert.Equal(reader.Source, command);
+                Assert.Equal(reader.Buffer.Length, reader.Columns.Length);
+                var data = ((FakeDbDataReader)reader.Reader).Data;
+                Assert.Equal(data.Count, reader.Columns.Length);
+            }
+        }
+
+        [Fact]
+        public async Task Check_ExecuteReaderAsync()
+        {
+            var sql = "Faaast is awsome";
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            {
+                var con = (FakeDbConnection)command.Connection;
+                await using var reader = await command.ExecuteReaderAsync();
+                Assert.NotNull(reader.Reader);
+                Assert.Equal(reader.Source, command);
+                Assert.Equal(reader.Buffer.Length, reader.Columns.Length);
+                var data = ((FakeDbDataReader)reader.Reader).Data;
+                Assert.Equal(data.Count, reader.Columns.Length);
+            }
+        }
+
 
         [Fact]
         public void Check_Setup_Transaction()
@@ -111,38 +209,5 @@ namespace Faaast.Tests.Orm
             Assert.True(param.IsNullable);
             Assert.Equal(DBNull.Value, param.Value);
         }
-
-        //[Fact]
-        //public void Check_Handle_exception()
-        //{
-        //    FakeDbConnection conn = default;
-
-        //    Assert.Throws<Exception>(() => this.Fixture.Db.Call(x =>
-        //          {
-        //              conn = (FakeDbConnection) x.Connection;
-        //              Assert.NotNull(conn);
-        //              Assert.Equal(ConnectionState.Open, conn.State);
-        //              throw new Exception();
-        //          }, "Faaast is awsome"));
-
-        //    Assert.NotNull(conn);
-        //    Assert.Equal(ConnectionState.Closed, conn.State);
-        //}
-
-        //[Fact]
-        //public void Check_Handle_exception_with_result()
-        //{
-        //    FakeDbConnection conn = default;
-        //    Assert.Throws<Exception>(() => this.Fixture.Db.Call<int>(x =>
-        //    {
-        //        conn = (FakeDbConnection)x.Connection;
-        //        Assert.NotNull(conn);
-        //        Assert.Equal(ConnectionState.Open, conn.State);
-        //        throw new Exception();
-        //    }, "Faaast is awsome"));
-
-        //    Assert.NotNull(conn);
-        //    Assert.Equal(ConnectionState.Closed, conn.State);
-        //}
     }
 }

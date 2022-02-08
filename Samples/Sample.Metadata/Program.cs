@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Sample.Metadata
 {
-    public class Program
+    public static class Program
     {
         public static readonly Metadata<IDtoClass, bool?> IsAwesome = new(nameof(IsAwesome));
 

@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Faaast.Orm.Mapping;
+using Faaast.Orm.Model;
 using Faaast.Orm.Reader;
 namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {
-        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, AsyncFaaastCommand command = null)
         {
             var mapping = db.Mapping<T>();
             var pk = mapping.Table.PrimaryKeyColumns();
@@ -20,14 +21,11 @@ namespace Faaast.Orm
             
             var query = db.From<T>().Where(where).AsDelete();
             var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
-            return cmd.ExecuteAsync();
+            var cmd = command ?? await db.CreateCommandAsync(compiledQuery.Sql, compiledQuery.Parameters);
+            return await cmd.ExecuteNonQueryAsync();
         }
 
-        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, AsyncFaaastCommand command = null)
 
         {
             var mapping = db.Mapping<T>();
@@ -50,14 +48,11 @@ namespace Faaast.Orm
 
             var query = db.From<T>().Where(where).AsUpdate(update);
             var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
-            return cmd.ExecuteAsync();
+            var cmd = command ?? await db.CreateCommandAsync(compiledQuery.Sql, compiledQuery.Parameters);
+            return await cmd.ExecuteNonQueryAsync();
         }
 
-        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, AsyncFaaastCommand command = null)
         {
             var mapping = db.Mapping<T>();
             var insert = new Dictionary<string, object>();
@@ -77,37 +72,19 @@ namespace Faaast.Orm
 
             var query = db.From<T>().AsInsert(insert, identityColumn != null);
             var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
+            var cmd = command ?? await db.CreateCommandAsync(compiledQuery.Sql, compiledQuery.Parameters);
 
             if (identityColumn == null)
             {
-                return await cmd.ExecuteAsync();
+                return await cmd.ExecuteNonQueryAsync();
             }
             else
             {
-                if (cmd.HandleConnection)
+                var reader = await cmd.ExecuteReaderAsync();
+                if(await reader.ReadAsync())
                 {
-                    cmd.Connection.Open();
-                }
-
-                using (IDbCommand dbCommand = await command.Value.PrepareAsync())
-                {
-                    var dbReader = dbCommand.ExecuteReader(cmd.CommandBehavior);
-                    if(dbReader.Read())
-                    {
-                        object id = dbReader.GetValue(0);
-                        var convertedId = Convert.ChangeType(id, identityColumn.Property.Type);
-                        identityColumn.Property.Write(record, convertedId);
-                    }
-                }
-
-                if (cmd.HandleConnection)
-                {
-                    cmd.Connection.Close();
-                    cmd.Connection.Dispose();
+                    var convertedId = Convert.ChangeType(reader.Buffer[0], identityColumn.Property.Type);
+                    identityColumn.Property.Write(record, convertedId);
                 }
             }
 

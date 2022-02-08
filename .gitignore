@@ -11,3 +11,4 @@
 node_modules
 /TestResults
 /src/Faaast.Tests/TestResults.info
+/tools

@@ -36,7 +36,7 @@ namespace Faaast.Orm.Reader
             }
         }
 
-        public DataReader<T> AddReader<T>() where T : struct
+        public DataReader<T> AddReader<T>()
         {
             var last = this.ColumnsReaders.Last?.Value?.End ?? 0;
             var reader = new SingleValueReader<T>
