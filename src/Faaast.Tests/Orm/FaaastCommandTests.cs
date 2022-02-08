@@ -19,7 +19,7 @@ namespace Faaast.Tests.Orm
         public void Check_CreateCommand()
         {
             var sql = "Faaast is awsome";
-            var command = this.Fixture.Db.CreateCommand(sql);
+            using var command = this.Fixture.Db.CreateCommand(sql);
             command.CreateInternalCommand();
             Assert.Equal(sql, command.CommandText);
             Assert.NotNull(command.Connection);
@@ -30,7 +30,7 @@ namespace Faaast.Tests.Orm
         public async Task Check_CreateCommandAsync()
         {
             var sql = "Faaast is awsome";
-            var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
             command.CreateInternalCommand();
             Assert.Equal(sql, command.CommandText);
             Assert.NotNull(command.Connection);

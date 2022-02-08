@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Faaast.Orm.Reader
 {
-    public class AsyncFaaastCommand : BaseCommand, IAsyncDisposable
+    public class AsyncFaaastCommand : BaseCommand, IAsyncDisposable, IDisposable
     {
         public AsyncFaaastCommand( FaaastDb db, DbConnection dbConnection, string commandText, object parameters = null) : 
             base(db, dbConnection, commandText, parameters)
@@ -48,16 +48,41 @@ namespace Faaast.Orm.Reader
             return reader;
         }
 
-        public ValueTask DisposeAsync()
+        public void Dispose()
         {
+            this.Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                this.Command?.Dispose();
+                this.Command = null;
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await this.DisposeAsyncCore().ConfigureAwait(false);
+            this.Dispose(disposing: false);
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+            GC.SuppressFinalize(this);
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        }
+
+        protected virtual async ValueTask DisposeAsyncCore()
+        {
+#if NET_5
             if (this.Command != null)
             {
-#if NET_5
-                return new (this.Command.DisposeAsync().ConfigureAwait(false));
-#endif
+                await this.Command.DisposeAsync().ConfigureAwait(false);
+                this.Command = null;
             }
-
-            return new(Task.CompletedTask);
+#else
+            this.Dispose();
+#endif
+            await Task.CompletedTask;
         }
     }
 }

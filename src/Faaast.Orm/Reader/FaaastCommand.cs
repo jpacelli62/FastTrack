@@ -38,18 +38,26 @@ namespace Faaast.Orm.Reader
         public FaaastRowReader ExecuteReader()
         {
             this.CreateInternalCommand();
-            var reader = new FaaastRowReader(this); 
+            var reader = new FaaastRowReader(this);
             reader.Prepare();
             return reader;
         }
 
         public void Dispose()
         {
-            if(this.Command != null)
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private bool disposed;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposed && disposing && this.Command != null)
             {
                 this.Command.Dispose();
-                this.Command = null;
             }
+
+            disposed = true;
         }
     }
 }
