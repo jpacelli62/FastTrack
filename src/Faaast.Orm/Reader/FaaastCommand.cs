@@ -52,7 +52,7 @@ namespace Faaast.Orm.Reader
         private bool disposed;
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposed && disposing && this.Command != null)
+            if (!disposed && disposing)
             {
                 this.Command.Dispose();
             }

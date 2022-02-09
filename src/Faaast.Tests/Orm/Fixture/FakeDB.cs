@@ -4,7 +4,7 @@ using Faaast.Orm;
 using Faaast.Orm.Model;
 using Faaast.Tests.Orm.FakeDb;
 
-namespace Faaast.Tests.Orm
+namespace Faaast.Tests.Orm.Fixture
 {
     public class FakeDB : FaaastDb
     {

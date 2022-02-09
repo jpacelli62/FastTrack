@@ -18,7 +18,9 @@ namespace Faaast.OAuth2Server
             services.RegisterTypeOrInstance<IOauthServerProvider, TProvider>(instance);
             services.TryAddSingleton<ISystemClock, SystemClock>();
             if(configureOptions != null)
+            {
                 services.PostConfigure<OAuthServerOptions>(configureOptions);
+            }
 
             return services;
         }

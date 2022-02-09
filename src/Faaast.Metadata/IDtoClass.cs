@@ -7,6 +7,8 @@ namespace Faaast.Metadata
     {
         IDtoProperty this[string propertyName] { get; set; }
 
+        int PropertiesCount { get; }
+
         string Name { get; }
 
         Type Type { get; }

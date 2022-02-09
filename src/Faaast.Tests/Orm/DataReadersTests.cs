@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Faaast.Orm.Reader;
 using Faaast.Tests.Orm.FakeDb;
-using Faaast.Tests.Orm.Fixtures;
+using Faaast.Tests.Orm.Fixture;
 using Xunit;
 
 namespace Faaast.Tests.Orm
@@ -14,29 +13,31 @@ namespace Faaast.Tests.Orm
 
         public DataReadersTests(FaaastOrmFixture fixture) => this.Fixture = fixture;
 
-        public FaaastRowReader BuildReader(Dictionary<string, object> data)
+        public FaaastRowReader BuildReader(Dictionary<string, object> data, int rows = 100)
         {
-            var conn = new FakeDbConnection(data, 100);
+            var conn = new FakeDbConnection(data, rows);
             conn.Open();
             var command = new FaaastCommand(this.Fixture.Db, conn, string.Empty);
             return command.ExecuteReader();
         }
 
         [Fact]
-        public void Test_AddReaderInt()
+        public void AddReaderInt()
         {
             var reader = this.BuildReader(new Dictionary<string, object>()
             {
-                { "id", 123 }
+                { "id", 123 },
+                { "size", 10 }
             });
-            var valueReader = reader.AddReader<int>();
-
+            var valueReader1 = reader.AddReader<int>();
+            var valueReader2 = reader.AddReader<int>();
             reader.Read();
-            Assert.Equal(123, valueReader.Value);
+            Assert.Equal(123, valueReader1.Value);
+            Assert.Equal(10, valueReader2.Value);
         }
 
         [Fact]
-        public void Test_AddReaderInt_WithNullValue()
+        public void AddReaderInt_WithNullValue()
         {
             var reader = this.BuildReader(new Dictionary<string, object>()
             {
@@ -48,19 +49,30 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Test_AddDictionaryReader()
+        public void AddDictionaryReader()
         {
             var reader = this.BuildReader(new Dictionary<string, object>() {
                     { "id", 123 },
                     { "label", "Lorem ipsum"},
                     { "description", DBNull.Value}
                 });
-            var valueReader = reader.AddDictionaryReader(3);
-
+            var valueReader1 = reader.AddDictionaryReader(2);
+            var valueReader2 = reader.AddDictionaryReader();
             reader.Read();
-            Assert.Equal(123, valueReader.Value["id"]);
-            Assert.Equal("Lorem ipsum", valueReader.Value["label"]);
-            Assert.Null(valueReader.Value["description"]);
+            Assert.Equal(123, valueReader1.Value["id"]);
+            Assert.Equal("Lorem ipsum", valueReader1.Value["label"]);
+            Assert.Null(valueReader2.Value["description"]);
+        }
+
+        [Fact]
+        public void FillBuffer_Empty()
+        {
+            var reader = this.BuildReader(new Dictionary<string, object>()
+            {
+                { "id", 123 }
+            }, 0);
+            reader.AddReader<int>();
+            Assert.False(reader.Read());
         }
     }
 }

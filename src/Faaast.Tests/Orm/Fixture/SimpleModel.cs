@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Faaast.Tests.Orm
+namespace Faaast.Tests.Orm.Fixture
 {
     public class SimpleModel
     {

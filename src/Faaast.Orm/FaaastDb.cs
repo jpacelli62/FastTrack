@@ -125,7 +125,7 @@ namespace Faaast.Orm
         public TableMapping Mapping(Type type)
         {
             var mapping = this.Mappings.Value;
-            return mapping.TypeToMapping[type];
+            return mapping.TypeToMapping.TryGetValue(type, out var found) ? found : null;
         }
     }
 }

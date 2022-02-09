@@ -53,11 +53,12 @@ namespace Faaast.Orm.Reader
             this.Dispose(disposing: true);
             GC.SuppressFinalize(this);
         }
+
         protected virtual void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && this.Command != null)
             {
-                this.Command?.Dispose();
+                this.Command.Dispose();
                 this.Command = null;
             }
         }
@@ -73,15 +74,17 @@ namespace Faaast.Orm.Reader
 
         protected virtual async ValueTask DisposeAsyncCore()
         {
-#if NET_5
             if (this.Command != null)
             {
+#if NET_5
                 await this.Command.DisposeAsync().ConfigureAwait(false);
                 this.Command = null;
-            }
+
 #else
-            this.Dispose();
+                this.Dispose();
 #endif
+            }
+
             await Task.CompletedTask;
         }
     }

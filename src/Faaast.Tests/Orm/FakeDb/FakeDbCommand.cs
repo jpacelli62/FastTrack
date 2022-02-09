@@ -12,7 +12,7 @@ namespace Faaast.Tests.Orm.FakeDb
 
         public FakeDbCommand()
         {
-            OnExecuteDbDataReader = DefaultExecuteDbDataReader;
+            this.OnExecuteDbDataReader = this.DefaultExecuteDbDataReader;
         }
 
         private DbDataReader DefaultExecuteDbDataReader(CommandBehavior behavior) =>
@@ -31,13 +31,13 @@ namespace Faaast.Tests.Orm.FakeDb
         public override bool DesignTimeVisible { get; set; }
         public override UpdateRowSource UpdatedRowSource { get; set; }
 
-        public override int ExecuteNonQuery() => OnExecuteNonQuery();
+        public override int ExecuteNonQuery() => this.OnExecuteNonQuery();
 
-        public override object ExecuteScalar() => OnExecuteScalar();
+        public override object ExecuteScalar() => this.OnExecuteScalar();
 
         public override void Prepare() => this.Prepared = true;
 
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behaviour) => OnExecuteDbDataReader(behaviour);
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behaviour) => this.OnExecuteDbDataReader(behaviour);
         public override void Cancel() => throw new NotImplementedException();
         protected override DbParameter CreateDbParameter() => new FakeDbParameter();
     }

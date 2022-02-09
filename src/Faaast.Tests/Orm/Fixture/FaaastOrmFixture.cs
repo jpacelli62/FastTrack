@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Faaast.Tests.Orm.Fixtures
+namespace Faaast.Tests.Orm.Fixture
 {
     public class FaaastOrmFixture
     {

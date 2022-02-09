@@ -39,47 +39,50 @@ namespace Faaast.Orm.Reader
         public DataReader<T> AddReader<T>()
         {
             var last = this.ColumnsReaders.Last?.Value.End ?? 0;
-            var reader = new SingleValueReader<T>
-            {
-                RowReader = this,
-                Start = last,
-                End = last + 1
-            };
+            var isValueType = typeof(T).IsValueType;
+            var reader = isValueType
+                ? new SingleValueReader<T>()
+                {
+                    RowReader = this,
+                    Start = last,
+                    End = last + 1
+                }
+                : (DataReader<T>)new DtoReader<T>(this, last);
             this.ColumnsReaders.AddLast(reader);
             return reader;
         }
 
-        public DataReader<Dictionary<string, object>> AddDictionaryReader(int? columnsCount = null)
+    public DataReader<Dictionary<string, object>> AddDictionaryReader(int? columnsCount = null)
+    {
+        var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+        var reader = new DictionaryReader
         {
-            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
-            var reader = new DictionaryReader
-            {
-                RowReader = this,
-                Start = last,
-                End = columnsCount.HasValue ? last + columnsCount.Value : this.FieldsCount
-            };
-            this.ColumnsReaders.AddLast(reader);
-            return reader;
-        }
+            RowReader = this,
+            Start = last,
+            End = columnsCount.HasValue ? last + columnsCount.Value : this.FieldsCount
+        };
+        this.ColumnsReaders.AddLast(reader);
+        return reader;
+    }
 
-        protected bool FillBuffer(bool hasRead)
+    protected bool FillBuffer(bool hasRead)
+    {
+        if (hasRead)
         {
-            if (hasRead)
+            for (var i = 0; i < this.FieldsCount; i++)
             {
-                for (var i = 0; i < this.FieldsCount; i++)
-                {
-                    this.Buffer[i] = this.Reader[i];
-                }
-
-                foreach (var reader in this.ColumnsReaders)
-                {
-                    reader.Read();
-                }
-
-                return true;
+                this.Buffer[i] = this.Reader[i];
             }
 
-            return false;
+            foreach (var reader in this.ColumnsReaders)
+            {
+                reader.Read();
+            }
+
+            return true;
         }
+
+        return false;
     }
+}
 }
