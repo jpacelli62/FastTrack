@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
-using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Faaast.Orm.Reader;
 using Faaast.Tests.Orm.FakeDb;
@@ -68,7 +67,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_ExecuteNonQuery_Handle_Exception()
+        public void Test_ExecuteNonQuery_WithException()
         {
             var sql = "Faaast is awsome";
             using var command = this.Fixture.Db.CreateCommand(sql);
@@ -87,7 +86,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public async Task Check_ExecuteNonQueryAsync_Handle_Exception()
+        public async Task Test_ExecuteNonQueryAsync_WithException()
         {
             var sql = "Faaast is awsome";
             await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
@@ -105,7 +104,7 @@ namespace Faaast.Tests.Orm
             }
         }
         [Fact]
-        public void Check_ExecuteReader()
+        public void Test_ExecuteReader()
         {
             var sql = "Faaast is awsome";
             using var command = this.Fixture.Db.CreateCommand(sql);
@@ -117,11 +116,17 @@ namespace Faaast.Tests.Orm
                 Assert.Equal(reader.Buffer.Length, reader.Columns.Length);
                 var data = ((FakeDbDataReader)reader.Reader).Data;
                 Assert.Equal(data.Count, reader.Columns.Length);
+                Assert.True(reader.Read());
+                var values = data.Values.ToArray();
+                for (var i = 0; i < reader.Buffer.Length; i++)
+                {
+                    Assert.Equal(values[i], reader.Buffer[i]);
+                }
             }
         }
 
         [Fact]
-        public async Task Check_ExecuteReaderAsync()
+        public async Task Test_ExecuteReaderAsync()
         {
             var sql = "Faaast is awsome";
             await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
@@ -133,12 +138,18 @@ namespace Faaast.Tests.Orm
                 Assert.Equal(reader.Buffer.Length, reader.Columns.Length);
                 var data = ((FakeDbDataReader)reader.Reader).Data;
                 Assert.Equal(data.Count, reader.Columns.Length);
+                Assert.True(await reader.ReadAsync());
+                var values = data.Values.ToArray();
+                for (var i = 0; i < reader.Buffer.Length; i++)
+                {
+                    Assert.Equal(values[i], reader.Buffer[i]);
+                }
             }
         }
 
 
         [Fact]
-        public void Check_Setup_Transaction()
+        public void Test_CreateInternalCommand_Transaction()
         {
             var com = new FaaastCommand(this.Fixture.Db, new FakeDbConnection(), null)
             {
@@ -149,7 +160,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Setup_CommandTimeout()
+        public void Test_CreateInternalCommand_CommandTimeout()
         {
             var com = new FaaastCommand(this.Fixture.Db, new FakeDbConnection(), null) { CommandTimeout = 200 };
             com.CreateInternalCommand();
@@ -157,7 +168,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Setup_CommandType()
+        public void Test_CreateInternalCommand_CommandType()
         {
             var com = new FaaastCommand(this.Fixture.Db, new FakeDbConnection(), null) { CommandType = CommandType.StoredProcedure };
             com.CreateInternalCommand();
@@ -165,7 +176,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Setup_ObjectParameter()
+        public void Test_CreateInternalCommand_ObjectParameter()
         {
             var com = new FaaastCommand(this.Fixture.Db, new FakeDbConnection(), null, new { id = "lorem ipsum" });
             CheckParameter(com);
@@ -185,7 +196,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Setup_DicoParameter()
+        public void Test_CreateInternalCommand_WithDictionaryParameter()
         {
             var param = new Dictionary<string, object>()
             {
@@ -196,7 +207,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Setup_nullParameter()
+        public void Test_CreateInternalCommand_WithNullParameter()
         {
             var dico = new Dictionary<string, object>() { { "id", null } };
             var com = new FaaastCommand(this.Fixture.Db, new FakeDbConnection(), null, dico);

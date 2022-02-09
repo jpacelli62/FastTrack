@@ -38,7 +38,7 @@ namespace Faaast.Orm.Reader
 
         public DataReader<T> AddReader<T>()
         {
-            var last = this.ColumnsReaders.Last?.Value?.End ?? 0;
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
             var reader = new SingleValueReader<T>
             {
                 RowReader = this,
@@ -51,7 +51,7 @@ namespace Faaast.Orm.Reader
 
         public DataReader<Dictionary<string, object>> AddDictionaryReader(int? columnsCount = null)
         {
-            var last = this.ColumnsReaders.Last?.Value?.End ?? 0;
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
             var reader = new DictionaryReader
             {
                 RowReader = this,

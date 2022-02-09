@@ -9,7 +9,7 @@ namespace Faaast.Tests.Orm
     public class ExtensionsTests 
     {
         [Fact]
-        public void Check_ToDbType_conversion()
+        public void Test_ToDbType_WrongType()
         {
             Assert.Equal(DbType.Int32, Extensions.ToDbType(typeof(int)));
             Assert.Equal(DbType.Int32, Extensions.ToDbType(typeof(Nullable<Int32>)));
@@ -17,7 +17,7 @@ namespace Faaast.Tests.Orm
         }
 
         [Fact]
-        public void Check_Sanitize()
+        public void Test_Sanitize()
         {
             Assert.Null(Extensions.Sanitize(null));
             Assert.Equal(string.Empty, Extensions.Sanitize(string.Empty));

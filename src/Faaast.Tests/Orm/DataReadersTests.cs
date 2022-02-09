@@ -16,60 +16,51 @@ namespace Faaast.Tests.Orm
 
         public FaaastRowReader BuildReader(Dictionary<string, object> data)
         {
-            var conn = new FakeDbConnection();
-            return new FaaastRowReader(new FaaastCommand(this.Fixture.Db, conn, string.Empty))
-            {
-                FieldsCount = data.Count,
-                Columns = data.Keys.ToArray(),
-                Buffer = data.Values.ToArray()
-            };
+            var conn = new FakeDbConnection(data, 100);
+            conn.Open();
+            var command = new FaaastCommand(this.Fixture.Db, conn, string.Empty);
+            return command.ExecuteReader();
         }
 
         [Fact]
-        public void Test_SingleValueReader_normal()
+        public void Test_AddReaderInt()
         {
-            var reader = new SingleValueReader<int>()
+            var reader = this.BuildReader(new Dictionary<string, object>()
             {
-                Start = 0,
-                End = 1,
-                RowReader = this.BuildReader(new Dictionary<string, object>() { { "id", 123 } })
-            };
-            reader.Read();
-            Assert.Equal(123, reader.Value);
-        }
-
-        [Fact]
-        public void Test_SingleValueReader_null()
-        {
-            var reader = new SingleValueReader<int>()
-            {
-                Start = 0,
-                End = 1,
-                RowReader = this.BuildReader(new Dictionary<string, object>() { { "id", DBNull.Value } })
-            };
+                { "id", 123 }
+            });
+            var valueReader = reader.AddReader<int>();
 
             reader.Read();
-            Assert.Equal(0, reader.Value);
+            Assert.Equal(123, valueReader.Value);
         }
 
         [Fact]
-        public void Test_DictionaryReader()
+        public void Test_AddReaderInt_WithNullValue()
         {
-            var reader = new DictionaryReader()
+            var reader = this.BuildReader(new Dictionary<string, object>()
             {
-                Start = 0,
-                End = 3,
-                RowReader = this.BuildReader(new Dictionary<string, object>() { 
+                { "id", DBNull.Value }
+            });
+            var valueReader = reader.AddReader<int>();
+            reader.Read();
+            Assert.Equal(0, valueReader.Value);
+        }
+
+        [Fact]
+        public void Test_AddDictionaryReader()
+        {
+            var reader = this.BuildReader(new Dictionary<string, object>() {
                     { "id", 123 },
                     { "label", "Lorem ipsum"},
                     { "description", DBNull.Value}
-                })
-            };
+                });
+            var valueReader = reader.AddDictionaryReader(3);
 
             reader.Read();
-            Assert.Equal(123, reader.Value["id"]);
-            Assert.Equal("Lorem ipsum", reader.Value["label"]);
-            Assert.Null(reader.Value["description"]);
+            Assert.Equal(123, valueReader.Value["id"]);
+            Assert.Equal("Lorem ipsum", valueReader.Value["label"]);
+            Assert.Null(valueReader.Value["description"]);
         }
     }
 }

@@ -14,6 +14,7 @@ namespace Faaast.Tests.Orm.FakeDb
         public override  string Database { get; }
 
         public FakeDbCommand Command { get; set; }
+
         public FakeDbTransaction Transaction { get; set; }
 
         public override ConnectionState State => PrivateState;

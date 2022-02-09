@@ -10,7 +10,7 @@ namespace Faaast.Tests.Metadata
     public class ReadWriteSyncTests
     {
         [Fact]
-        public void Multiple_read()
+        public void Test_ReadAccess_MultipleRead()
         {
             ReadWriteSync sync = new();
             var success = false;
@@ -23,7 +23,7 @@ namespace Faaast.Tests.Metadata
             Assert.True(success);
         }
         [Fact]
-        public void Single_write()
+        public void Test_WriteAccess()
         {
             ReadWriteSync sync = new(1000);
             var success = false;
@@ -36,7 +36,7 @@ namespace Faaast.Tests.Metadata
         }
 
         [Fact]
-        public void Write_wait_read()
+        public void Test_WriteAccess_Timeout()
         {
             ReadWriteSync sync = new();
             using var read = sync.ReadAccess(10000);
@@ -44,7 +44,7 @@ namespace Faaast.Tests.Metadata
         }
 
         [Fact]
-        public void Upgrade()
+        public void Test_UpgradeToWriteAccess()
         {
             ReadWriteSync sync = new();
             var success = false;
