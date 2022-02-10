@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using Faaast.Metadata;
+using Faaast.Orm.Converters;
+using Faaast.Orm.Model;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.Orm.Reader
 {
     public class DtoReader<T> : DataReader<T>
     {
-        internal class ColumnMatch
+        internal struct ColumnMatch
         {
-            public IDtoProperty Property { get; set; }
-            public int Index { get; set; }
+            public IDtoProperty Property;
+            public int Index;
+            public bool Nullable;
+            public IValueConverter Converter;
         }
 
         internal List<ColumnMatch> ColumnsToRead { get; set; }
+
+        internal IDtoClass Dto { get; set; }
+
 
         public DtoReader(BaseRowReader source, int start)
         {
@@ -23,31 +31,33 @@ namespace Faaast.Orm.Reader
             var mapping = source.Source.Db.Mapping(type);
             if(mapping != null)
             {
+                this.Dto = mapping.ObjectClass;
                 this.PrepareDtoMapping(mapping);
             }
             else
             {
-                var dto = source.Source.Db.Mapper.Get(type);
-                this.PrepareDirectMapping(dto);
+                this.Dto = source.Source.Db.Mapper.Get(type);
+                this.PrepareDirectMapping();
             }
         }
 
-        internal void PrepareDirectMapping(IDtoClass dto)
+        internal void PrepareDirectMapping()
         {
             var i = this.Start;
-            while (this.ColumnsToRead.Count != dto.PropertiesCount && i < this.RowReader.Columns.Length)
+            while (this.ColumnsToRead.Count != this.Dto.PropertiesCount && i < this.RowReader.Columns.Length)
             {
                 var columnName = this.RowReader.Columns[i];
                 var found = false;
 #pragma warning disable S3267 // loop should be simplified with Linq
-                foreach (var property in dto)
+                foreach (var property in this.Dto)
                 {
                     if (string.Equals(property.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
                         this.ColumnsToRead.Add(new ColumnMatch
                         {
                             Index = i,
-                            Property = property
+                            Property = property,
+                            Nullable = property.Nullable
                         });
                         found = true;
                         this.End = i+1;
@@ -64,7 +74,7 @@ namespace Faaast.Orm.Reader
                 i++;
             }
 
-            if (this.ColumnsToRead.Count != dto.PropertiesCount)
+            if (this.ColumnsToRead.Count != this.Dto.PropertiesCount)
             {
                 throw new FaaastOrmException($"Unexpected end of columns while reading object \"{typeof(T).FullName}\", please check you query to make sure all columns are returned");
             }
@@ -82,10 +92,18 @@ namespace Faaast.Orm.Reader
                 {
                     if(string.Equals(columnMapping.Column.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
+                        var converterType = columnMapping.Column.Get(DbMeta.Converter);
+                        IValueConverter converter = null;
+                        if(converterType != null)
+                        {
+                            converter = (IValueConverter)this.RowReader.Source.Db.Services.GetRequiredService(converterType);
+                        }
                         this.ColumnsToRead.Add(new ColumnMatch
                         {
                             Index = i,
-                            Property = columnMapping.Property
+                            Property = columnMapping.Property,
+                            Nullable = columnMapping.Column.Get(DbMeta.Nullable) ?? columnMapping.Property.Nullable,
+                            Converter = converter
                         });
                         found = true;
                         this.End = i + 1;
@@ -108,22 +126,27 @@ namespace Faaast.Orm.Reader
             }
         }
 
-        internal int? FirstIndexOf(string columnName)
-        {
-            for (var i = this.Start; i < this.RowReader.Columns.Length; i++)
-            {
-                if(string.Equals(this.RowReader.Columns[i], columnName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return i;
-                }
-            }
-
-            return null;
-        }
-
         public override void Read()
         {
+            this.Value = (T)this.Dto.CreateInstance();
+            foreach (var property in this.ColumnsToRead)
+            {
+                if(property.Property.CanWrite)
+                {
+                    var colValue = this.RowReader.Buffer[property.Index];
+                    if(colValue == DBNull.Value && property.Nullable)
+                    {
+                        colValue = default;
+                    }
 
+                    if(property.Converter != null)
+                    {
+                        colValue = property.Converter.FromDb(colValue, property.Property.Type);
+                    }
+
+                    property.Property.Write(this.Value, colValue);
+                }
+            }
         }
     }
 }

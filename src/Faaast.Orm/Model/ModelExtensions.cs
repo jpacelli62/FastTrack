@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Faaast.Orm.Converters;
 
 namespace Faaast.Orm.Model
 {
@@ -32,6 +33,12 @@ namespace Faaast.Orm.Model
         public static Column Length(this Column column, int Length)
         {
             column.Set(DbMeta.Length, Length);
+            return column;
+        }
+
+        public static Column Converter<TConverter>(this Column column) where TConverter: IValueConverter
+        {
+            column.Set(DbMeta.Converter, typeof(TConverter));
             return column;
         }
 

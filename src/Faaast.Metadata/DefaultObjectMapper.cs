@@ -39,7 +39,12 @@ namespace Faaast.Metadata
 
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                var newProp = new DtoProperty(property.Name, property.PropertyType);
+                var propertyType = property.PropertyType;
+                var newProp = new DtoProperty(property.Name, propertyType)
+                {
+                    Nullable = propertyType.IsClass || Nullable.GetUnderlyingType(propertyType) != null
+                };
+
                 if (property.CanRead && (property.GetGetMethod()?.IsPrivate == false))
                 {
                     newProp.ReadFunc = GenerateGetter(type, property);

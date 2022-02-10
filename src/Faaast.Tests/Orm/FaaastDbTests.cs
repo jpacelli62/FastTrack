@@ -31,5 +31,12 @@ namespace Faaast.Tests.Orm
             Assert.NotNull(map);
             Assert.Equal(typeof(SimpleModel), map.ObjectClass.Type);
         }
+
+        [Fact]
+        public void Mapping_Unknown()
+        {
+            var map = this.Fixture.Db.Mapping<FaaastDbTests>();
+            Assert.Null(map);
+        }
     }
 }

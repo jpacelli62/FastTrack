@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Threading;
 using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
@@ -19,6 +18,8 @@ namespace Faaast.Orm
 
         internal virtual IDatabase Database{ get; set; }
 
+        internal virtual IServiceProvider Services { get; set; }
+
         public virtual Lazy<DatabaseMapping> Mappings { get; }
 
         public abstract ConnectionSettings Connection { get; }
@@ -34,6 +35,7 @@ namespace Faaast.Orm
             this.Mapper = services.GetRequiredService<IObjectMapper>();
             this.DbStore = services.GetRequiredService<IDatabaseStore>();
             this.Mappings = new Lazy<DatabaseMapping>(this.InitMapping, true);
+            this.Services = services;
         }
 
         protected DatabaseMapping InitMapping()

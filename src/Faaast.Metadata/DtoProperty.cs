@@ -14,6 +14,8 @@ namespace Faaast.Metadata
 
         public virtual bool CanWrite { get; set; }
 
+        public virtual bool Nullable { get; set; }
+
         public virtual Func<object, object> ReadFunc { get; set; }
 
         public virtual Action<object, object> WriteFunc { get; set; }
