@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Faaast.Orm;
 using Faaast.Orm.Reader;
 using Faaast.Tests.Orm.FakeDb;
@@ -12,9 +13,9 @@ namespace Faaast.Tests.Orm
     {
         private class NotMappedSampleClass
         {
-            public int Id { get; set; }
-            public string Label { get; set; }
-            public string Description { get; set; }
+            public int Id { get; set; } = 0;
+            public string Label { get; set; } = null;
+            public string Description { get; set; } = null;
         }
 
         public FaaastOrmFixture Fixture { get; set; }
@@ -29,7 +30,7 @@ namespace Faaast.Tests.Orm
             return command.ExecuteReader();
         }
 
-        private TException CaptureException<TException>(Action call) where TException: Exception
+        private TException CaptureException<TException>(Action call) where TException : Exception
         {
             try
             {
@@ -39,7 +40,7 @@ namespace Faaast.Tests.Orm
             {
                 return ex;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Assert.True(false, $"Expected exception of type \"{typeof(TException).Name}\", actual: \"{ex.GetType().Name}\"");
             }
@@ -84,7 +85,8 @@ namespace Faaast.Tests.Orm
                 { "V6", long.MaxValue },
                 { "V2", "Lorem ipsum" },
                 { "V5", float.MaxValue },
-                { "V8", true }
+                { "V8", true },
+                { "State", 1 }
             };
             var reader = this.BuildReader(data);
             var dtoReader = reader.AddReader<SimpleModel>();
@@ -92,12 +94,12 @@ namespace Faaast.Tests.Orm
             Assert.True(reader.Read());
             Assert.NotNull(dtoReader.Value);
             var dto = this.Fixture.Db.Mapper.Get(typeof(SimpleModel));
-            foreach (var property in dto)
+            Assert.Equal(TestState.ItWorks, dtoReader.Value.EnumValue);
+            foreach (var property in dto.Where(x => x.Name != nameof(SimpleModel.EnumValue)))
             {
                 Assert.Equal(data[property.Name], property.Read(dtoReader.Value));
             }
         }
-
 
         [Fact]
         public void AddObjectReader_NotMapped_UnexpectedColumn()

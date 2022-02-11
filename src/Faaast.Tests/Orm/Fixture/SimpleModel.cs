@@ -2,6 +2,12 @@
 
 namespace Faaast.Tests.Orm.Fixture
 {
+    public enum TestState
+    {
+        Undefined = 0,
+        ItWorks = 1
+    }
+
     public class SimpleModel
     {
         public int V1 { get; set; }
@@ -12,5 +18,6 @@ namespace Faaast.Tests.Orm.Fixture
         public long? V6 { get; set; }
         public double? V7 { get; set; }
         public bool V8 { get; set; }
+        public TestState EnumValue { get; set; }
     }
 }

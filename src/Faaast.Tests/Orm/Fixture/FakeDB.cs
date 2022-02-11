@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Faaast.Orm;
+using Faaast.Orm.Converters;
 using Faaast.Orm.Model;
 using Faaast.Tests.Orm.FakeDb;
 
@@ -49,6 +50,7 @@ namespace Faaast.Tests.Orm.Fixture
             mapping.Map(x => x.V6, "V6");
             mapping.Map(x => x.V7, "V7");
             mapping.Map(x => x.V8, "V8");
+            mapping.Map(x => x.EnumValue, "State").Converter<EnumToIntValueConverter<TestState>>();
             yield return mapping;
         }
     }
