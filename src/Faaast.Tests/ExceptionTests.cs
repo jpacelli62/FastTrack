@@ -18,7 +18,7 @@ namespace Faaast.Tests
         public void FaaastOrmException_Serialize()
         {
             var ex = new FaaastOrmException("Lorem ipsum");
-            var clone = TestException(ex);
+            var clone = this.TestException(ex);
             Assert.Equal(ex.Message, clone.Message);
         }
 
@@ -26,7 +26,7 @@ namespace Faaast.Tests
         public void RequestException_Serialize()
         {
             var ex = new RequestException("param", "get");
-            var clone = TestException(ex);
+            var clone = this.TestException(ex);
             Assert.Equal(ex.ParameterName, clone.ParameterName);
             Assert.Equal(ex.ExpectedMethod, clone.ExpectedMethod);
         }

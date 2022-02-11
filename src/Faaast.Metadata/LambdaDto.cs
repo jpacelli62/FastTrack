@@ -1,7 +1,7 @@
 ﻿using System;
 using Faaast.Metadata;
 
-namespace Benchmark
+namespace Faaast.Metadata
 {
     public class LambdaDto : DtoClass
     {

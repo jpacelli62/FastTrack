@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections;
 using Faaast.Metadata;
-using Faaast.Tests.Orm.Fixtures;
-using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace Faaast.Tests.Metadata
@@ -10,7 +7,7 @@ namespace Faaast.Tests.Metadata
     public class ReadWriteSyncTests
     {
         [Fact]
-        public void Test_ReadAccess_MultipleRead()
+        public void ReadAccess_MultipleRead()
         {
             ReadWriteSync sync = new();
             var success = false;
@@ -23,7 +20,7 @@ namespace Faaast.Tests.Metadata
             Assert.True(success);
         }
         [Fact]
-        public void Test_WriteAccess()
+        public void WriteAccess()
         {
             ReadWriteSync sync = new(1000);
             var success = false;
@@ -36,7 +33,7 @@ namespace Faaast.Tests.Metadata
         }
 
         [Fact]
-        public void Test_WriteAccess_Timeout()
+        public void WriteAccess_Timeout()
         {
             ReadWriteSync sync = new();
             using var read = sync.ReadAccess(10000);
@@ -44,7 +41,7 @@ namespace Faaast.Tests.Metadata
         }
 
         [Fact]
-        public void Test_UpgradeToWriteAccess()
+        public void UpgradeToWriteAccess()
         {
             ReadWriteSync sync = new();
             var success = false;
