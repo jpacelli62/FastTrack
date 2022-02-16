@@ -209,25 +209,51 @@ namespace Faaast.Orm
         public static T FirstOrDefault<T>(this FaaastCommand command)
         {
             var enumerator = Read<T>(command).GetEnumerator();
-            return enumerator.MoveNext() ? enumerator.Current : default;
+            T result = enumerator.MoveNext() ? enumerator.Current : default;
+            if (command.HandleConnection)
+            {
+                command.Connection.Close();
+                command.Connection.Dispose();
+            }
+
+            return result;
         }
 
         public static object[] FirstOrDefault(this FaaastCommand command, params Type[] types)
         {
             var enumerator = Read(command, types).GetEnumerator();
-            return enumerator.MoveNext() ? enumerator.Current : default;
+            var result = enumerator.MoveNext() ? enumerator.Current : default;
+            if (command.HandleConnection)
+            {
+                command.Connection.Close();
+                command.Connection.Dispose();
+            }
+
+            return result;
         }
 
         public static async Task<T> FirstOrDefaultAsync<T>(this FaaastCommand command)
         {
             var enumerator = ReadAsync<T>(command).ConfigureAwait(false).GetAsyncEnumerator();
-            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
+            var result = await enumerator.MoveNextAsync() ? enumerator.Current : default;
+            if (command.HandleConnection)
+            {
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                await command.Connection.TryDisposeAsync(command.CancellationToken);
+            }
+            return result;
         }
 
         public static async Task<object[]> FirstOrDefaultAsync(this FaaastCommand command, params Type[] types)
         {
             var enumerator = ReadAsync(command, types).ConfigureAwait(false).GetAsyncEnumerator();
-            return await enumerator.MoveNextAsync() ? enumerator.Current : default;
+            var result = await enumerator.MoveNextAsync() ? enumerator.Current : default;
+            if (command.HandleConnection)
+            {
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                await command.Connection.TryDisposeAsync(command.CancellationToken);
+            }
+            return result;
         }
 
         public static T Single<T>(this FaaastCommand command)
@@ -240,10 +266,19 @@ namespace Faaast.Orm
                 row++;
                 if (row > 1)
                 {
+                    if (command.HandleConnection)
+                    {
+                        command.Connection.Close();
+                        command.Connection.Dispose();
+                    }
                     throw new InvalidOperationException("Seqence contains more than one element");
                 }
             }
-
+            if (command.HandleConnection)
+            {
+                command.Connection.Close();
+                command.Connection.Dispose();
+            }
             return result;
         }
 
@@ -257,10 +292,19 @@ namespace Faaast.Orm
                 row++;
                 if (row > 1)
                 {
+                    if (command.HandleConnection)
+                    {
+                        command.Connection.Close();
+                        command.Connection.Dispose();
+                    }
                     throw new InvalidOperationException("Seqence contains more than one element");
                 }
             }
-
+            if (command.HandleConnection)
+            {
+                command.Connection.Close();
+                command.Connection.Dispose();
+            }
             return result;
         }
 
@@ -274,8 +318,20 @@ namespace Faaast.Orm
                 row++;
                 if (row > 1)
                 {
+                    if (command.HandleConnection)
+                    {
+                        await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                        await command.Connection.TryDisposeAsync(command.CancellationToken);
+                    }
+
                     throw new InvalidOperationException("Seqence contains more than one element");
                 }
+            }
+
+            if (command.HandleConnection)
+            {
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                await command.Connection.TryDisposeAsync(command.CancellationToken);
             }
 
             return result;
@@ -291,8 +347,20 @@ namespace Faaast.Orm
                 row++;
                 if (row > 1)
                 {
+                    if (command.HandleConnection)
+                    {
+                        await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                        await command.Connection.TryDisposeAsync(command.CancellationToken);
+                    }
+
                     throw new InvalidOperationException("Seqence contains more than one element");
                 }
+            }
+
+            if (command.HandleConnection)
+            {
+                await TryCloseAsync(command.Connection, command.CancellationToken).ConfigureAwait(false);
+                await command.Connection.TryDisposeAsync(command.CancellationToken);
             }
 
             return result;

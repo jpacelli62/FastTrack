@@ -6,6 +6,7 @@
     <RootNamespace>Faaast.Orm</RootNamespace>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
+	<LangVersion>9</LangVersion>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
