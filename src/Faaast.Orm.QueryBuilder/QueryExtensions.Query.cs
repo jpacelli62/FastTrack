@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -9,24 +10,63 @@ namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {
-        public static Task<TClass> FirstOrDefaultAsync<TClass>(this FaaastQuery query,
+        public static async Task<TClass> FirstOrDefaultAsync<TClass>(this FaaastQuery query,
             DbConnection connection = null,
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
             var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
-            return command.FirstOrDefaultAsync<TClass>();
+            TClass result = default;
+            Exception ex = null;
+            try
+            {
+                result = await command.FirstOrDefaultAsync<TClass>();
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+            finally
+            {
+                if (command.HandleConnection)
+                    await command.Connection.TryCloseAsync(command.CancellationToken);
+            }
+
+            if (ex != null)
+                throw ex;
+
+            return result;
         }
 
-        public static Task<TClass> FirstOrDefaultAsync<TClass>(this FaaastQuery<TClass> query,
+        public static async Task<TClass> FirstOrDefaultAsync<TClass>(this FaaastQuery<TClass> query,
             DbConnection connection = null,
             DbTransaction transaction = null,
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
             var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
-            return command.FirstOrDefaultAsync<TClass>();
+            TClass result = default;
+            Exception ex = null;
+            try
+            {
+                result = await command.FirstOrDefaultAsync<TClass>();
+            }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+            finally
+            {
+                if (command.HandleConnection)
+                    await command.Connection.TryCloseAsync(command.CancellationToken);
+
+            }
+
+            if (ex != null)
+                throw ex;
+
+            return result;
         }
 
         public static FaaastCommand CreateCommand(this FaaastQuery query,
@@ -53,12 +93,29 @@ namespace Faaast.Orm
             int? commandTimeout = null,
             CancellationToken cancellationToken = default)
         {
-            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             var result = new List<TClass>();
-            await foreach (var row in command.FetchAsync<TClass>())
+            var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
+            Exception ex = null;
+            try
             {
-                result.Add(row);
+                await foreach (var row in command.FetchAsync<TClass>())
+                {
+                    result.Add(row);
+                }
             }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+            finally
+            {
+                if (command.HandleConnection)
+                    await command.Connection.TryCloseAsync(command.CancellationToken);
+
+            }
+
+            if (ex != null)
+                throw ex;
 
             return result;
         }
@@ -71,10 +128,26 @@ namespace Faaast.Orm
         {
             var command = query.CreateCommand(connection, transaction, commandTimeout, cancellationToken);
             var result = new List<TClass>();
-            await foreach (var row in command.FetchAsync<TClass>())
+            Exception ex = null;
+            try
             {
-                result.Add(row);
+                await foreach (var row in command.FetchAsync<TClass>())
+                {
+                    result.Add(row);
+                }
             }
+            catch (Exception e)
+            {
+                ex = e;
+            }
+            finally
+            {
+                if (command.HandleConnection)
+                    await command.Connection.TryCloseAsync(command.CancellationToken);
+            }
+
+            if (ex != null)
+                throw ex;
 
             return result;
         }

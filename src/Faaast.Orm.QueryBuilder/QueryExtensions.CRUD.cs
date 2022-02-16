@@ -14,7 +14,7 @@ namespace Faaast.Orm
             return mapping.TypeToMapping[typeof(TClass)];
         }
 
-        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
         {
             var mapping = db.Mapping<T>();
             var pk = mapping.Table.PrimaryKeyColumns();
@@ -23,17 +23,42 @@ namespace Faaast.Orm
             {
                 where.Add(column.Name, mapping.ColumnToProperty[column].Read(record));
             }
-            
+
             var query = db.From<T>().Where(where).AsDelete();
             var compiledQuery = db.Compile(query);
             var cmd = command ?? db.Query(null);
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = compiledQuery.Sql;
             cmd.Parameters = compiledQuery.Parameters;
-            return cmd.ExecuteAsync();
+            return await ExecuteAsync(cmd);
         }
 
-        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        private static async Task<int> ExecuteAsync(FaaastCommand cmd)
+        {
+            int result = default;
+            Exception reThrow = null;
+            try
+            {
+                result = await cmd.ExecuteAsync();
+            }
+            catch (Exception ex)
+            {
+                reThrow = ex;
+            }
+            finally
+            {
+                if (cmd.HandleConnection)
+                    await cmd.Connection.TryCloseAsync(cmd.CancellationToken);
+
+            }
+
+            if (reThrow != null)
+                throw reThrow;
+
+            return result;
+        }
+
+        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
 
         {
             var mapping = db.Mapping<T>();
@@ -60,7 +85,7 @@ namespace Faaast.Orm
             cmd.CommandType = CommandType.Text;
             cmd.CommandText = compiledQuery.Sql;
             cmd.Parameters = compiledQuery.Parameters;
-            return cmd.ExecuteAsync();
+            return await ExecuteAsync(cmd);
         }
 
         public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
@@ -90,7 +115,7 @@ namespace Faaast.Orm
 
             if (identityColumn == null)
             {
-                return await cmd.ExecuteAsync();
+                return await ExecuteAsync(cmd);
             }
             else
             {
