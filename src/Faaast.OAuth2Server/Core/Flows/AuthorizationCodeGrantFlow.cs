@@ -97,7 +97,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             var result = new RequestResult<string>(context);
             var clientProvider = context.HttpContext.RequestServices.GetRequiredService<IOauthServerProvider>();
             var client = await clientProvider.GetClientAsync(context.Require(Parameters.ClientId));
-            if (client is null || !client.ClientSecret.Equals(context.Require(Parameters.ClientSecret)))
+            if (client is null)
             {
                 return await result.RejectAsync(Resources.Msg_InvalidClient);
             }
