@@ -10,7 +10,10 @@ namespace Faaast.OAuth2Server.Core
             var randomNumber = new byte[length];
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomNumber);
-            return Convert.ToBase64String(randomNumber);
+            return Convert.ToBase64String(randomNumber)
+                .Replace("+", string.Empty)
+                .Replace("/", string.Empty)
+                .Replace("=", string.Empty);
         }
     }
 }
