@@ -51,8 +51,6 @@ namespace Faaast.Authentication.OAuth2
             {
                 return AuthenticateResult.Fail("Not authenticated");
             }
-
-            return AuthenticateResult.Fail("Remote authentication does not directly support AuthenticateAsync");
         }
 
         internal bool ShouldHandle(AuthenticationTicket ticket) => ticket != null &&

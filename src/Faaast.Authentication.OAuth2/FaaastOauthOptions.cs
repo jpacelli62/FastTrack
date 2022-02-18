@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.AspNetCore.Http;
@@ -45,7 +46,8 @@ namespace Faaast.Authentication.OAuth2
         {
             this.CallbackPath = new PathString("/faaastoauth/signin");
             this.Scope.Add("identity");
-            this.ClaimActions.MapAll();
+            this.ClaimActions.MapAllExcept(ClaimTypes.Role);
+            this.ClaimActions.MapJsonKey(ClaimTypes.Role, ClaimTypes.Role);
         }
 
         /// <summary>

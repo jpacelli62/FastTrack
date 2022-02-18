@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
@@ -55,9 +56,23 @@ namespace Faaast.OAuth2Server.Core.Flows
                     using (var writer = new Utf8JsonWriter(stream, options))
                     {
                         writer.WriteStartObject();
-                        foreach (var item in principal.Claims)
+                        foreach (var item in principal.Claims.GroupBy(x=>x.Type))
                         {
-                            writer.WriteString(item.Type, item.Value);
+                            if (item.Count() == 1)
+                            {
+                                var first = item.First();
+                                writer.WriteString(first.Type, first.Value);
+                            }
+                            else
+                            {
+                                writer.WritePropertyName(item.Key);
+                                writer.WriteStartArray();
+                                foreach (var subItem in item)
+                                {
+                                    writer.WriteStringValue(subItem.Value);
+                                }
+                                writer.WriteEndArray();
+                            }
                         }
                         writer.WriteEndObject();
                     }
