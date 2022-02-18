@@ -24,13 +24,12 @@ namespace Faaast.Tests.Authentication.ServerTests
             this.Server = fixture.CreateServer(builder => builder.AddAuthorizationCodeGrantFlow());
         }
 
-        private async Task<Transaction> QueryAsync(CustomTestServer server, string clientId, string clientSecret, string redirectUri, string code, Action<HttpRequestMessage> req = null)
+        private async Task<Transaction> QueryAsync(CustomTestServer server, string clientId, string redirectUri, string code, Action<HttpRequestMessage> req = null)
         {
             var dic = new Dictionary<string, string>
             {
                 {"client_id", clientId},
                 {"redirect_uri", redirectUri ?? $"https://{this.Fixture.ClientHost}/faaastoauth/signin" },
-                {"client_secret", clientSecret},
                 {"code", code },
                 {"grant_type", "authorization_code" },
             };
@@ -55,7 +54,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             var transaction = await this.QueryAsync(
                 this.Server,
                 "wrongid",
-                this.Fixture.Client.ClientSecret,
                 null,
                 "code");
             Assert.Equal(HttpStatusCode.BadRequest, transaction.Response.StatusCode);
@@ -68,7 +66,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             var transaction = await this.QueryAsync(
                 this.Server,
                 this.Fixture.Client.ClientId,
-                this.Fixture.Client.ClientSecret,
                 null,
                 "code",
                 req => DisabledFlow(req));
@@ -82,7 +79,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             var transaction = await this.QueryAsync(
                 this.Server,
                 this.Fixture.Client.ClientId,
-                this.Fixture.Client.ClientSecret,
                 "https://donotredirect.com/",
                 "code",
                 req => InvalidRedirectUri(req));
@@ -99,7 +95,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             var transaction = await this.QueryAsync(
                 server, 
                 fixture.Client.ClientId,
-                fixture.Client.ClientSecret,
                 null,
                 "code");
             Assert.Null(fixture.Code);
@@ -130,7 +125,6 @@ namespace Faaast.Tests.Authentication.ServerTests
             };
 
             var transaction = await this.QueryAsync(server, fixture.Client.ClientId,
-                fixture.Client.ClientSecret,
                 null,
                 fixture.Code.Code);
 
@@ -139,7 +133,6 @@ namespace Faaast.Tests.Authentication.ServerTests
 
             fixture.Code.Expires = fixture.Clock.UtcNow + TimeSpan.FromMinutes(5);
             transaction = await this.QueryAsync(server, fixture.Client.ClientId,
-                fixture.Client.ClientSecret,
                 null,
                 fixture.Code.Code);
 
