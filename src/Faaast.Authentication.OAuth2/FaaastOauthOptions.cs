@@ -31,9 +31,12 @@ namespace Faaast.Authentication.OAuth2
         public string SignOutScheme { get; set; }
 
         public string Audience { get; set; }
+
         public string Issuer { get; set; }
 
-        public bool UseUserInformationEndpoint { get; set; }
+        public string CookiePrefix { get; set; }
+
+        public CookieOptions CookieOptions { get; set; }
 
         /// <summary>
         /// Initializes a new <see cref="FaaastOauthOptions"/>.
@@ -43,7 +46,6 @@ namespace Faaast.Authentication.OAuth2
             this.CallbackPath = new PathString("/faaastoauth/signin");
             this.Scope.Add("identity");
             this.ClaimActions.MapAll();
-            this.SaveTokens = true;
         }
 
         /// <summary>
@@ -64,11 +66,6 @@ namespace Faaast.Authentication.OAuth2
             if (string.IsNullOrEmpty(this.TokenEndpoint))
             {
                 throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.TokenEndpoint)));
-            }
-
-            if (this.UseUserInformationEndpoint && string.IsNullOrEmpty(this.UserInformationEndpoint))
-            {
-                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(this.UserInformationEndpoint)));
             }
 
             if (string.IsNullOrEmpty(this.ClientId))

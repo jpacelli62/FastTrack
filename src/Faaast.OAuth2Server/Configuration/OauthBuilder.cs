@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Builder;
 
 namespace Faaast.OAuth2Server.Configuration
 {
-    public class OauthBuilder : IOauthBuilder
+    public class OauthBuilder
     {
-        private IApplicationBuilder Application { get; set; }
+        protected IApplicationBuilder Application { get; set; }
 
-        private OAuthServerOptions Options { get; set; }
+        protected virtual OAuthServerOptions Options { get; set; }
 
         public OauthBuilder(IApplicationBuilder application, OAuthServerOptions options)
         {
@@ -17,7 +17,7 @@ namespace Faaast.OAuth2Server.Configuration
             this.Options = options;
         }  
         
-        public IOauthBuilder AddClientCredentialsGrantFlow()
+        public OauthBuilder AddClientCredentialsGrantFlow()
         {
             if (string.IsNullOrEmpty(this.Options.TokenEndpointPath))
             {
@@ -28,7 +28,7 @@ namespace Faaast.OAuth2Server.Configuration
             return this;
         }
 
-        public IOauthBuilder AddResourceOwnerPasswordCredentialsGrantFlow()
+        public OauthBuilder AddResourceOwnerPasswordCredentialsGrantFlow()
         {
             if (string.IsNullOrEmpty(this.Options.TokenEndpointPath))
             {
@@ -39,7 +39,7 @@ namespace Faaast.OAuth2Server.Configuration
             return this;
         }
 
-        public IOauthBuilder AddAuthorizationCodeGrantFlow()
+        public OauthBuilder AddAuthorizationCodeGrantFlow()
         {
             if (string.IsNullOrEmpty(this.Options.AuthorizeEndpointPath))
             {
@@ -55,7 +55,7 @@ namespace Faaast.OAuth2Server.Configuration
             return this;
         }
 
-        public IOauthBuilder AddRefreshTokenFlow()
+        public OauthBuilder AddRefreshTokenFlow()
         {
             if (string.IsNullOrEmpty(this.Options.TokenEndpointPath))
             {
@@ -66,7 +66,7 @@ namespace Faaast.OAuth2Server.Configuration
             return this;
         }
 
-        public IOauthBuilder AddImplicitGrantFlow()
+        public OauthBuilder AddImplicitGrantFlow()
         {
             if (string.IsNullOrEmpty(this.Options.AuthorizeEndpointPath))
             {
@@ -76,5 +76,16 @@ namespace Faaast.OAuth2Server.Configuration
             this.Application.UseMiddleware<ImplicitGrantFlow>(this.Options);
             return this;
         }
+        public OauthBuilder AddUserEndpoint()
+        {
+            if (string.IsNullOrEmpty(this.Options.UserEndpointPath))
+            {
+                throw new ArgumentException(string.Format(CultureInfo.CurrentCulture, Resources.Exception_OptionMustBeProvided, nameof(OAuthServerOptions.UserEndpointPath)));
+            }
+
+            this.Application.UseMiddleware<UserEndpoint>(this.Options);
+            return this;
+        }
+        
     }
 }

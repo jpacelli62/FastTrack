@@ -87,7 +87,6 @@ namespace Faaast.OAuth2Server.Core
 
         protected abstract bool MatchEndpoint(RequestContext context);
 
-
         protected abstract bool ShouldHandle(RequestContext context);
 
         protected abstract Task<RequestResult<string>> HandleAsync(RequestContext context);
@@ -180,6 +179,28 @@ namespace Faaast.OAuth2Server.Core
             var cleanPort = port ?? -1;
             var sourceUrl = new UriBuilder(scheme, host, cleanPort, path, query);
             return sourceUrl.ToString();
+        }
+
+        internal TokenValidationParameters BuildValidationParameters(IClient client, RequestContext context)
+        {
+            var signinCredentials = client.GetSigninCredentials(context);
+            return new TokenValidationParameters
+            {
+                RequireAudience = true,
+                ValidateAudience = true,
+                ValidAudience = client.Audience,
+
+                RequireExpirationTime = true,
+                ClockSkew = TimeSpan.Zero,
+                ValidateLifetime = false,
+
+                ValidateIssuer = true,
+                ValidIssuer = this.Options.Issuer,
+
+                RequireSignedTokens = true,
+                IssuerSigningKey = signinCredentials.Key,
+                ValidateIssuerSigningKey = true
+            };
         }
     }
 }

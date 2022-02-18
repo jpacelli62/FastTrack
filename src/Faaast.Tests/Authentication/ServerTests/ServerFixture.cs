@@ -38,7 +38,7 @@ namespace Faaast.Tests.Authentication.ServerTests
 
         public ServerFixture() => this.Client = new TestClient();
 
-        public CustomTestServer CreateServer(Action<IOauthBuilder> oauth, Action<OAuthServerOptions> options = null)
+        public CustomTestServer CreateServer(Action<OauthBuilder> oauth, Action<OAuthServerOptions> options = null)
         {
             var server = new CustomTestServer()
             {

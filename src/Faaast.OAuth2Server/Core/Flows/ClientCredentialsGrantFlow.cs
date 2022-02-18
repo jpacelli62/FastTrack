@@ -16,10 +16,7 @@ namespace Faaast.OAuth2Server.Core.Flows
         {
         }
 
-        protected override bool MatchEndpoint(RequestContext context)
-        {
-            return this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
+        protected override bool MatchEndpoint(RequestContext context) => this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
 
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.ClientCredentials, context.Read(Parameters.GrantType));
 

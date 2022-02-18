@@ -20,10 +20,7 @@ namespace Faaast.OAuth2Server.Core.Flows
         {
         }
 
-        protected override bool MatchEndpoint(RequestContext context)
-        {
-            return this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
-        }
+        protected override bool MatchEndpoint(RequestContext context) => this.Options.TokenEndpointPath.Equals(context.HttpContext.Request.Path, StringComparison.OrdinalIgnoreCase);
 
         protected override bool ShouldHandle(RequestContext context) => HttpMethods.IsPost(context.HttpContext.Request.Method) && string.Equals(Parameters.RefreshToken.ParameterName, context.Read(Parameters.GrantType));
 
@@ -73,6 +70,11 @@ namespace Faaast.OAuth2Server.Core.Flows
                 }
 
                 var ticket = refreshProvider.CreateTicket(principal.Identity, context);
+                if(ticket == null)
+                {
+                    this.Logger.LogDebug("Rejected by app");
+                    return await result.RejectAsync(Resources.Msg_InvalidToken);
+                }
 
                 var descriptor = new SecurityTokenDescriptor()
                 {
@@ -94,28 +96,6 @@ namespace Faaast.OAuth2Server.Core.Flows
             }
 
             return await result.RejectAsync(Resources.Msg_InvalidClient);
-        }
-
-        private TokenValidationParameters BuildValidationParameters(IClient client, RequestContext context)
-        {
-            var signinCredentials = client.GetSigninCredentials(context);
-            return new TokenValidationParameters
-            {
-                RequireAudience = true,
-                ValidateAudience = true,
-                ValidAudience = client.Audience,
-
-                RequireExpirationTime = true,
-                ClockSkew = TimeSpan.Zero,
-                ValidateLifetime = false,
-
-                ValidateIssuer = true,
-                ValidIssuer = this.Options.Issuer,
-
-                RequireSignedTokens = true,
-                IssuerSigningKey = signinCredentials.Key,
-                ValidateIssuerSigningKey = true
-            };
         }
     }
 }

@@ -19,6 +19,8 @@ namespace Faaast.OAuth2Server.Configuration
 
         public string TokenEndpointPath { get; set; } = "/oauth/token";
 
+        public string UserEndpointPath { get; set; } = "/oauth/user";
+
         public string AuthorizeEndpointPath { get; set; } = "/oauth/authorize";
     }
 }

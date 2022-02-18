@@ -23,7 +23,7 @@ namespace Faaast.OAuth2Server
             return services;
         }
 
-        public static IOauthBuilder UseFaaastOAuthServer(this IApplicationBuilder app)
+        public static OauthBuilder UseFaaastOAuthServer(this IApplicationBuilder app)
         {
             var serverOptions = app.ApplicationServices.GetService<IOptions<OAuthServerOptions>>().Value;
 

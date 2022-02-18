@@ -1,22 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Linq;
 
 namespace Faaast.Authentication.OAuth2
 {
-    public static class HandlerExtensions
+    public static class HandlerUtils
     {
         internal static string BuildUserPayload(ClaimsIdentity identity)
         {
@@ -59,31 +54,13 @@ namespace Faaast.Authentication.OAuth2
             return principal;
         }
 
-        internal static async Task<OAuthTokenResponse> CallRefreshTokenAsync(this HttpContext context, AuthenticateResult auth, FaaastOauthOptions options)
+        internal static OAuthTokenResponse Parse(string json)
         {
-            var refreshToken = auth.Properties.GetTokenValue("refresh_token");
-            var endPoint = options.TokenEndpoint;
-            var request = new HttpRequestMessage(HttpMethod.Post, endPoint);
-            var content = new FormUrlEncodedContent(new[]
-            {
-                new KeyValuePair<string, string>("grant_type", "refresh_token"),
-                new KeyValuePair<string, string>("client_id", options.ClientId),
-                new KeyValuePair<string, string>("refresh_token", refreshToken)
-            });
-
-            request.Content = content;
-            var httpResult = await new HttpClient().SendAsync(request);
-            if (httpResult.IsSuccessStatusCode)
-            {
-                var result = await httpResult.Content.ReadAsStringAsync();
 #if NETSTANDARD2_0 || NET461
-                return OAuthTokenResponse.Success(JObject.Parse(result));
+                return OAuthTokenResponse.Success(JObject.Parse(json));
 #elif NET5_0
-                return OAuthTokenResponse.Success(JsonDocument.Parse(result));
+                return OAuthTokenResponse.Success(JsonDocument.Parse(json));
 #endif
-            }
-
-            return null;
         }
     }
 }

@@ -15,7 +15,6 @@ namespace Faaast.Tests.Authentication.ClientTests
                 OauthServerUri = "https://my.domain.com",
                 ClientId = "clientid",
                 ClientSecret = "clientsecret",
-                UseUserInformationEndpoint = true,
                 SignOutScheme = "Cookies"
             };
             options.Validate();
@@ -34,8 +33,7 @@ namespace Faaast.Tests.Authentication.ClientTests
             Assert.Equal("/faaastoauth/signin", options.CallbackPath.Value);
             Assert.Equal("Cookies", options.SignOutScheme);
             Assert.False(options.UsePkce);
-            Assert.True(options.UseUserInformationEndpoint);
-            Assert.True(options.SaveTokens);
+            Assert.False(options.SaveTokens);
             Assert.Contains(options.ClaimActions, x =>x.ClaimType == "All");
         }
 
@@ -45,7 +43,6 @@ namespace Faaast.Tests.Authentication.ClientTests
             AssertThrowsArgumentException(x => x.OauthServerUri = null);
             AssertThrowsArgumentException(x => x.AuthorizationEndpoint = null);
             AssertThrowsArgumentException(x => x.TokenEndpoint = null);
-            AssertThrowsArgumentException(x => x.UserInformationEndpoint = null);
             AssertThrowsArgumentException(x => x.ClientId = null);
             AssertThrowsArgumentException(x => x.ClientSecret = null);
         }

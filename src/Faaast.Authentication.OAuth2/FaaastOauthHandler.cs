@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,35 +22,34 @@ namespace Faaast.Authentication.OAuth2
     public class FaaastOauthHandler : OAuthHandler<FaaastOauthOptions>, IAuthenticationSignOutHandler
     {
         private ILogger FaaastLog { get; set; }
-        /// <summary>
-        /// Initializes a new instance of <see cref="FaaastOauthHandler"/>.
-        /// </summary>
-        /// <inheritdoc />
+
         public FaaastOauthHandler(IOptionsMonitor<FaaastOauthOptions> options, ILoggerFactory logger, UrlEncoder encoder, ISystemClock clock)
             : base(options, logger, encoder, clock) => this.FaaastLog = logger.CreateLogger("FaaastOauth");
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
+            var hasAccessToken = this.Context.Request.Cookies.ContainsKey(string.Concat(this.Options.CookiePrefix ?? string.Empty, "at"));
+            var hasRefreshToken = this.Context.Request.Cookies.ContainsKey(string.Concat(this.Options.CookiePrefix ?? string.Empty, "rt"));
+
             var result = await this.Context.AuthenticateAsync(this.SignInScheme);
-            if (result != null)
+            if (result?.Failure != null)
             {
-                if (result.Failure != null)
-                {
-                    return result;
-                }
+                return result;
+            }
+            var ticket = result?.Ticket;
+            var authenticated = ticket?.Principal.Identity.IsAuthenticated ?? false;
 
-                // The SignInScheme may be shared with multiple providers, make sure this provider issued the identity.
-                var ticket = result.Ticket;
-                if (this.ShouldHandle(ticket))
-                {
-                    if (ticket.Properties.Items.ContainsKey(".Token.expires_at"))
-                    {
-                        var expire = DateTime.Parse(ticket.Properties.Items[".Token.expires_at"]);
-                        return expire <= DateTime.Now ? await this.RefreshToken(result) : AuthenticateResult.Success(ticket);
-                    }
-
-                    return AuthenticateResult.Fail("Not authenticated");
-                }
+            if (authenticated && hasAccessToken)
+            {
+                return AuthenticateResult.Success(ticket);
+            }
+            else if (hasRefreshToken)
+            {
+                return await this.RefreshToken(result);
+            }
+            else
+            {
+                return AuthenticateResult.Fail("Not authenticated");
             }
 
             return AuthenticateResult.Fail("Remote authentication does not directly support AuthenticateAsync");
@@ -64,70 +64,79 @@ namespace Faaast.Authentication.OAuth2
         internal async Task<AuthenticateResult> RefreshToken(AuthenticateResult auth)
         {
             this.FaaastLog.LogDebug("Refreshing token");
-            var oAuthToken = await this.Context.CallRefreshTokenAsync(auth, this.Options);
-            if (oAuthToken == null)
+            var properties = auth.Ticket?.Properties ?? new AuthenticationProperties();
+
+            if (this.Context.Request.Cookies.TryGetValue(string.Concat(this.Options.CookiePrefix ?? string.Empty, "rt"), out var token))
             {
-                this.FaaastLog.LogWarning("Invalid refresh token");
-                return AuthenticateResult.Fail("Invalid refresh token");
+                var json = await this.Options.Backchannel.CallRefreshTokenAsync(this.Options.TokenEndpoint, this.Options.ClientId, token);
+                if (string.IsNullOrEmpty(json))
+                {
+                    this.FaaastLog.LogWarning("Invalid refresh token");
+                    this.Context.Response.Cookies.Delete(string.Concat(this.Options.CookiePrefix ?? string.Empty, "at"));
+                    this.Context.Response.Cookies.Delete(string.Concat(this.Options.CookiePrefix ?? string.Empty, "rt"));
+
+                    return AuthenticateResult.Fail("Invalid refresh token");
+                }
+
+                var response = HandlerUtils.Parse(json);
+                var principal = HandlerUtils.ReadPrincipalFromToken(response.AccessToken, this.Options);
+                var newTicket = await this.CreateTicketAsync(principal.Identity as ClaimsIdentity, properties, response);
+
+                await this.Context.SignOutAsync(this.SignInScheme);
+                await this.Context.SignInAsync(this.SignInScheme, principal, properties);
+
+                return AuthenticateResult.Success(newTicket);
             }
 
-            var principal = HandlerExtensions.ReadPrincipalFromToken(oAuthToken.AccessToken, this.Options);
-            var newTicket = await this.CreateTicketAsync(principal.Identity as ClaimsIdentity, auth.Ticket.Properties, oAuthToken);
+            return AuthenticateResult.Fail("Missing refresh cookie");
+        }
 
-            await this.Context.SignOutAsync(this.SignInScheme);
-            await this.Context.SignInAsync(this.SignInScheme, principal, auth.Ticket.Properties);
+        private void AddCookie(string name, string value, DateTimeOffset? expires)
+        {
+            var options = new CookieOptions
+            {
+                IsEssential = true,
+                Expires = expires
+            };
 
-            return AuthenticateResult.Success(newTicket);
+            var settings = this.Options.CookieOptions;
+            if (settings != null)
+            {
+                options.Domain = settings.Domain;
+                options.HttpOnly = settings.HttpOnly;
+                options.MaxAge = settings.MaxAge;
+                options.Path = settings.Path;
+                options.SameSite = settings.SameSite;
+                options.Secure = settings.Secure;
+            }
+
+            this.Context.Response.Cookies.Append(string.Concat(this.Options.CookiePrefix ?? string.Empty, name), value, options);
         }
 
         protected override async Task<AuthenticationTicket> CreateTicketAsync(ClaimsIdentity identity, AuthenticationProperties properties, OAuthTokenResponse tokens)
         {
             this.FaaastLog.LogDebug("Creating Oauth ticket");
 
-            List<AuthenticationToken> authTokens = new()
-            {
-                new AuthenticationToken { Name = "access_token", Value = tokens.AccessToken }
-            };
-
-            if (!string.IsNullOrEmpty(tokens.RefreshToken))
-            {
-                authTokens.Add(new AuthenticationToken { Name = "refresh_token", Value = tokens.RefreshToken });
-            }
-
-            if (!string.IsNullOrEmpty(tokens.TokenType))
-            {
-                authTokens.Add(new AuthenticationToken { Name = "token_type", Value = tokens.TokenType });
-            }
-
             if (!string.IsNullOrEmpty(tokens.ExpiresIn) && int.TryParse(tokens.ExpiresIn, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
             {
                 var expiresAt = this.Clock.UtcNow + TimeSpan.FromSeconds(value);
-                authTokens.Add(new AuthenticationToken
+                this.AddCookie("at", tokens.AccessToken, expiresAt);
+                if (!string.IsNullOrEmpty(tokens.RefreshToken))
                 {
-                    Name = "expires_at",
-                    Value = expiresAt.ToString("o", CultureInfo.InvariantCulture)
-                });
+                    this.AddCookie("rt", tokens.RefreshToken, this.Clock.UtcNow.AddDays(30));
+                }
             }
-
-            properties.StoreTokens(authTokens);
 
             string userInfos;
-            if (this.Options.UseUserInformationEndpoint)
+            var endpoint = QueryHelpers.AddQueryString(this.Options.UserInformationEndpoint, "access_token", tokens.AccessToken!);
+            endpoint = QueryHelpers.AddQueryString(endpoint, "client_id", this.Options.ClientId);
+            var response = await this.Backchannel.GetAsync(endpoint, this.Context.RequestAborted);
+            if (!response.IsSuccessStatusCode)
             {
-                var endpoint = QueryHelpers.AddQueryString(this.Options.UserInformationEndpoint, "access_token", tokens.AccessToken!);
-                var response = await this.Backchannel.GetAsync(endpoint, this.Context.RequestAborted);
-                if (!response.IsSuccessStatusCode)
-                {
-                    throw new HttpRequestException($"An error occurred when retrieving user information ({response.StatusCode}). Please check if the authentication information is correct.");
-                }
+                throw new HttpRequestException($"An error occurred when retrieving user information ({response.StatusCode}). Please check if the authentication information is correct.");
+            }
 
-                userInfos = await response.Content.ReadAsStringAsync();
-            }
-            else
-            {
-                identity = HandlerExtensions.ReadPrincipalFromToken(tokens.AccessToken,this.Options).Identity as ClaimsIdentity;
-                userInfos = HandlerExtensions.BuildUserPayload(identity);
-            }
+            userInfos = await response.Content.ReadAsStringAsync();
 
 #if NETSTANDARD2_0 || NET461
             var payload = JObject.Parse(userInfos);
@@ -154,6 +163,8 @@ namespace Faaast.Authentication.OAuth2
                 { "redirect_uri", redirectUri }
             };
             var endpoint = QueryHelpers.AddQueryString(this.Options.SignOutEndpoint, parameters);
+            this.Context.Response.Cookies.Delete(string.Concat(this.Options.CookiePrefix ?? string.Empty, "at"));
+            this.Context.Response.Cookies.Delete(string.Concat(this.Options.CookiePrefix ?? string.Empty, "rt"));
 
             properties.RedirectUri = endpoint;
             await this.Context.SignOutAsync(this.Options.SignOutScheme ?? this.Options.SignInScheme, properties);
