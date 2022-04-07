@@ -9,7 +9,7 @@ namespace Faaast.Orm.Reader
         public AsyncFaaastRowReader(AsyncFaaastCommand source) : base(source)
         {
         }
-        
+
 #if NET_5
         public ValueTask DisposeAsync() => new(this.Reader.DisposeAsync().ConfigureAwait(false));
 #else
@@ -23,5 +23,6 @@ namespace Faaast.Orm.Reader
         }
 
         public async Task<bool> ReadAsync() => this.FillBuffer(await this.Reader.ReadAsync(this.Source.CancellationToken));
+
     }
 }

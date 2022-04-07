@@ -20,9 +20,15 @@ namespace Faaast.Metadata
 
         public virtual Action<object, object> WriteFunc { get; set; }
 
-        public virtual object Read(object instance) => this.ReadFunc(instance);
+        public virtual object Read(object instance)
+        {
+            return this.ReadFunc(instance);
+        }
 
-        public virtual void Write(object instance, object value) => this.WriteFunc(instance, value);
+        public virtual void Write(object instance, object value)
+        {
+            this.WriteFunc(instance, value);
+        }
 
         public DtoProperty(string name, Type type)
         {

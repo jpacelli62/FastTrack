@@ -30,10 +30,7 @@ namespace Faaast.Metadata
             }
         }
 
-        internal static bool IsNullableType(Type type)
-        {
-            return Nullable.GetUnderlyingType(type) != null || type.IsClass || type.IsInterface;
-        }
+        internal static bool IsNullableType(Type type) => Nullable.GetUnderlyingType(type) != null || type.IsClass || type.IsInterface;
 
         public static IDtoClass Build(Type type)
         {

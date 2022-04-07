@@ -19,7 +19,8 @@ namespace Faaast.Metadata
         private ReaderWriterLock SyncObject { get; set; }
 
         public ReadWriteSync() => this.SyncObject = new ReaderWriterLock();
-        public ReadWriteSync(int timeout) :this() => this.DefaultTimeout = timeout;
+
+        public ReadWriteSync(int timeout) : this() => this.DefaultTimeout = timeout;
 
         public SyncToken ReadAccess(int? timeout = null)
         {

@@ -97,7 +97,7 @@ namespace Faaast.Orm
 
             var command = new FaaastCommand(this, connection, sql, parameters)
             {
-                AutoClose = true
+                AutoClose = handleConnection
             };
 
             return command;
@@ -116,7 +116,7 @@ namespace Faaast.Orm
 
             var command = new AsyncFaaastCommand(this, connection, sql, parameters)
             {
-                AutoClose = true
+                AutoClose = handleConnection
             };
 
             return command;

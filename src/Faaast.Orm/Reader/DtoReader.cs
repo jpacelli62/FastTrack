@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Faaast.Metadata;
 using Faaast.Orm.Converters;
@@ -14,13 +15,20 @@ namespace Faaast.Orm.Reader
             public IDtoProperty Property;
             public int Index;
             public bool Nullable;
+            public bool IsKey;
             public IValueConverter Converter;
         }
 
+        private static ConcurrentDictionary<Type, IValueConverter> Converters { get; } = new();
+
         internal List<ColumnMatch> ColumnsToRead { get; set; }
 
-        internal IDtoClass Dto { get; set; }
+        public IDtoClass MembersDto { get; set; }
 
+        public IDtoClass InstanceDto { get; set; }
+
+
+        protected bool HasKey { get; set; }
 
         public DtoReader(BaseRowReader source, int start)
         {
@@ -29,27 +37,28 @@ namespace Faaast.Orm.Reader
             this.RowReader = source;
             this.Start = this.End = start;
             var mapping = source.Source.Db.Mapping(type);
-            if(mapping != null)
+            if (mapping != null)
             {
-                this.Dto = mapping.ObjectClass;
+                this.MembersDto = mapping.ObjectClass;
                 this.PrepareDtoMapping(mapping);
             }
             else
             {
-                this.Dto = source.Source.Db.Mapper.Get(type);
+                this.MembersDto = source.Source.Db.Mapper.Get(type);
                 this.PrepareDirectMapping();
             }
+            this.InstanceDto = this.MembersDto;
         }
 
         internal void PrepareDirectMapping()
         {
             var i = this.Start;
-            while (this.ColumnsToRead.Count != this.Dto.PropertiesCount && i < this.RowReader.Columns.Length)
+            while (this.ColumnsToRead.Count != this.MembersDto.PropertiesCount && i < this.RowReader.Columns.Length)
             {
                 var columnName = this.RowReader.Columns[i];
                 var found = false;
 #pragma warning disable S3267 // loop should be simplified with Linq
-                foreach (var property in this.Dto)
+                foreach (var property in this.MembersDto)
                 {
                     if (string.Equals(property.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
@@ -60,7 +69,7 @@ namespace Faaast.Orm.Reader
                             Nullable = property.Nullable
                         });
                         found = true;
-                        this.End = i+1;
+                        this.End = i + 1;
                         break;
                     }
                 }
@@ -74,7 +83,7 @@ namespace Faaast.Orm.Reader
                 i++;
             }
 
-            if (this.ColumnsToRead.Count != this.Dto.PropertiesCount)
+            if (this.ColumnsToRead.Count != this.MembersDto.PropertiesCount)
             {
                 throw new FaaastOrmException($"Unexpected end of columns while reading object \"{typeof(T).FullName}\", please check you query to make sure all columns are returned");
             }
@@ -83,29 +92,31 @@ namespace Faaast.Orm.Reader
         internal void PrepareDtoMapping(Mapping.TableMapping mapping)
         {
             var i = this.Start;
-            while(this.ColumnsToRead.Count != mapping.ColumnMappings.Count && i < this.RowReader.Columns.Length)
+            while (this.ColumnsToRead.Count != mapping.ColumnMappings.Count && i < this.RowReader.Columns.Length)
             {
                 var columnName = this.RowReader.Columns[i];
                 var found = false;
 #pragma warning disable S3267 // loop should be simplified with Linq
                 foreach (var columnMapping in mapping.ColumnMappings)
                 {
-                    if(string.Equals(columnMapping.Column.Name, columnName, StringComparison.OrdinalIgnoreCase))
+                    if (string.Equals(columnMapping.Column.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
                         var converterType = columnMapping.Column.Get(DbMeta.Converter);
                         IValueConverter converter = null;
-                        if(converterType != null)
+                        if (converterType != null)
                         {
-                            converter = (IValueConverter)this.RowReader.Source.Db.Services.GetRequiredService(converterType);
+                            converter = Converters.GetOrAdd(converterType, type => (IValueConverter)Activator.CreateInstance(converterType));
                         }
                         this.ColumnsToRead.Add(new ColumnMatch
                         {
                             Index = i,
                             Property = columnMapping.Property,
                             Nullable = columnMapping.Column.Get(DbMeta.Nullable) ?? columnMapping.Property.Nullable,
-                            Converter = converter
+                            Converter = converter,
+                            IsKey = columnMapping.Column.PrimaryKey
                         });
                         found = true;
+                        HasKey |= columnMapping.Column.PrimaryKey;
                         this.End = i + 1;
                         break;
                     }
@@ -120,33 +131,70 @@ namespace Faaast.Orm.Reader
                 i++;
             }
 
-            if(this.ColumnsToRead.Count != mapping.ColumnMappings.Count)
+            if (this.ColumnsToRead.Count != mapping.ColumnMappings.Count)
             {
                 throw new FaaastOrmException($"Unexpected end of columns while reading object \"{typeof(T).FullName}\", please check you query to make sure all columns are returned");
             }
         }
 
+        protected virtual void CreateInstance()
+        {
+            this.Value = (T)this.InstanceDto.CreateInstance();
+        }
+
         public override void Read()
         {
-            this.Value = (T)this.Dto.CreateInstance();
+            this.CreateInstance();
+            bool readSomething = false;
             foreach (var property in this.ColumnsToRead)
             {
-                if(property.Property.CanWrite)
+                if (property.Property.CanWrite)
                 {
                     var colValue = this.RowReader.Buffer[property.Index];
-                    if(colValue == DBNull.Value && property.Nullable)
-                    {
-                        colValue = default;
-                    }
-
-                    if(property.Converter != null)
+                    if (property.Converter != null)
                     {
                         colValue = property.Converter.FromDb(colValue, property.Property.Type);
                     }
 
-                    property.Property.Write(this.Value, colValue);
+                    if (colValue != DBNull.Value)
+                    {
+                        readSomething = true;
+
+                        var baseType = Nullable.GetUnderlyingType(property.Property.Type);
+                        colValue = baseType != null ? Convert.ChangeType(colValue, baseType) : Convert.ChangeType(colValue, property.Property.Type);
+                        property.Property.Write(this.Value, colValue);
+                    }
                 }
             }
+            if(!readSomething)
+            {
+                this.Value = default;
+            }
+        }
+
+        public override DataReader<TChild> ExtendedBy<TChild>()
+        {
+            var reader = new DtoExtendsReader<T, TChild>(this.RowReader, this.End)
+            {
+                ParentReader = this
+            };
+
+            this.InstanceDto = reader.InstanceDto;
+            this.RowReader.ColumnsReaders.AddLast(reader);
+
+            return reader;
+        }
+
+        public override DataReader<T> Distinct()
+        {
+            var reader = new DtoDistinctReader<T>(this.RowReader, this.Start)
+            {
+                SourceReader = this
+            };
+
+            this.RowReader.ColumnsReaders.AddLast(reader);
+
+            return reader;
         }
     }
 }

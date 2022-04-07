@@ -5,7 +5,8 @@ namespace Faaast.Orm.Reader
 {
     public class BaseRowReader
     {
-        internal BaseCommand Source;
+        public BaseCommand Source { get; private set; }
+
         internal DbDataReader Reader;
         internal int FieldsCount;
         internal bool HasRows;
@@ -52,37 +53,61 @@ namespace Faaast.Orm.Reader
             return reader;
         }
 
-    public DataReader<Dictionary<string, object>> AddDictionaryReader(int? columnsCount = null)
-    {
-        var last = this.ColumnsReaders.Last?.Value.End ?? 0;
-        var reader = new DictionaryReader
+
+        //public DataReader<T> AddValue<T>() where T : struct
+        //{
+        //    var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+        //    var reader = new SingleValueReader<T>()
+        //    {
+        //        RowReader = this,
+        //        Start = last,
+        //        End = last + 1
+        //    };
+
+        //    this.ColumnsReaders.AddLast(reader);
+        //    return reader;
+        //}
+
+        //public DataReader<T> AddReader<T>() where T : new()
+        //{
+        //    var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+        //    var reader = (DataReader<T>)new DtoReader<T>(this, last);
+        //    this.ColumnsReaders.AddLast(reader);
+        //    return reader;
+        //}
+
+        public DataReader<Dictionary<string, object>> AddDictionaryReader(int? columnsCount = null)
         {
-            RowReader = this,
-            Start = last,
-            End = columnsCount.HasValue ? last + columnsCount.Value : this.FieldsCount
-        };
-        this.ColumnsReaders.AddLast(reader);
-        return reader;
-    }
-
-    protected bool FillBuffer(bool hasRead)
-    {
-        if (hasRead)
-        {
-            for (var i = 0; i < this.FieldsCount; i++)
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+            var reader = new DictionaryReader
             {
-                this.Buffer[i] = this.Reader[i];
-            }
+                RowReader = this,
+                Start = last,
+                End = columnsCount.HasValue ? last + columnsCount.Value : this.FieldsCount
+            };
 
-            foreach (var reader in this.ColumnsReaders)
-            {
-                reader.Read();
-            }
-
-            return true;
+            this.ColumnsReaders.AddLast(reader);
+            return reader;
         }
 
-        return false;
+        protected bool FillBuffer(bool hasRead)
+        {
+            if (hasRead)
+            {
+                for (var i = 0; i < this.FieldsCount; i++)
+                {
+                    this.Buffer[i] = this.Reader[i];
+                }
+
+                foreach (var reader in this.ColumnsReaders)
+                {
+                    reader.Read();
+                }
+
+                return true;
+            }
+
+            return false;
+        }
     }
-}
 }

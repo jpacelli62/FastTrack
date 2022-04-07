@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Reflection;
 using Faaast.Orm.Mapping;
 using Faaast.Orm.Model;
 
@@ -21,6 +22,21 @@ namespace Faaast.Orm
             };
         }
 
+        public Column Map(Column column, MemberExpression exp)
+        {
+            var mappings = this.Table.ColumnMappings ?? new List<ColumnMapping>();
+            mappings.Add(new ColumnMapping
+            {
+                Member = exp.Member,
+                Column = column
+            });
+            this.Table.ColumnMappings = mappings;
+            this.Table.Table.Columns.Add(column);
+            return column;
+        }
+
+        public Column Map(string columnName, MemberExpression exp) => this.Map(new Column(columnName), exp);
+
         public void ToTable(string name, string schema = null)
         {
             this.Table.Table.Name = name;
@@ -40,16 +56,20 @@ namespace Faaast.Orm
 
         public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member, Column column)
         {
+            var exp = this.GetExpression(member);
+            return this.Map(column, exp);
+        }
+
+        public Column Map<TProperty>(Expression<Func<TClass, TProperty>> member)
+        {
+            var exp = this.GetExpression(member);
+            return this.Map(exp.Member.Name, exp);
+        }
+
+        private MemberExpression GetExpression<TProperty>(Expression<Func<TClass, TProperty>> member)
+        {
             var exp = member.Body as MemberExpression ?? throw new ArgumentException("Must be a MemberExpression", nameof(member));
-            var mappings = this.Table.ColumnMappings ?? new List<ColumnMapping>();
-            mappings.Add(new ColumnMapping
-            {
-                Member = exp.Member,
-                Column = column
-            });
-            this.Table.ColumnMappings = mappings;
-            this.Table.Table.Columns.Add(column);
-            return column;
+            return exp;
         }
     }
 }

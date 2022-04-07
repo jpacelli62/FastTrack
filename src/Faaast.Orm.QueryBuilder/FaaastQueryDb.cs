@@ -12,11 +12,7 @@ namespace Faaast.Orm
         {
         }
 
-        public FaaastQuery<TClass> From<TClass>(string alias = null) => this.Sql.From<TClass>(alias);
-
-        public FaaastQuery Sql => new FaaastQuery(this);
-
-        public virtual CompiledQuery Compile(FaaastQuery query) => this.Compile(query.Query);
+        public Query Sql => new FaaastQuery(this);
 
         public virtual CompiledQuery Compile(Query query)
         {

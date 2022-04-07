@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using Faaast.Orm.Converters;
 
 namespace Faaast.Orm.Model
@@ -50,6 +52,12 @@ namespace Faaast.Orm.Model
             column.Set(DbMeta.ReferenceColumn, key);
             return column;
         }
+
+        [Obsolete("Not yet implemented")]
+        public static Column References<T>(this Column column, Expression<Func<T, object>> p) =>
+            // TODO
+            column;
+
 
         public static Column[] PrimaryKeyColumns(this Table table)
         {

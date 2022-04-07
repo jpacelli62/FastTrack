@@ -9,7 +9,8 @@ namespace Faaast.Metadata
         {
         }
 
-        public Func<object> Lambda{ get; set; }
+        public Func<object> Lambda { get; set; }
+
         public override object CreateInstance() => this.Lambda();
     }
 }

@@ -47,8 +47,8 @@ namespace Faaast.Orm.Reader
             [typeof(object)] = DbType.Object
         };
 
-        public static DbType ToDbType(this Type type) => TypeMap.ContainsKey(type) ? 
-            TypeMap[type] : 
+        public static DbType ToDbType(this Type type) => TypeMap.ContainsKey(type) ?
+            TypeMap[type] :
             throw new ArgumentException($"Type \"{type.Name}\" cannot be converted to System.Data.DbType");
 
         public static string Sanitize(this string name)
