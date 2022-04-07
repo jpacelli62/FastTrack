@@ -110,39 +110,5 @@ namespace Faaast.Tests.Authentication.ServerTests
             var uri = OAuth2Server.Core.OAuthMiddleware.BuildUri("https", "mycompany.com", 44310, "/", "");
             Assert.Equal("https://mycompany.com:44310/", uri);
         }
-
-        [Fact]
-        public void Test_exception_serialization()
-        {
-            var ex = new RequestException("param", "get");
-            using var stream = new MemoryStream();
-#pragma warning disable SYSLIB0011 // Le type ou le membre est obsolète
-            new BinaryFormatter().Serialize(stream, ex);
-            stream.Flush();
-            stream.Seek(0, SeekOrigin.Begin);
-
-            var myBinaryFormatter = new BinaryFormatter
-            {
-                Binder = new RequestExceptionBinder()
-            };
-
-            var exClone = (RequestException)myBinaryFormatter.Deserialize(stream);
-#pragma warning restore SYSLIB0011 // Le type ou le membre est obsolète
-            Assert.Equal(ex.ParameterName, exClone.ParameterName);
-            Assert.Equal(ex.ExpectedMethod, exClone.ExpectedMethod);
-        }
-
-        private class RequestExceptionBinder : SerializationBinder
-        {
-            public override Type BindToType(string assemblyName, string typeName)
-            {
-                if (typeName != "Faaast.OAuth2Server.Core.RequestException")
-                {
-                    throw new SerializationException("Only RequestException is allowed"); // Compliant
-                }
-
-                return typeof(RequestException);
-            }
-        }
     }
 }

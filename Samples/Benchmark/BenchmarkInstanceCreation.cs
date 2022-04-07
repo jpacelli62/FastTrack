@@ -24,8 +24,8 @@ namespace Benchmark
             IObjectMapper lambdaMapper = new DefaultObjectMapper();
             this.LambdaDto = lambdaMapper.Get(typeof(Customer));
 
-            IObjectMapper emitMapper = new EmitObjectMapper();
-            this.EmitDto = emitMapper.Get(typeof(Customer));
+            //IObjectMapper emitMapper = new EmitObjectMapper();
+            //this.EmitDto = emitMapper.Get(typeof(Customer));
         }
 
         [Benchmark]
@@ -37,8 +37,8 @@ namespace Benchmark
         [Benchmark(Description = "DefaultObjectMapper from Faaast.Metadata", Baseline = true)]
         public void IObjectMapper() => _current = this.LambdaDto.CreateInstance();
 
-        [Benchmark(Description = "EmitObjectMapper from Faaast.Metadata")]
-        public void IObjectMapperDirect() => _current = this.EmitDto.CreateInstance();
+        //[Benchmark(Description = "EmitObjectMapper from Faaast.Metadata")]
+        //public void IObjectMapperDirect() => _current = this.EmitDto.CreateInstance();
 
         [Benchmark(Description = "Direct call to the constructor")]
         public void New() => _current = new Customer();

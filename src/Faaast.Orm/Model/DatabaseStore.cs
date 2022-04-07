@@ -14,7 +14,7 @@ namespace Faaast.Orm.Model
                 this.Databases.TryGetValue(name, out var db);
                 return db;
             }
-            set => this.Databases.AddOrUpdate(name, value, (a, b) => value);
+            set => this.Databases.TryAdd(name, value);
         }
     }
 }

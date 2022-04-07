@@ -18,7 +18,6 @@ namespace Faaast.SeoRouter
 
         public IReadOnlyCollection<RoutingRule> Rules => _allRules.ToArray();
 
-
         public void Add(RoutingRule rule)
         {
             _syncLock.AcquireWriterLock(5000);
@@ -121,7 +120,9 @@ namespace Faaast.SeoRouter
                 _indexByControllerAction.TryGetValue(controller.ToString(), out var actions) &&
                 actions.TryGetValue(action.ToString(), out var rules))
             {
+#pragma warning disable S3267 // loop should be simplified with Linq
                 foreach (var rule in rules)
+#pragma warning restore S3267// loop should be simplified with Linq
                 {
                     if (rule.MatchConstraints(values, RouteDirection.UrlGeneration))
                     {

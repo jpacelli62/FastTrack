@@ -1,7 +1,7 @@
 ﻿using System;
 using Faaast.Metadata;
 
-namespace Benchmark
+namespace Faaast.Metadata
 {
     public class LambdaDto : DtoClass
     {
@@ -9,7 +9,8 @@ namespace Benchmark
         {
         }
 
-        public Func<object> Lambda{ get; set; }
+        public Func<object> Lambda { get; set; }
+
         public override object CreateInstance() => this.Lambda();
     }
 }

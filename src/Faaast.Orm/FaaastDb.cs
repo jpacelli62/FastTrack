@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
 using Faaast.Orm.Model;
+using Faaast.Orm.Reader;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.Orm
@@ -14,42 +16,40 @@ namespace Faaast.Orm
 
         internal virtual IDatabaseStore DbStore { get; set; }
 
+        internal virtual IDatabase Database{ get; set; }
+
+        internal virtual IServiceProvider Services { get; set; }
+
         public virtual Lazy<DatabaseMapping> Mappings { get; }
 
         public abstract ConnectionSettings Connection { get; }
-
-        public virtual DbConnection CreateConnection()
-        {
-            var connection = this.Connection.Engine.Create();
-            connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
-            return connection;
-        }
 
         private FaaastDb()
         {
         }
 
-        protected abstract IEnumerable<SimpleTypeMapping> GetMappings();
+        protected abstract IEnumerable<SimpleTypeMapping> LoadMappings();
 
         protected FaaastDb(IServiceProvider services) : this()
         {
             this.Mapper = services.GetRequiredService<IObjectMapper>();
             this.DbStore = services.GetRequiredService<IDatabaseStore>();
             this.Mappings = new Lazy<DatabaseMapping>(this.InitMapping, true);
+            this.Services = services;
         }
 
         protected DatabaseMapping InitMapping()
         {
             if (this.Connection != null)
             {
-                var database = this.DbStore[this.Connection.Name];
-                if (database == null)
+                this.Database = this.DbStore[this.Connection.Name];
+                if (this.Database == null)
                 {
-                    database = Initialize(this.Connection, this.Mapper, this.GetMappings());
-                    this.DbStore[this.Connection.Name] = database;
+                    this.Database = Initialize(this.Connection, this.Mapper, this.LoadMappings());
+                    this.DbStore[this.Connection.Name] = this.Database;
                 }
 
-                return database.Get(Meta.Mapping);
+                return this.Database.Get(Meta.Mapping);
             }
 
             throw new ArgumentException(nameof(this.Connection));
@@ -81,8 +81,53 @@ namespace Faaast.Orm
             };
 
             db.Set(Meta.Mapping, dbMap);
-            db.Set(Meta.Readers, new System.Collections.Concurrent.ConcurrentDictionary<Type, Reader.ObjectReader>());
             return db;
+        }
+
+        public virtual FaaastCommand CreateCommand(string sql, object parameters = null, DbConnection dbConnection = null)
+        {
+            var connection = dbConnection;
+            var handleConnection = dbConnection == null;
+            if (handleConnection)
+            {
+                connection = this.Connection.Engine.Create();
+                connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
+                connection.Open();
+            }
+
+            var command = new FaaastCommand(this, connection, sql, parameters)
+            {
+                AutoClose = handleConnection
+            };
+
+            return command;
+        }
+
+        public virtual async Task<AsyncFaaastCommand> CreateCommandAsync(string sql, object parameters = null, DbConnection dbConnection = null)
+        {
+            var connection = dbConnection;
+            var handleConnection = dbConnection == null;
+            if (handleConnection)
+            {
+                connection = this.Connection.Engine.Create();
+                connection.ConnectionString = this.Connection.ConnectionString(this.Connection);
+                await connection.OpenAsync();
+            }
+
+            var command = new AsyncFaaastCommand(this, connection, sql, parameters)
+            {
+                AutoClose = handleConnection
+            };
+
+            return command;
+        }
+
+        public TableMapping Mapping<TClass>() => this.Mapping(typeof(TClass));
+
+        public TableMapping Mapping(Type type)
+        {
+            var mapping = this.Mappings.Value;
+            return mapping.TypeToMapping.TryGetValue(type, out var found) ? found : null;
         }
     }
 }

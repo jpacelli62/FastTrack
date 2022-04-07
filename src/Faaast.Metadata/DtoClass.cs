@@ -12,6 +12,8 @@ namespace Faaast.Metadata
 
         public Dictionary<string, IDtoProperty> Properties { get; set; }
 
+        public int PropertiesCount => this.Properties.Count;
+
         public abstract object CreateInstance();
 
         public virtual IDtoProperty this[string propertyName]

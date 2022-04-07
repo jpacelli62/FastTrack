@@ -1,99 +1,92 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using Faaast.Orm;
+using Faaast.Orm.Converters;
 using Faaast.Orm.Mapping;
-using Faaast.Orm.Reader;
+using Faaast.Orm.Model;
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {
-        public static TableMapping Mapping<TClass>(this FaaastQueryDb db)
+        private static object ConvertValue<T>(FaaastQueryDb db, T record, TableMapping mapping, Column column)
         {
-            var mapping = db.Mappings.Value;
-            return mapping.TypeToMapping[typeof(TClass)];
+            var property = mapping.ColumnToProperty[column];
+            var value = property.Read(record);
+
+            var converterType = column.Get(DbMeta.Converter);
+            if (converterType != null)
+            {
+                var converter = (IValueConverter)db.Services.GetRequiredService(converterType);
+                value = converter.ToDb(value, property.Type);
+            }
+
+            return value;
         }
 
-        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<ICollection<T>> GetAllAsync<T>(this FaaastQueryDb db)
         {
             var mapping = db.Mapping<T>();
-            var pk = mapping.Table.PrimaryKeyColumns();
-            var where = new Dictionary<string, object>();
-            foreach (var column in pk)
-            {
-                where.Add(column.Name, mapping.ColumnToProperty[column].Read(record));
-            }
-
-            var query = db.From<T>().Where(where).AsDelete();
-            var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
-            return await ExecuteAsync(cmd);
+            var sql = new FaaastQuery(db, mapping.Table.Name);
+            sql.Select(mapping.Table.Columns.Select(x => x.Name).ToArray());
+            return await sql.ToListAsync<T>();
         }
 
-        private static async Task<int> ExecuteAsync(FaaastCommand cmd)
+        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record)
         {
-            int result = default;
-            Exception reThrow = null;
-            try
-            {
-                result = await cmd.ExecuteAsync();
-            }
-            catch (Exception ex)
-            {
-                reThrow = ex;
-            }
-            finally
-            {
-                if (cmd.HandleConnection)
-                    await cmd.Connection.TryCloseAsync(cmd.CancellationToken);
+            var mapping = db.Mapping<T>();
+            var sql = new FaaastQuery(db, mapping.Table.Name);
 
+            var pk = mapping.Table.PrimaryKeyColumns();
+            foreach (var column in pk)
+            {
+                var value = ConvertValue(db, record, mapping, column);
+                sql.Where(column.Name, value);
             }
+            sql.AsDelete();
 
-            if (reThrow != null)
-                throw reThrow;
-
+            using var command = await sql.CreateCommandAsync();
+            var result = await command.ExecuteNonQueryAsync();
             return result;
         }
 
-        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
-
+        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record)
         {
             var mapping = db.Mapping<T>();
-            var where = new Dictionary<string, object>();
+            var sql = new FaaastQuery(db, mapping.Table.Name);
+
             var update = new Dictionary<string, object>();
             foreach (var column in mapping.ColumnMappings)
             {
+                var value = ConvertValue(db, record, mapping, column.Column);
                 if (column.Column.PrimaryKey)
                 {
-                    where.Add(column.Column.Name, column.Property.Read(record));
+                    sql.Where(column.Column.Name, value);
                 }
                 else
                 {
                     if (!column.Column.Identity)
                     {
-                        update.Add(column.Column.Name, column.Property.Read(record));
+                        update.Add(column.Column.Name, value);
                     }
                 }
             }
+            sql.AsUpdate(update);
 
-            var query = db.From<T>().Where(where).AsUpdate(update);
-            var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
-            return await ExecuteAsync(cmd);
+            using var command = await sql.CreateCommandAsync();
+            var result = await command.ExecuteNonQueryAsync();
+            return result;
         }
 
-        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, FaaastCommand? command = null)
+        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record)
         {
             var mapping = db.Mapping<T>();
+            var sql = new FaaastQuery(db, mapping.Table.Name);
+
             var insert = new Dictionary<string, object>();
             ColumnMapping identityColumn = null;
-
             foreach (var column in mapping.ColumnMappings)
             {
                 if (column.Column.Identity)
@@ -102,44 +95,28 @@ namespace Faaast.Orm
                 }
                 else if (!column.Column.Computed)
                 {
-                    insert.Add(column.Column.Name, column.Property.Read(record));
+                    var value = ConvertValue(db, record, mapping, column.Column);
+                    insert.Add(column.Column.Name, value);
                 }
             }
 
-            var query = db.From<T>().AsInsert(insert, identityColumn != null);
-            var compiledQuery = db.Compile(query);
-            var cmd = command ?? db.Query(null);
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = compiledQuery.Sql;
-            cmd.Parameters = compiledQuery.Parameters;
+            sql.AsInsert(insert, identityColumn != null);
 
             if (identityColumn == null)
             {
-                return await ExecuteAsync(cmd);
+                using var command = await sql.CreateCommandAsync();
+                return await command.ExecuteNonQueryAsync();
             }
             else
             {
-                if (cmd.HandleConnection)
+                var value = sql.FirstOrDefault<object>();
+                var converterType = identityColumn.Column.Get(DbMeta.Converter);
+                if (converterType != null)
                 {
-                    cmd.Connection.Open();
+                    var converter = (IValueConverter)db.Services.GetRequiredService(converterType);
+                    value = converter.FromDb(value, identityColumn.Property.Type);
                 }
-
-                using (IDbCommand dbCommand = await command.Value.PrepareAsync())
-                {
-                    var dbReader = dbCommand.ExecuteReader(cmd.CommandBehavior);
-                    if(dbReader.Read())
-                    {
-                        object id = dbReader.GetValue(0);
-                        var convertedId = Convert.ChangeType(id, identityColumn.Property.Type);
-                        identityColumn.Property.Write(record, convertedId);
-                    }
-                }
-
-                if (cmd.HandleConnection)
-                {
-                    cmd.Connection.Close();
-                    cmd.Connection.Dispose();
-                }
+                identityColumn.Property.Write(record, value);
             }
 
             return 1;

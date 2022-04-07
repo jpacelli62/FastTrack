@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ClassDiagram MajorVersion="1" MinorVersion="1">
   <Class Name="Faaast.Orm.Model.Column">
-    <Position X="7.5" Y="7" Width="1.5" />
+    <Position X="7.5" Y="7.75" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAQAAAAAAAAAAAQAAAAAAAAAAEAAAAAAgAA=</HashCode>
       <FileName>Model\Column.cs</FileName>
@@ -18,19 +18,20 @@
     </ShowAsAssociation>
   </Class>
   <Class Name="Faaast.Orm.Model.Database" BaseTypeListCollapsed="true">
-    <Position X="9.75" Y="3.75" Width="1.5" />
+    <Position X="10.25" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAACAAAAAAAAAAAA=</HashCode>
       <FileName>Model\Database.cs</FileName>
     </TypeIdentifier>
-    <Lollipop Position="0.15" Collapsed="true" />
+    <Lollipop Position="0.15" />
   </Class>
   <Class Name="Faaast.Orm.Model.DatabaseStore" BaseTypeListCollapsed="true">
-    <Position X="9.75" Y="2" Width="1.5" />
+    <Position X="4.75" Y="2" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAEAAAAAACAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
       <FileName>Model\DatabaseStore.cs</FileName>
     </TypeIdentifier>
+    <Lollipop Position="0.2" />
   </Class>
   <Class Name="Faaast.Orm.Model.SqlEngine">
     <Position X="2.5" Y="3.5" Width="1.5" />
@@ -40,13 +41,38 @@
     </TypeIdentifier>
   </Class>
   <Class Name="Faaast.Orm.Model.Table">
-    <Position X="7.5" Y="5.25" Width="1.5" />
+    <Position X="7.5" Y="5" Width="1.5" />
     <TypeIdentifier>
       <HashCode>AAAAAAAAAAAAAAAAAAAAAAQEAAAAAAAAAAAAAAgAAAA=</HashCode>
       <FileName>Model\Table.cs</FileName>
     </TypeIdentifier>
     <ShowAsCollectionAssociation>
       <Property Name="Columns" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Faaast.Orm.Mapping.ColumnMapping">
+    <Position X="10.25" Y="7.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAIAAAAAAAAAQAAAAA=</HashCode>
+      <FileName>Mapping\ColumnMapping.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Column" />
+      <Property Name="Property" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Faaast.Orm.Mapping.TableMapping">
+    <Position X="10.25" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAAAAAAAgRAAAAAAAQAAAACACAAAAAAA=</HashCode>
+      <FileName>Mapping\TableMapping.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="ObjectClass" />
+      <Property Name="Table" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="ColumnMappings" />
     </ShowAsCollectionAssociation>
   </Class>
   <Interface Name="Faaast.Orm.Model.IDatabase">
@@ -76,6 +102,14 @@
     <ShowAsAssociation>
       <Property Name="this[System.String]" />
     </ShowAsAssociation>
+  </Interface>
+  <Interface Name="Faaast.Metadata.IDtoProperty">
+    <Position X="13" Y="7.75" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Interface Name="Faaast.Metadata.IDtoClass">
+    <Position X="13" Y="5" Width="1.5" />
+    <TypeIdentifier />
   </Interface>
   <Font Name="Segoe UI" Size="9" />
 </ClassDiagram>

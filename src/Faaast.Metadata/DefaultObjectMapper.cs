@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using Benchmark;
 
 namespace Faaast.Metadata
 {
@@ -31,6 +30,8 @@ namespace Faaast.Metadata
             }
         }
 
+        internal static bool IsNullableType(Type type) => Nullable.GetUnderlyingType(type) != null || type.IsClass || type.IsInterface;
+
         public static IDtoClass Build(Type type)
         {
             var result = new LambdaDto(type);
@@ -39,8 +40,10 @@ namespace Faaast.Metadata
 
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
-                var newProp = new DtoProperty(property.Name, property.PropertyType);
-                if (property.CanRead && (property.GetGetMethod()?.IsPrivate == false))
+                var propertyType = property.PropertyType;
+                var newProp = new DtoProperty(property.Name, propertyType);
+                var get = property.GetGetMethod();
+                if (property.CanRead && get != null && !get.IsPrivate)
                 {
                     newProp.ReadFunc = GenerateGetter(type, property);
                     newProp.CanRead = true;
@@ -50,7 +53,8 @@ namespace Faaast.Metadata
                     newProp.ReadFunc = x => throw new InvalidOperationException();
                 }
 
-                if (property.CanWrite && (property.GetSetMethod()?.IsPrivate == false))
+                var set = property.GetSetMethod();
+                if (property.CanWrite && set != null && !set.IsPrivate)
                 {
                     newProp.WriteFunc = GenerateSetter(type, property);
                     newProp.CanWrite = true;
@@ -59,7 +63,7 @@ namespace Faaast.Metadata
                 {
                     newProp.WriteFunc = (x,y) => throw new InvalidOperationException();
                 }
-
+                newProp.Nullable = IsNullableType(propertyType);
                 result[property.Name] = newProp;
             }
 
