@@ -6,6 +6,8 @@ namespace Faaast.Orm.Reader
     {
         public T Value { get; set; }
 
+        public override object RawValue { get => this.Value; set => this.Value = (T)value; }
+
         public virtual DataReader<T> Distinct()
         {
             throw new NotImplementedException("Only available while reading DTO classes");
@@ -26,5 +28,7 @@ namespace Faaast.Orm.Reader
         public virtual int End { get; set; }
 
         public abstract void Read();
+
+        public virtual object RawValue { get; set; }
     }
 }

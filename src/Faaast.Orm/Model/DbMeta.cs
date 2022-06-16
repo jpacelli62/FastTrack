@@ -1,5 +1,6 @@
 ﻿using System;
 using Faaast.Metadata;
+using Faaast.Orm.Converters;
 
 namespace Faaast.Orm.Model
 {
@@ -12,6 +13,7 @@ namespace Faaast.Orm.Model
         public static readonly Metadata<Column, bool?> Nullable = new(nameof(Nullable));
         public static readonly Metadata<Column, int?> Length = new(nameof(Length));
         public static readonly Metadata<Column, Type> Converter = new(nameof(Converter));
+        public static readonly Metadata<Column, IValueConverter> ConverterInstance = new(nameof(ConverterInstance));
         public static readonly Metadata<Table, Column[]> PrimaryKeyColumns = new(nameof(PrimaryKeyColumns));
     }
 }

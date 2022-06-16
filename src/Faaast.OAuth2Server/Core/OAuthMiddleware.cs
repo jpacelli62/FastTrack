@@ -66,6 +66,7 @@ namespace Faaast.OAuth2Server.Core
                     {
                         if (!string.IsNullOrEmpty(result.Result))
                         {
+                            request.HttpContext.Response.ContentType = "application/json";
                             await request.HttpContext.Response.WriteAsync(result.Result);
                         }
                     }

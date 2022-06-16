@@ -13,6 +13,6 @@ namespace Faaast.SeoRouter
 
         Task HandleAsync(RouteContext context, RoutingRule rule);
 
-        Task HandleRedirectAsync(RouteContext context, RoutingRule rule, VirtualPathData virtualPath);
+        Task HandleRedirectAsync(RouteContext context, VirtualPathData virtualPath, bool permanent);
     }
 }

@@ -57,6 +57,11 @@ namespace Faaast.Orm.Reader
                 this.Command.Dispose();
             }
 
+            if (this.AutoClose)
+            {
+                this.Connection.Close();
+            }
+
             disposed = true;
         }
     }

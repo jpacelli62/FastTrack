@@ -5,6 +5,7 @@ using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -66,7 +67,7 @@ namespace Faaast.OAuth2Server.Core.Flows
 
             var code = CodeGenerator.GenerateRandomNumber(32);
             var uri = new Uri(redirectUri);
-            var query = string.Format("?code={0}&state={1}", code, context.Read(Parameters.State));
+            var query = string.Format("?code={0}&state={1}", code, System.Web.HttpUtility.UrlEncode(context.Read(Parameters.State)));
             var callBackUri = new UriBuilder(uri.Scheme, uri.Host, uri.Port, uri.LocalPath, query);
 
             var properties = new AuthenticationProperties

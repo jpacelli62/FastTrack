@@ -143,11 +143,19 @@ namespace Faaast.Tests.Routing
         }
 
         [Fact]
-        public void TestGenerateDynamicUrlWithOptionalParameters()
+        public void TestGenerateDynamicUrlWithMissingParameters()
         {
             var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "{name}_p{id}", new MvcAction("Portal", "Details", null, "id=^[0-9]+"));
             var path = route.GetVirtualPath(this.Router, new RouteValueDictionary(), new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" }));
-            Assert.Equal("/name_p123?slug=blah", path.VirtualPath);
+            Assert.Null(path);
+        }
+
+        [Fact]
+        public void TestGenerateDynamicUrlWithOptionalParameters()
+        {
+            var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "p{id}.{ext?}", new MvcAction("Portal", "Details", null, "id=^[0-9]+"));
+            var path = route.GetVirtualPath(this.Router, new RouteValueDictionary(), new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" }));
+            Assert.Equal("/p123?slug=blah", path.VirtualPath);
         }
 
         [Fact]

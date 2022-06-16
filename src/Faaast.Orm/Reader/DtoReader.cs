@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using Faaast.Metadata;
 using Faaast.Orm.Converters;
 using Faaast.Orm.Model;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Faaast.Orm.Reader
 {
@@ -19,14 +18,11 @@ namespace Faaast.Orm.Reader
             public IValueConverter Converter;
         }
 
-        private static ConcurrentDictionary<Type, IValueConverter> Converters { get; } = new();
-
         internal List<ColumnMatch> ColumnsToRead { get; set; }
 
         public IDtoClass MembersDto { get; set; }
 
         public IDtoClass InstanceDto { get; set; }
-
 
         protected bool HasKey { get; set; }
 
@@ -47,6 +43,7 @@ namespace Faaast.Orm.Reader
                 this.MembersDto = source.Source.Db.Mapper.Get(type);
                 this.PrepareDirectMapping();
             }
+
             this.InstanceDto = this.MembersDto;
         }
 
@@ -102,21 +99,24 @@ namespace Faaast.Orm.Reader
                     if (string.Equals(columnMapping.Column.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
                         var converterType = columnMapping.Column.Get(DbMeta.Converter);
-                        IValueConverter converter = null;
-                        if (converterType != null)
+                        var converterInstance = columnMapping.Column.Get(DbMeta.ConverterInstance);
+
+                        if (converterInstance is null && converterType != null)
                         {
-                            converter = Converters.GetOrAdd(converterType, type => (IValueConverter)Activator.CreateInstance(converterType));
+                            converterInstance = (IValueConverter)Activator.CreateInstance(converterType);
+                            columnMapping.Column.Set(DbMeta.ConverterInstance, converterInstance);
                         }
+
                         this.ColumnsToRead.Add(new ColumnMatch
                         {
                             Index = i,
                             Property = columnMapping.Property,
                             Nullable = columnMapping.Column.Get(DbMeta.Nullable) ?? columnMapping.Property.Nullable,
-                            Converter = converter,
+                            Converter = converterInstance,
                             IsKey = columnMapping.Column.PrimaryKey
                         });
                         found = true;
-                        HasKey |= columnMapping.Column.PrimaryKey;
+                        this.HasKey |= columnMapping.Column.PrimaryKey;
                         this.End = i + 1;
                         break;
                     }
@@ -137,15 +137,12 @@ namespace Faaast.Orm.Reader
             }
         }
 
-        protected virtual void CreateInstance()
-        {
-            this.Value = (T)this.InstanceDto.CreateInstance();
-        }
+        protected virtual void CreateInstance() => this.Value = (T)this.InstanceDto.CreateInstance();
 
         public override void Read()
         {
             this.CreateInstance();
-            bool readSomething = false;
+            var readSomething = false;
             foreach (var property in this.ColumnsToRead)
             {
                 if (property.Property.CanWrite)
@@ -166,6 +163,7 @@ namespace Faaast.Orm.Reader
                     }
                 }
             }
+
             if(!readSomething)
             {
                 this.Value = default;

@@ -3,4 +3,3 @@
 [assembly: InternalsVisibleTo("Faaast.Orm.QueryBuilder")]
 [assembly: InternalsVisibleTo("OldFaaastOrm")]
 
-

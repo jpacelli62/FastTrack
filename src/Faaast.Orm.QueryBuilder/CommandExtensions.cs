@@ -21,7 +21,7 @@ namespace Faaast.Orm
             return q.Db.CreateCommand(compiledQuery.Sql, compiledQuery.Parameters, dbConnection);
         }
 
-        public static void ExecuteReader(this FaaastQuery query, Action<FaaastRowReader> stuff, DbConnection dbConnection = null)
+        public static void ExecuteReader(this Query query, Action<FaaastRowReader> stuff, DbConnection dbConnection = null)
         {
             using var command = CreateCommand(query, dbConnection);
             ExecuteReader(command, stuff);
@@ -53,7 +53,6 @@ namespace Faaast.Orm
 
             return result;
         }
-
 
         public static T FirstOrDefault<T>(this Query query, DbConnection dbConnection = null)
         {

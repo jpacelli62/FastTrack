@@ -54,12 +54,36 @@ namespace Faaast.SeoRouter
                 this.Target = new MvcAction();
             }
 
-            var vpdConstraints = new Dictionary<string, object>();
+            var vpdConstraints = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             var targetConstraints = this.Target.Value.Constraints.GetQueryDictionnary();
             var targetValues = this.Target.ToRouteValueDictionary();
 
             var template = this.Url;
-            var index = template.IndexOf('?');
+            var level = 0;
+            var index = -1;
+            for (var i = 0; i < template.Length; i++)
+            {
+                switch (template[i])
+                {
+                    case '{':
+                        level++;
+                        break;
+                    case '}':
+                        level--;
+                        break;
+                    case '?':
+                        if (level == 0)
+                        {
+                            index = i;
+                        }
+                        break;
+                };
+                if (index != -1)
+                {
+                    break;
+                }
+            }
+
             if (index > -1)
             {
                 var querystring = template.Substring(index + 1).GetQueryDictionnary();
@@ -178,13 +202,17 @@ namespace Faaast.SeoRouter
             {
                 foreach (var parameter in _routeTemplate.Parameters)
                 {
-                    if (!values.ContainsKey(parameter.Name))
+                    if (!values.ContainsKey(parameter.Name) && !parameter.IsOptional)
                     {
-                        values[parameter.Name] = parameter.Name;
+                        //values[parameter.Name] = parameter.Name;
 
                         if (ambiantValues.TryGetValue(parameter.Name, out var ambiant))
                         {
                             values[parameter.Name] = ambiant;
+                        }
+                        else
+                        {
+                            return null;
                         }
                     }
                 }

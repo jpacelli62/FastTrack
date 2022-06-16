@@ -6,7 +6,7 @@ namespace Faaast.Orm
 {
     public abstract class FaaastQueryDb : FaaastDb
     {
-        protected abstract Compiler Compiler { get; }
+        public abstract Compiler Compiler { get; }
 
         protected FaaastQueryDb(IServiceProvider services) : base(services)
         {

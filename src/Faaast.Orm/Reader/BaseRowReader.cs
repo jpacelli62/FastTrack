@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data.Common;
 
 namespace Faaast.Orm.Reader
@@ -53,6 +54,26 @@ namespace Faaast.Orm.Reader
             return reader;
         }
 
+        public DataReader AddReader(Type type)
+        {
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+            var isValueType = type.IsValueType;
+            DataReader reader;
+            if (isValueType)
+            {
+                reader = (DataReader)Activator.CreateInstance(typeof(SingleValueReader<>).MakeGenericType(type));
+                reader.RowReader = this;
+                reader.Start = last;
+                reader.End = last + 1;
+            } 
+            else
+            {
+                reader = (DataReader)Activator.CreateInstance(typeof(DtoReader<>).MakeGenericType(type), this, last);
+            }
+
+            this.ColumnsReaders.AddLast(reader);
+            return reader;
+        }
 
         //public DataReader<T> AddValue<T>() where T : struct
         //{

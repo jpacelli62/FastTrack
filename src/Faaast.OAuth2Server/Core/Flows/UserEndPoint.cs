@@ -33,7 +33,7 @@ namespace Faaast.OAuth2Server.Core.Flows
             var client = await clientProvider.GetClientAsync(clientId);
             if (client != null && client.IsAllowedFlow(nameof(UserEndpoint), context))
             {
-                string token = context.Require(Parameters.AccessToken);
+                var token = context.Require(Parameters.AccessToken);
                 var validationParams = this.BuildValidationParameters(client, context);
                 var tokenHandler = new JwtSecurityTokenHandler();
                 try
@@ -71,9 +71,11 @@ namespace Faaast.OAuth2Server.Core.Flows
                                 {
                                     writer.WriteStringValue(subItem.Value);
                                 }
+
                                 writer.WriteEndArray();
                             }
                         }
+
                         writer.WriteEndObject();
                     }
 

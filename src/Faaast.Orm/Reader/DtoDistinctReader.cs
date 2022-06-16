@@ -14,7 +14,7 @@ namespace Faaast.Orm.Reader
             this.Cache = new Dictionary<int, T>();
             if (this.HasKey)
             {
-                for (int i = this.ColumnsToRead.Count - 1; i > -1; i--)
+                for (var i = this.ColumnsToRead.Count - 1; i > -1; i--)
                 {
                     if (!this.ColumnsToRead[i].IsKey)
                     {

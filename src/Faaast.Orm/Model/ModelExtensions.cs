@@ -58,7 +58,6 @@ namespace Faaast.Orm.Model
             // TODO
             column;
 
-
         public static Column[] PrimaryKeyColumns(this Table table)
         {
             var pk = table.Get(DbMeta.PrimaryKeyColumns);

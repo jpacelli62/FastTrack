@@ -59,6 +59,11 @@ namespace Faaast.Orm.Reader
             if (disposing && this.Command != null)
             {
                 this.Command.Dispose();
+                if (this.AutoClose)
+                {
+                    this.Connection.Close();
+                }
+
                 this.Command = null;
             }
         }
@@ -79,9 +84,16 @@ namespace Faaast.Orm.Reader
 #if NET_5
                 await this.Command.DisposeAsync().ConfigureAwait(false);
                 this.Command = null;
-
+                if (this.AutoClose)
+                {
+                    await this.Connection.CloseAsync().ConfigureAwait(false);
+                }
 #else
                 this.Dispose();
+                if (this.AutoClose)
+                {
+                    this.Connection.Close();
+                }
 #endif
             }
 

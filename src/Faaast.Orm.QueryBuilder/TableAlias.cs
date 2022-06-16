@@ -24,14 +24,14 @@ namespace Faaast.Orm
                         return this[((MemberExpression)body).Member.Name];
                 }
 
-
                 throw new NotImplementedException();
             }
         }
 
         public string this[string property] => this.Mapping.PropertyToColumn.TryGetValue(property, out var column) ?
                     this.FormatPrefix(column.Name) :
-                    null;
+                    throw new ArgumentException($"Property \"{Mapping.ObjectClass.Name}.{property}\" is not mapped to a database column");
+
 
         private string FormatPrefix(string value) => string.IsNullOrWhiteSpace(this.Alias) ? value : string.Concat(this.Alias, '.', value);
 

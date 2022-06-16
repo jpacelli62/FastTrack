@@ -47,6 +47,12 @@ namespace Faaast.SeoRouter
             {
                 if (rule == origin)
                 {
+                    var vpd = GetVirtualPath(new VirtualPathContext(context.HttpContext, context.RouteData.DataTokens, values));
+                    if(vpd != null && !url.NormalizeUrl().Equals(vpd.VirtualPath.NormalizeUrl(), StringComparison.OrdinalIgnoreCase))
+                    {
+                        this.Log.LogTrace("Url \"{0}\" matches route {1} but no match good url \"{2}\", redirecting..", url, origin.DisplayName, vpd.VirtualPath);
+                        return provider.HandleRedirectAsync(context, vpd, true);
+                    }
                     var routers = context.RouteData?.Routers;
                     context.RouteData = new RouteData(values);
                     if(routers != null)
@@ -61,9 +67,10 @@ namespace Faaast.SeoRouter
                 }
                 else
                 {
+                    context.RouteData = new RouteData(values);
                     var vpd = rule.GetVirtualPath(this, context.RouteData.DataTokens, values);
                     this.Log.LogTrace("Url \"{0}\" matches route {1} and is redirected to {2} (\"{3}\")", url, origin.DisplayName, rule.DisplayName, vpd.VirtualPath);
-                    return provider.HandleRedirectAsync(context, rule, vpd);
+                    return provider.HandleRedirectAsync(context, vpd, rule.Handler != HandlerType.RedirectTemporary);
                 }
             }
 

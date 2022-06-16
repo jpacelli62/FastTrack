@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using Faaast.Metadata;
 using Faaast.Orm.Model;
@@ -21,7 +22,7 @@ namespace Faaast.Orm.Mapping
 
         public void Init()
         {
-            var property = new Dictionary<string, Column>();
+            var property = new Dictionary<string, Column>(StringComparer.OrdinalIgnoreCase);
             var columns = new Dictionary<Column, IDtoProperty>();
             if (this.ColumnMappings != null)
             {

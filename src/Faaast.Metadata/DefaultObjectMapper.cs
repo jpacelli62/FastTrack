@@ -63,6 +63,7 @@ namespace Faaast.Metadata
                 {
                     newProp.WriteFunc = (x,y) => throw new InvalidOperationException();
                 }
+
                 newProp.Nullable = IsNullableType(propertyType);
                 result[property.Name] = newProp;
             }
