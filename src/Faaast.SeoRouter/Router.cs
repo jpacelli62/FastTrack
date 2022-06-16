@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,7 +96,7 @@ namespace Faaast.SeoRouter
                     case HandlerType.Auto:
                     case HandlerType.RedirectPermanent:
                     case HandlerType.RedirectTemporary:
-                        return this.GetVirtualPathRuleAsync(values, provider).Result;
+                        return this.GetVirtualPathRuleAsync(new RouteValueDictionary(), values, provider, null).ConfigureAwait(false).GetAwaiter().GetResult();
 
                     case HandlerType.Legacy:
                     case HandlerType.Gone:
@@ -115,21 +116,28 @@ namespace Faaast.SeoRouter
 
         public async Task<VirtualPathData> GetVirtualPathAsync(VirtualPathContext context, IServiceProvider services, object sourceOject = null)
         {
-            var rule = await this.GetVirtualPathRuleAsync(context.Values, services);
-            if (rule != null)
+            var rule = await GetVirtualPathRuleAsync(context.AmbientValues, context.Values, services, sourceOject);
+            if(rule != null)
             {
-                var provider = services.GetRequiredService<IRouteProvider>();
-                await provider.ResolveUrlPartsAsync(rule, context.AmbientValues, context.Values, sourceOject);
                 return rule.GetVirtualPath(this, context.AmbientValues, context.Values);
             }
 
             return null;
         }
 
-        public async Task<RoutingRule> GetVirtualPathRuleAsync(RouteValueDictionary contextValues, IServiceProvider provider)
+        public async Task<RoutingRule> GetVirtualPathRuleAsync(RouteValueDictionary ambiantValues, RouteValueDictionary contextValues, IServiceProvider services, object sourceOject = null)
         {
-            var rules = await this.GetRulesAsync(provider);
-            return rules.FindByRoute(contextValues);
+            var routeProvider = services.GetRequiredService<IRouteProvider>();
+            var rules = await this.GetRulesAsync(services);
+            await foreach (var rule in rules.FindByRouteAsync(contextValues))
+            {
+                if (await routeProvider.ResolveUrlPartsAsync(rule, ambiantValues, contextValues, sourceOject))
+                {
+                    return rule;
+                }
+            }
+
+            return null;
         }
     }
 }

@@ -9,7 +9,7 @@ namespace Faaast.SeoRouter
 
         Task<bool> RefreshNeededAsync(RoutingRules rules);
 
-        Task ResolveUrlPartsAsync(RoutingRule rule, RouteValueDictionary ambiantValues, RouteValueDictionary values, object forRecord = null);
+        Task<bool> ResolveUrlPartsAsync(RoutingRule rule, RouteValueDictionary ambiantValues, RouteValueDictionary values, object forRecord = null);
 
         Task HandleAsync(RouteContext context, RoutingRule rule);
 

@@ -113,7 +113,7 @@ namespace Faaast.SeoRouter
             }
         }
 
-        public RoutingRule FindByRoute(RouteValueDictionary values)
+        public async IAsyncEnumerable<RoutingRule> FindByRouteAsync(RouteValueDictionary values)
         {
             if (values.TryGetValue("controller", out var controller) &&
                 values.TryGetValue("action", out var action) &&
@@ -126,12 +126,10 @@ namespace Faaast.SeoRouter
                 {
                     if (rule.MatchConstraints(values, RouteDirection.UrlGeneration))
                     {
-                        return rule;
+                        yield return rule;
                     }
                 }
             }
-
-            return null;
         }
     }
 }
