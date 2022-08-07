@@ -76,6 +76,7 @@ namespace Faaast.SeoRouter
                         {
                             index = i;
                         }
+
                         break;
                 };
                 if (index != -1)
@@ -229,6 +230,9 @@ namespace Faaast.SeoRouter
                 {
                     return null;
                 }
+
+                if (this.Url.EndsWith("/") && !virtualPath.EndsWith("/"))
+                    virtualPath += "/";
 
                 var pathData = new VirtualPathData(router, virtualPath);
                 foreach (var dataToken in binderValues.CombinedValues)

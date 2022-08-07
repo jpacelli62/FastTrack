@@ -36,6 +36,7 @@ namespace Faaast.Authentication.OAuth2
             {
                 return result;
             }
+
             var ticket = result?.Ticket;
             var authenticated = ticket?.Principal.Identity.IsAuthenticated ?? false;
 
@@ -119,9 +120,12 @@ namespace Faaast.Authentication.OAuth2
             {
                 var expiresAt = this.Clock.UtcNow + TimeSpan.FromSeconds(value);
                 this.AddCookie("at", tokens.AccessToken, expiresAt);
+                this.Context.Items["at"] = tokens.AccessToken;
+
                 if (!string.IsNullOrEmpty(tokens.RefreshToken))
                 {
                     this.AddCookie("rt", tokens.RefreshToken, this.Clock.UtcNow.AddDays(30));
+                    this.Context.Items["rt"] = tokens.RefreshToken;
                 }
             }
 

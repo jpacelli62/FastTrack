@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 using Faaast.Orm.Converters;
@@ -13,7 +14,7 @@ namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {
-        private static object ConvertValue<T>(FaaastQueryDb db, T record, TableMapping mapping, Column column)
+        private static object ConvertValue<T>(T record, TableMapping mapping, Column column)
         {
             var property = mapping.ColumnToProperty[column];
             var value = property.Read(record);
@@ -34,16 +35,26 @@ namespace Faaast.Orm
 
             return value;
         }
+        public static Task<ICollection<T>> GetAllAsync<T>(this FaaastQueryDb db)=> GetAllAsync<T>(db, null);
 
-        public static async Task<ICollection<T>> GetAllAsync<T>(this FaaastQueryDb db)
+        public static async Task<ICollection<T>> GetAllAsync<T>(this FaaastQueryDb db, DbConnection connection)
         {
             var mapping = db.Mapping<T>();
             var sql = new FaaastQuery(db, mapping.Table.Name);
             sql.Select(mapping.Table.Columns.Select(x => x.Name).ToArray());
-            return await sql.ToListAsync<T>();
+            return await sql.ToListAsync<T>(connection);
+        }
+        public static ICollection<T> GetAll<T>(this FaaastQueryDb db, DbConnection connection)
+        {
+            var mapping = db.Mapping<T>();
+            var sql = new FaaastQuery(db, mapping.Table.Name);
+            sql.Select(mapping.Table.Columns.Select(x => x.Name).ToArray());
+            return sql.ToList<T>(connection);
         }
 
-        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record)
+        public static Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record) => DeleteAsync(db, record, null);
+
+        public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, DbConnection connection)
         {
             var mapping = db.Mapping<T>();
             var sql = new FaaastQuery(db, mapping.Table.Name);
@@ -51,18 +62,20 @@ namespace Faaast.Orm
             var pk = mapping.Table.PrimaryKeyColumns();
             foreach (var column in pk)
             {
-                var value = ConvertValue(db, record, mapping, column);
+                var value = ConvertValue(record, mapping, column);
                 sql.Where(column.Name, value);
             }
 
             sql.AsDelete();
 
-            using var command = await sql.CreateCommandAsync();
+            using var command = await sql.CreateCommandAsync(connection);
             var result = await command.ExecuteNonQueryAsync();
             return result;
         }
 
-        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record)
+        public static Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record) => UpdateAsync(db, record, null);
+
+        public static async Task<int> UpdateAsync<T>(this FaaastQueryDb db, T record, DbConnection connection)
         {
             var mapping = db.Mapping<T>();
             var sql = new FaaastQuery(db, mapping.Table.Name);
@@ -70,7 +83,7 @@ namespace Faaast.Orm
             var update = new Dictionary<string, object>();
             foreach (var column in mapping.ColumnMappings)
             {
-                var value = ConvertValue(db, record, mapping, column.Column);
+                var value = ConvertValue(record, mapping, column.Column);
                 if (column.Column.PrimaryKey)
                 {
                     sql.Where(column.Column.Name, value);
@@ -91,12 +104,14 @@ namespace Faaast.Orm
 
             sql.AsUpdate(update);
 
-            using var command = await sql.CreateCommandAsync();
+            using var command = await sql.CreateCommandAsync(connection);
             var result = await command.ExecuteNonQueryAsync();
             return result;
         }
 
-        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record)
+        public static Task<int> InsertAsync<T>(this FaaastQueryDb db, T record) => InsertAsync(db, record, null);
+
+        public static async Task<int> InsertAsync<T>(this FaaastQueryDb db, T record, DbConnection connection)
         {
             var mapping = db.Mapping<T>();
             Kata.Query sql = new FaaastQuery(db, mapping.Table.Name);
@@ -111,7 +126,7 @@ namespace Faaast.Orm
                 }
                 else if (!column.Column.Computed)
                 {
-                    var value = ConvertValue(db, record, mapping, column.Column);
+                    var value = ConvertValue(record, mapping, column.Column);
                     insert.Add(column.Column.Name, value);
                 }
             }
@@ -119,7 +134,7 @@ namespace Faaast.Orm
             AsyncFaaastCommand command = null;
             if (!insert.Any())
             {
-                string lastId = string.Empty;
+                var lastId = string.Empty;
                 if (identityColumn != null)
                 {
                     lastId = db.Compiler.EngineCode switch
@@ -127,17 +142,18 @@ namespace Faaast.Orm
                         EngineCodes.MySql => "SELECT last_insert_id() as Id",
                         EngineCodes.SqlServer => "SELECT scope_identity() as Id",
                         EngineCodes.Sqlite => "select last_insert_rowid() as id",
-                        EngineCodes.PostgreSql => "SELECT lastval() AS id"
+                        EngineCodes.PostgreSql => "SELECT lastval() AS id",
+                        _ => throw new NotImplementedException()
                     };
                 }
 
                 var sqlQuery = $"INSERT INTO {db.Compiler.Wrap(mapping.Table.Name)} DEFAULT VALUES;{lastId}";
-                command = await db.CreateCommandAsync(sqlQuery);
+                command = await db.CreateCommandAsync(sqlQuery, connection);
             }
             else
             {
                 sql.AsInsert(insert, identityColumn != null);
-                command = await sql.CreateCommandAsync();
+                command = await sql.CreateCommandAsync(connection);
             }
 
             if (identityColumn == null)

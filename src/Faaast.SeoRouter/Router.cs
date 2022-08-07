@@ -48,12 +48,13 @@ namespace Faaast.SeoRouter
             {
                 if (rule == origin)
                 {
-                    var vpd = GetVirtualPath(new VirtualPathContext(context.HttpContext, context.RouteData.DataTokens, values));
+                    var vpd = this.GetVirtualPath(new VirtualPathContext(context.HttpContext, context.RouteData.DataTokens, values));
                     if(vpd != null && !url.NormalizeUrl().Equals(vpd.VirtualPath.NormalizeUrl(), StringComparison.OrdinalIgnoreCase))
                     {
                         this.Log.LogTrace("Url \"{0}\" matches route {1} but no match good url \"{2}\", redirecting..", url, origin.DisplayName, vpd.VirtualPath);
                         return provider.HandleRedirectAsync(context, vpd, true);
                     }
+
                     var routers = context.RouteData?.Routers;
                     context.RouteData = new RouteData(values);
                     if(routers != null)
@@ -116,7 +117,7 @@ namespace Faaast.SeoRouter
 
         public async Task<VirtualPathData> GetVirtualPathAsync(VirtualPathContext context, IServiceProvider services, object sourceOject = null)
         {
-            var rule = await GetVirtualPathRuleAsync(context.AmbientValues, context.Values, services, sourceOject);
+            var rule = await this.GetVirtualPathRuleAsync(context.AmbientValues, context.Values, services, sourceOject);
             if(rule != null)
             {
                 return rule.GetVirtualPath(this, context.AmbientValues, context.Values);

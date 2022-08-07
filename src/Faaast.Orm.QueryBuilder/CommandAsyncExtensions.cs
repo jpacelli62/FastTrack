@@ -46,10 +46,16 @@ namespace Faaast.Orm
             return await command.ToListAsync<T>();
         }
 
+        public static async Task<ICollection<T>> ToListAsync<T>(this Task<AsyncFaaastCommand> command)
+        {
+            var result = await command;
+            return await result.ToListAsync<T>();
+        }
+
         public static async Task<ICollection<T>> ToListAsync<T>(this AsyncFaaastCommand command)
         {
             var result = new List<T>();
-            await ExecuteReaderAsync(command, async  reader =>
+            await ExecuteReaderAsync(command, async reader =>
             {
                 var tReader = reader.AddReader<T>();
                 while (await reader.ReadAsync())
@@ -65,6 +71,12 @@ namespace Faaast.Orm
         {
             using var command = await query.CreateCommandAsync(dbConnection);
             return await command.FirstOrDefaultAsync<T>();
+        }
+
+        public static async Task<T> FirstOrDefaultAsync<T>(this Task<AsyncFaaastCommand> command)
+        {
+            var result = await command;
+            return await result.FirstOrDefaultAsync<T>();
         }
 
         public static async Task<T> FirstOrDefaultAsync<T>(this AsyncFaaastCommand command)

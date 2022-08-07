@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 
@@ -115,6 +116,7 @@ namespace Faaast.SeoRouter
 
         public async IAsyncEnumerable<RoutingRule> FindByRouteAsync(RouteValueDictionary values)
         {
+            await Task.CompletedTask;
             if (values.TryGetValue("controller", out var controller) &&
                 values.TryGetValue("action", out var action) &&
                 _indexByControllerAction.TryGetValue(controller.ToString(), out var actions) &&

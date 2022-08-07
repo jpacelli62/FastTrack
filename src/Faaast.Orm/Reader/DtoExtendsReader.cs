@@ -9,10 +9,7 @@
         {
            
         }
-        
-        protected override void CreateInstance()
-        {
-            this.Value = (TChild)this.ParentReader.Value;
-        }
+
+        protected override void CreateInstance() => this.Value = (TChild)this.ParentReader.Value;
     }
 }

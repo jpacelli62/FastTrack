@@ -7,10 +7,7 @@ namespace Faaast.Orm.Reader
 
         public Type NullType { get; set; }
 
-        public SingleValueReader()
-        {
-            this.NullType = Nullable.GetUnderlyingType(typeof(T));
-        }
+        public SingleValueReader() => this.NullType = Nullable.GetUnderlyingType(typeof(T));
 
         public override void Read()
         {
@@ -20,7 +17,7 @@ namespace Faaast.Orm.Reader
 
         private T ReadValue(object value)
         {
-            if (NullType == null)
+            if (this.NullType == null)
             {
                 return (T)value;
             }

@@ -14,9 +14,6 @@ namespace Faaast.Orm.Converters
             return DBNull.Value;
         }
 
-        public object ToDb(object value, Type sourceType)
-        {
-            return (int)value;
-        }
+        public object ToDb(object value, Type sourceType) => (value == null) ? 0: (int)value;
     }
 }
