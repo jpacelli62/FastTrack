@@ -99,8 +99,6 @@ namespace Faaast.Tests.Routing
             Assert.NotNull(rules.Find("recettes/fiche_recette_v3.aspx?foo=bar", out _));
             Assert.NotNull(rules.Find("/recettes/fiche_recette_v3.aspx?foo=bar", out _));
             var values = route.Target.ToRouteValueDictionary();
-            Assert.Null(rules.FindByRouteAsync(route.Target.ToRouteValueDictionary()));
-            values.Add("foo", "bar");
             Assert.NotNull(rules.FindByRouteAsync(values));
             var virtualpath = route.GetVirtualPath(this.Router, new RouteValueDictionary(), values);
             Assert.Equal(route.Url, virtualpath.VirtualPath.NormalizeUrl());
@@ -166,13 +164,15 @@ namespace Faaast.Tests.Routing
             rules.Add(rule);
 
             var provider = new Mock<IRouteProvider>();
-            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).Callback<RoutingRule, RouteValueDictionary, RouteValueDictionary, object>((rule, ambiant, values, src) => values.Add("name", "wonderful"));
+            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>()))
+                .Callback<RoutingRule, RouteValueDictionary, RouteValueDictionary, object>((rule, ambiant, values, src) => values.TryAdd("name", "wonderful"))
+                .ReturnsAsync(true);
             provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
 
             var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
             var values = new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" });
 
-            var matchingRule = router.GetVirtualPathRuleAsync(values, new RouteValueDictionary(), services).Result;
+            var matchingRule = router.GetVirtualPathRuleAsync(new RouteValueDictionary(), values, services).Result;
             Assert.Equal(rule, matchingRule);
 
             var context = new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values);
@@ -191,6 +191,7 @@ namespace Faaast.Tests.Routing
             rules.Add(target);
             var provider = new Mock<IRouteProvider>();
             provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).ReturnsAsync(true);
 
             var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
             var result = router.FollowRoute("category/empty", services, out var origin, out var values);
@@ -207,6 +208,7 @@ namespace Faaast.Tests.Routing
             rules.AddRange(new[] { source, duplicate });
             var provider = new Mock<IRouteProvider>();
             provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).ReturnsAsync(true);
 
             var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
             var result = router.FollowRoute("category", services, out var origin, out var values);
@@ -222,6 +224,7 @@ namespace Faaast.Tests.Routing
             rules.Add(rule);
             var provider = new Mock<IRouteProvider>();
             provider.Setup(x => x.GetRulesAsync()).ReturnsAsync(rules);
+            provider.Setup(x => x.ResolveUrlPartsAsync(It.IsAny<RoutingRule>(), It.IsAny<RouteValueDictionary>(), It.IsAny<RouteValueDictionary>(), It.IsAny<object>())).ReturnsAsync(true);
             var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
 
             var values1 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "fizz" });

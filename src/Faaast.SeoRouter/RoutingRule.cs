@@ -201,6 +201,11 @@ namespace Faaast.SeoRouter
         {
             if (this.Kind == RuleKind.Global)
             {
+                if (!this.IsDynamic)
+                {
+                    return new VirtualPathData(router, this.Url);
+                }
+
                 foreach (var parameter in _routeTemplate.Parameters)
                 {
                     if (!values.ContainsKey(parameter.Name) && !parameter.IsOptional)
