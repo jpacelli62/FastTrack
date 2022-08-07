@@ -10,10 +10,7 @@ namespace Faaast.Orm.Reader
 
         public void Dispose()
         {
-#if NET_5
-            this.Reader.DisposeAsync().ConfigureAwait(false).GetAwaiter().GetResult();
-#endif
-            // Do nothing
+            this.Reader.Dispose();
         }
 
         internal void Prepare()
