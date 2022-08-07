@@ -99,9 +99,9 @@ namespace Faaast.Tests.Routing
             Assert.NotNull(rules.Find("recettes/fiche_recette_v3.aspx?foo=bar", out _));
             Assert.NotNull(rules.Find("/recettes/fiche_recette_v3.aspx?foo=bar", out _));
             var values = route.Target.ToRouteValueDictionary();
-            Assert.Null(rules.FindByRoute(route.Target.ToRouteValueDictionary()));
+            Assert.Null(rules.FindByRouteAsync(route.Target.ToRouteValueDictionary()));
             values.Add("foo", "bar");
-            Assert.NotNull(rules.FindByRoute(values));
+            Assert.NotNull(rules.FindByRouteAsync(values));
             var virtualpath = route.GetVirtualPath(this.Router, new RouteValueDictionary(), values);
             Assert.Equal(route.Url, virtualpath.VirtualPath.NormalizeUrl());
         }
@@ -172,7 +172,7 @@ namespace Faaast.Tests.Routing
             var router = RouterFixture.BuildRouterWith(provider.Object, out var services);
             var values = new RouteValueDictionary(new { controller = "Portal", action = "Details", Id = "123", slug = "blah" });
 
-            var matchingRule = router.GetVirtualPathRuleAsync(values, services).Result;
+            var matchingRule = router.GetVirtualPathRuleAsync(values, new RouteValueDictionary(), services).Result;
             Assert.Equal(rule, matchingRule);
 
             var context = new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values);
