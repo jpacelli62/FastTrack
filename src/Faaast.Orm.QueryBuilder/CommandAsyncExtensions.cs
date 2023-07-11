@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Threading.Tasks;
 using Faaast.Orm.Reader;
@@ -9,34 +11,45 @@ namespace Faaast.Orm
 {
     public static class CommandAsyncExtensions
     {
-        public static Task<AsyncFaaastCommand> CreateCommandAsync(this Query query, DbConnection dbConnection = null)
+        public static async Task<FaaastCommand> CreateCommandAsync(this Query query, DbConnection dbConnection = null)
         {
             var q = (FaaastQuery)query;
             var compiledQuery = q.Db.Compile(q);
-            return q.Db.CreateCommandAsync(compiledQuery.Sql, compiledQuery.Parameters, dbConnection);
+            return await q.Db.CreateCommandAsync(compiledQuery.Sql, compiledQuery.Parameters, dbConnection);
         }
 
         public static async Task ExecuteReaderAsync(this Query query, Func<AsyncFaaastRowReader, Task> stuff, DbConnection dbConnection = null)
         {
-            await using var command = await CreateCommandAsync(query, dbConnection);
+            using var command = await CreateCommandAsync(query, dbConnection);
             await ExecuteReaderAsync(command, stuff);
         }
 
-        public static async Task ExecuteReaderAsync(this Task<AsyncFaaastCommand> commandTask, Func<AsyncFaaastRowReader, Task> stuff)
+        public static async Task ExecuteReaderAsync(this Task<FaaastCommand> commandTask, Func<AsyncFaaastRowReader, Task> stuff)
         {
-            await using var command = await commandTask;
-            await command.ExecuteReaderAsync(stuff);
+            using var command = await commandTask;
+            await ExecuteReaderAsync(command, stuff);
         }
 
-        public static async Task ExecuteReaderAsync(this AsyncFaaastCommand command, Func<AsyncFaaastRowReader, Task> stuff)
+        public static async Task ExecuteReaderAsync(this FaaastCommand command, Func<AsyncFaaastRowReader, Task> stuff)
         {
             await using var reader = await command.ExecuteReaderAsync();
             await stuff(reader);
         }
 
+        public static async Task ExecuteNonQueryAsync(this Task<FaaastCommand> commandTask, DbConnection dbConnection = null)
+        {
+            using var command = await commandTask;
+            await ExecuteNonQueryAsync(command, dbConnection);
+        }
+
+        public static async Task ExecuteNonQueryAsync(this FaaastCommand command, DbConnection dbConnection = null)
+        {
+            await command.ExecuteNonQueryAsync();
+        }
+
         public static async Task ExecuteNonQueryAsync(this Query query, DbConnection dbConnection = null)
         {
-            await using var command = await CreateCommandAsync(query, dbConnection);
+            using var command = await CreateCommandAsync(query, dbConnection);
             await command.ExecuteNonQueryAsync();
         }
 
@@ -46,13 +59,12 @@ namespace Faaast.Orm
             return await command.ToListAsync<T>();
         }
 
-        public static async Task<ICollection<T>> ToListAsync<T>(this Task<AsyncFaaastCommand> command)
+        public static async Task<ICollection<T>> ToListAsync<T>(this Task<FaaastCommand> command)
         {
-            var result = await command;
-            return await result.ToListAsync<T>();
+            return await ToListAsync<T>(await command);
         }
 
-        public static async Task<ICollection<T>> ToListAsync<T>(this AsyncFaaastCommand command)
+        public static async Task<ICollection<T>> ToListAsync<T>(this FaaastCommand command)
         {
             var result = new List<T>();
             await ExecuteReaderAsync(command, async reader =>
@@ -70,16 +82,16 @@ namespace Faaast.Orm
         public static async Task<T> FirstOrDefaultAsync<T>(this Query query, DbConnection dbConnection = null)
         {
             using var command = await query.CreateCommandAsync(dbConnection);
-            return await command.FirstOrDefaultAsync<T>();
+            return await FirstOrDefaultAsync<T>(command);
         }
 
-        public static async Task<T> FirstOrDefaultAsync<T>(this Task<AsyncFaaastCommand> command)
+        public static async Task<T> FirstOrDefaultAsync<T>(this Task<FaaastCommand> commandTask)
         {
-            var result = await command;
-            return await result.FirstOrDefaultAsync<T>();
+            using var command = await commandTask;
+            return await FirstOrDefaultAsync<T>(command);
         }
 
-        public static async Task<T> FirstOrDefaultAsync<T>(this AsyncFaaastCommand command)
+        public static async Task<T> FirstOrDefaultAsync<T>(this FaaastCommand command)
         {
             T result = default;
             await ExecuteReaderAsync(command, async reader =>

@@ -2,7 +2,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;

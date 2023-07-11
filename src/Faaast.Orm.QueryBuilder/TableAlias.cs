@@ -51,6 +51,5 @@ namespace Faaast.Orm
         public string[] AllColumns => _allColumns;
 
         public static implicit operator string(TableAlias<T> alias) => alias.FormatSuffix(alias.Mapping.Table.Name);
-
     }
 }

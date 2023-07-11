@@ -16,8 +16,8 @@ namespace Faaast.Tests.Orm
         public FaaastRowReader BuildReader(Dictionary<string, object> data, int rows = 100)
         {
             var conn = new FakeDbConnection(data, rows);
+            var command = this.Fixture.Db.CreateCommand(string.Empty, null, conn);
             conn.Open();
-            var command = new FaaastCommand(this.Fixture.Db, conn, string.Empty);
             return command.ExecuteReader();
         }
 

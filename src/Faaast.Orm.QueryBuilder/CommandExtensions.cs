@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Faaast.Orm.Reader;
 using SqlKata;
 
@@ -29,14 +30,21 @@ namespace Faaast.Orm
 
         public static void ExecuteReader(this FaaastCommand command, Action<FaaastRowReader> stuff)
         {
+            using var c = command;
             using var reader = command.ExecuteReader();
             stuff(reader);
+        }
+
+        public static int ExecuteNonQuery(this Query query, DbConnection dbConnection = null)
+        {
+            using var command = CreateCommand(query, dbConnection);
+            return command.ExecuteNonQuery();
         }
 
         public static ICollection<T> ToList<T>(this Query query, DbConnection dbConnection = null)
         {
             using var command = query.CreateCommand(dbConnection);
-            return command.ToList<T>();
+            return ToList<T>(command);
         }
 
         public static ICollection<T> ToList<T>(this FaaastCommand command)
@@ -57,7 +65,7 @@ namespace Faaast.Orm
         public static T FirstOrDefault<T>(this Query query, DbConnection dbConnection = null)
         {
             using var command = query.CreateCommand(dbConnection);
-            return command.FirstOrDefault<T>();
+            return FirstOrDefault<T>(command);
         }
 
         public static T FirstOrDefault<T>(this FaaastCommand command)

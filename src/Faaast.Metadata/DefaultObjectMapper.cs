@@ -30,7 +30,11 @@ namespace Faaast.Metadata
             }
         }
 
-        internal static bool IsNullableType(Type type) => Nullable.GetUnderlyingType(type) != null || type.IsClass || type.IsInterface;
+        internal static bool IsNullableType(Type type, out Type nullableUnderlyingType)
+        {
+            nullableUnderlyingType = Nullable.GetUnderlyingType(type);
+            return nullableUnderlyingType != null || type.IsClass || type.IsInterface;
+        }
 
         public static IDtoClass Build(Type type)
         {
@@ -61,10 +65,11 @@ namespace Faaast.Metadata
                 }
                 else
                 {
-                    newProp.WriteFunc = (x,y) => throw new InvalidOperationException();
+                    newProp.WriteFunc = (x, y) => throw new InvalidOperationException();
                 }
 
-                newProp.Nullable = IsNullableType(propertyType);
+                newProp.Nullable = IsNullableType(propertyType, out var nullType);
+                newProp.NullableUnderlyingType = nullType;
                 result[property.Name] = newProp;
             }
 

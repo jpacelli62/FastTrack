@@ -24,7 +24,7 @@ namespace Faaast.SeoRouter
 
         public static RouteValueDictionary ToRouteValueDictionary(this MvcAction? action)
         {
-            if (action == null || string.IsNullOrEmpty(action?.Controller))
+            if (action == null || string.IsNullOrEmpty(action.Value.Controller))
             {
                 return new RouteValueDictionary();
             }

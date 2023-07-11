@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Faaast.Metadata;
 using Faaast.Orm.Mapping;
@@ -84,7 +88,14 @@ namespace Faaast.Orm
             return db;
         }
 
-        public virtual FaaastCommand CreateCommand(string sql, object parameters = null, DbConnection dbConnection = null)
+        public virtual FaaastCommand CreateCommand(
+            string sql, 
+            object parameters = null, 
+            DbConnection dbConnection = null,
+            CommandType commandType = CommandType.Text,
+            int? commandTimeout = null,
+            DbTransaction transaction = null
+            )
         {
             var connection = dbConnection;
             var handleConnection = dbConnection == null;
@@ -95,15 +106,18 @@ namespace Faaast.Orm
                 connection.Open();
             }
 
-            var command = new FaaastCommand(this, connection, sql, parameters)
-            {
-                AutoClose = handleConnection
-            };
-
-            return command;
+            return this.CreateCommand(connection, handleConnection, sql, parameters, commandType, commandTimeout, transaction);
         }
 
-        public virtual async Task<AsyncFaaastCommand> CreateCommandAsync(string sql, object parameters = null, DbConnection dbConnection = null)
+        public virtual async Task<FaaastCommand> CreateCommandAsync(
+            string sql, 
+            object parameters = null, 
+            DbConnection dbConnection = null,
+            CommandType commandType = CommandType.Text,
+            int? commandTimeout = null,
+            DbTransaction transaction = null,
+            CancellationToken? cancellationToken = null
+            )
         {
             var connection = dbConnection;
             var handleConnection = dbConnection == null;
@@ -114,9 +128,38 @@ namespace Faaast.Orm
                 await connection.OpenAsync();
             }
 
-            var command = new AsyncFaaastCommand(this, connection, sql, parameters)
+            return this.CreateCommand(connection, handleConnection, sql, parameters, commandType, commandTimeout, transaction, cancellationToken);
+        }
+
+        internal FaaastCommand CreateCommand(
+            DbConnection openConnection,
+            bool handleConnexion,
+            string sql,
+            object parameters = null,
+            CommandType commandType = CommandType.Text,
+            int? commandTimeout = null,
+            DbTransaction transaction = null,
+            CancellationToken? cancellationToken = null)
+        {
+            var dbCommand = openConnection.CreateCommand();
+            dbCommand.CommandText = sql ?? throw new ArgumentNullException(nameof(sql));
+            dbCommand.Transaction = transaction;
+            dbCommand.CommandType = commandType;
+
+            if (commandTimeout.HasValue)
             {
-                AutoClose = handleConnection
+                dbCommand.CommandTimeout = commandTimeout.Value;
+            }
+
+            if (parameters != null)
+            {
+                dbCommand.AddParameters(parameters, this.Mapper);
+            }
+
+            var command = new FaaastCommand(this, dbCommand)
+            {
+                AutoClose = handleConnexion,
+                CancellationToken = cancellationToken ?? CancellationToken.None
             };
 
             return command;

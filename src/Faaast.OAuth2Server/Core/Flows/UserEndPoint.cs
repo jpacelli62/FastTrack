@@ -53,7 +53,7 @@ namespace Faaast.OAuth2Server.Core.Flows
                     };
 
                     using var stream = new MemoryStream();
-                    using (var writer = new Utf8JsonWriter(stream, options))
+                    await using (var writer = new Utf8JsonWriter(stream, options))
                     {
                         writer.WriteStartObject();
                         foreach (var item in principal.Claims.GroupBy(x=>x.Type))
@@ -90,6 +90,5 @@ namespace Faaast.OAuth2Server.Core.Flows
 
             return await result.RejectAsync(Resources.Msg_InvalidClient);
         }
-
     }
 }

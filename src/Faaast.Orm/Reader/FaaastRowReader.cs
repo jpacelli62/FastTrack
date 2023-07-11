@@ -8,13 +8,11 @@ namespace Faaast.Orm.Reader
         {
         }
 
-        public void Dispose()
-        {
-            this.Reader.Dispose();
-        }
+        public void Dispose() => this.Reader.Dispose();
 
         internal void Prepare()
         {
+            this.Source.Command.CommandTimeout = this.Source.CommandTimeout ?? this.Source.Command.CommandTimeout;
             this.Reader = this.Source.Command.ExecuteReader(this.Source.CommandBehavior);
             this.InitFields();
         }

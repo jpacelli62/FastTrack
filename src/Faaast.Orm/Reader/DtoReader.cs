@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Faaast.Metadata;
 using Faaast.Orm.Converters;
@@ -14,16 +13,17 @@ namespace Faaast.Orm.Reader
             public IDtoProperty Property;
             public int Index;
             public bool Nullable;
-            public bool IsKey;
             public IValueConverter Converter;
+            public bool IsKey;
+            public Type ValueType;
+
         }
 
-        internal List<ColumnMatch> ColumnsToRead { get; set; }
+        internal LinkedList<ColumnMatch> ColumnsToRead { get; set; }
 
         public IDtoClass MembersDto { get; set; }
 
         public IDtoClass InstanceDto { get; set; }
-
         protected bool HasKey { get; set; }
 
         public DtoReader(BaseRowReader source, int start)
@@ -59,11 +59,12 @@ namespace Faaast.Orm.Reader
                 {
                     if (string.Equals(property.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
-                        this.ColumnsToRead.Add(new ColumnMatch
+                        this.ColumnsToRead.AddLast(new ColumnMatch
                         {
                             Index = i,
                             Property = property,
-                            Nullable = property.Nullable
+                            Nullable = property.Nullable,
+                            ValueType = property.NullableUnderlyingType ?? property.Type,
                         });
                         found = true;
                         this.End = i + 1;
@@ -107,16 +108,18 @@ namespace Faaast.Orm.Reader
                             columnMapping.Column.Set(DbMeta.ConverterInstance, converterInstance);
                         }
 
-                        this.ColumnsToRead.Add(new ColumnMatch
+                        this.ColumnsToRead.AddLast(new ColumnMatch
                         {
                             Index = i,
                             Property = columnMapping.Property,
                             Nullable = columnMapping.Column.Get(DbMeta.Nullable) ?? columnMapping.Property.Nullable,
                             Converter = converterInstance,
+                            ValueType = columnMapping.Property.NullableUnderlyingType ?? columnMapping.Property.Type,
                             IsKey = columnMapping.Column.PrimaryKey
                         });
-                        found = true;
                         this.HasKey |= columnMapping.Column.PrimaryKey;
+
+                        found = true;
                         this.End = i + 1;
                         break;
                     }
@@ -144,7 +147,7 @@ namespace Faaast.Orm.Reader
             this.CreateInstance();
             var readSomething = false;
             foreach (var property in this.ColumnsToRead)
-            {
+            { 
                 if (property.Property.CanWrite)
                 {
                     var colValue = this.RowReader.Buffer[property.Index];
@@ -156,9 +159,7 @@ namespace Faaast.Orm.Reader
                     if (colValue != DBNull.Value)
                     {
                         readSomething = true;
-
-                        var baseType = Nullable.GetUnderlyingType(property.Property.Type);
-                        colValue = baseType != null ? Convert.ChangeType(colValue, baseType) : Convert.ChangeType(colValue, property.Property.Type);
+                        colValue = Convert.ChangeType(colValue, property.ValueType);
                         property.Property.Write(this.Value, colValue);
                     }
                 }

@@ -86,6 +86,5 @@ namespace Faaast.OAuth2Server.Configuration
             this.Application.UseMiddleware<UserEndpoint>(this.Options);
             return this;
         }
-        
     }
 }

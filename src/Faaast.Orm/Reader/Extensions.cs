@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
+using System.Text;
+using Faaast.Metadata;
 
 namespace Faaast.Orm.Reader
 {
@@ -65,6 +69,68 @@ namespace Faaast.Orm.Reader
             }
 
             return name;
+        }
+
+        public static DbParameter AddParameter(this DbCommand command, string name, object value, Type valueType, ParameterDirection direction)
+        {
+            var dbType = valueType != null && value != DBNull.Value ? valueType.ToDbType() : (DbType)0;
+            return AddParameter(
+                command,
+                name,
+                value,
+                dbType,
+                value is null || value == DBNull.Value,
+                dbType == DbType.String ? Encoding.Unicode.GetByteCount((string)value) : 0,
+                direction);
+        }
+
+        public static DbParameter AddParameter(this DbCommand command, string name, object value, DbType dbType, bool isNullable, int size, ParameterDirection direction)
+        {
+            var parameter = command.CreateParameter();
+            parameter.ParameterName = name.Sanitize();
+            parameter.Value = value ?? DBNull.Value;
+            parameter.Direction = direction;
+            parameter.Size = size;
+            parameter.IsNullable = isNullable;
+            parameter.DbType = dbType;
+
+            if (value == null || value == DBNull.Value)
+            {
+                parameter.IsNullable = true;
+            }
+            else
+            {
+                if (parameter.DbType == DbType.String)
+                {
+                    parameter.Size = Encoding.Unicode.GetByteCount((string)value);
+                }
+            }
+
+            command.Parameters.Add(parameter);
+            return parameter;
+        }
+
+        public static void AddParameters(this DbCommand command, object parameters, IObjectMapper mapper)
+        {
+            if (parameters != null)
+            {
+                if (parameters is IDictionary dictionary)
+                {
+                    foreach (var key in dictionary.Keys)
+                    {
+                        var value = dictionary[key];
+                        command.AddParameter(key.ToString(), value, value?.GetType(), ParameterDirection.Input);
+                    }
+                }
+                else
+                {
+                    var map = mapper.Get(parameters.GetType());
+                    foreach (var property in map)
+                    {
+                        command.AddParameter(property.Name, property.Read(parameters), property.Type, ParameterDirection.Input);
+                    }
+                }
+            }
         }
     }
 }

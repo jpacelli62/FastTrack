@@ -1,4 +1,5 @@
-﻿using Faaast.SeoRouter;
+﻿using System;
+using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Internal;
@@ -9,7 +10,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ApplicationBuilderExtensions
     {
-        public static IServiceCollection AddSeoRouter(this IServiceCollection services)
+        public static IServiceCollection AddFaaastRouter(this IServiceCollection services)
         {
             services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
@@ -33,9 +34,22 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static IApplicationBuilder UseSeoRouter(this IApplicationBuilder app)
+        public static IApplicationBuilder UseFaaastRouter(this IApplicationBuilder app, Action<ISeoRouteBuilder> routes = null)
         {
-            app.UseRouter(app.ApplicationServices.GetRequiredService<Router>());
+            var router = app.ApplicationServices.GetRequiredService<Router>();
+            app.ApplicationServices.GetRequiredService<IRouteProvider>();
+            if (routes != null)
+            {
+                ISeoRouteBuilder builder = new SeoRouteBuilder(app.ApplicationServices);
+                routes(builder);
+                router.StaticRoutes = builder.Build();
+            }
+            else
+            {
+                router.StaticRoutes = new RoutingRules();
+            }
+
+            app.UseRouter(router);
             return app;
         }
     }

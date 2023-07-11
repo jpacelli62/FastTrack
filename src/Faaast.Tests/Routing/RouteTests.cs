@@ -101,7 +101,7 @@ namespace Faaast.Tests.Routing
             var values = route.Target.ToRouteValueDictionary();
             Assert.NotNull(rules.FindByRouteAsync(values));
             var virtualpath = route.GetVirtualPath(this.Router, new RouteValueDictionary(), values);
-            Assert.Equal(route.Url, virtualpath.VirtualPath.NormalizeUrl());
+            Assert.Equal("recettes/fiche_recette_v3.aspx", virtualpath.VirtualPath.NormalizeUrl());
         }
 
         [Fact]

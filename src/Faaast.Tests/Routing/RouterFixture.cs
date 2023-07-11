@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
 
 namespace Faaast.Tests.Routing
@@ -29,17 +30,21 @@ namespace Faaast.Tests.Routing
 
             var context = new FakeContext();
             services.AddSingleton<IHttpContextAccessor>(context);
-            services.AddSeoRouter();
+            services.AddFaaastRouter();
             services.AddLogging();
+
+            var routeProviderMock = new Mock<IRouteProvider>();
+            services.TryAddSingleton<IRouteProvider>(routeProviderMock.Object);
+
             var provider = services.BuildServiceProvider();
 
             var appMock = new Mock<IApplicationBuilder>();
             appMock.SetupGet(app => app.ApplicationServices).Returns(provider);
-            appMock.Object.UseSeoRouter();
-
             var httpContext = new Mock<HttpContext>();
             httpContext.SetupGet(x => x.RequestServices).Returns(provider);
             context.HttpContext = httpContext.Object;
+            appMock.Object.UseFaaastRouter();
+
             return provider;
         }
 

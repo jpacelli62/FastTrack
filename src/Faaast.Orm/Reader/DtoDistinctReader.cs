@@ -14,13 +14,16 @@ namespace Faaast.Orm.Reader
             this.Cache = new Dictionary<int, T>();
             if (this.HasKey)
             {
-                for (var i = this.ColumnsToRead.Count - 1; i > -1; i--)
+                LinkedList<DtoReader<T>.ColumnMatch> newList = new();
+                foreach (var item in this.ColumnsToRead)
                 {
-                    if (!this.ColumnsToRead[i].IsKey)
+                    if (item.IsKey)
                     {
-                        this.ColumnsToRead.RemoveAt(i);
+                        newList.AddLast(item);
                     }
                 }
+                
+                this.ColumnsToRead = newList;
             }
         }
 

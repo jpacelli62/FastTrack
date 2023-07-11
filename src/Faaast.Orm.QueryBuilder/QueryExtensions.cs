@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Faaast.Orm
+﻿namespace Faaast.Orm
 {
     public static partial class QueryExtensions
     {

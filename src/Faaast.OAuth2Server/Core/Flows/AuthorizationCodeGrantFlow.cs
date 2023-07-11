@@ -5,7 +5,6 @@ using Faaast.OAuth2Server.Abstraction;
 using Faaast.OAuth2Server.Configuration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 

@@ -10,6 +10,8 @@ namespace Faaast.Metadata
 
         public virtual Type Type { get; set; }
 
+        public virtual Type NullableUnderlyingType { get; set; }
+
         public virtual bool CanRead { get; set; }
 
         public virtual bool CanWrite { get; set; }

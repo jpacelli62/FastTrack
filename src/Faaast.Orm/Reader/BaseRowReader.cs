@@ -6,7 +6,7 @@ namespace Faaast.Orm.Reader
 {
     public class BaseRowReader
     {
-        public BaseCommand Source { get; private set; }
+        public FaaastCommand Source { get; private set; }
 
         internal DbDataReader Reader;
         internal int FieldsCount;
@@ -15,7 +15,7 @@ namespace Faaast.Orm.Reader
         internal object[] Buffer;
         internal LinkedList<DataReader> ColumnsReaders;
 
-        public BaseRowReader(BaseCommand source)
+        public BaseRowReader(FaaastCommand source)
         {
             this.Source = source;
             this.Reader = null;
@@ -50,6 +50,19 @@ namespace Faaast.Orm.Reader
                     End = last + 1
                 }
                 : (DataReader<T>)new DtoReader<T>(this, last);
+            this.ColumnsReaders.AddLast(reader);
+            return reader;
+        }
+
+        public DataReader<T> AddValueReader<T>()
+        {
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+            var reader = new SingleValueReader<T>()
+            {
+                RowReader = this,
+                Start = last,
+                End = last + 1
+            };
             this.ColumnsReaders.AddLast(reader);
             return reader;
         }

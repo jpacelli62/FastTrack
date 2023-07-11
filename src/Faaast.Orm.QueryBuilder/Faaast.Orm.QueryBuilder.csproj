@@ -7,7 +7,7 @@
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
 	  <LangVersion>9.0</LangVersion>
-
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
   
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
@@ -20,6 +20,10 @@
   
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.56.0.67649">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="SqlKata" Version="2.3.7" />
   </ItemGroup>
   

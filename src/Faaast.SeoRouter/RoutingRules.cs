@@ -90,16 +90,21 @@ namespace Faaast.SeoRouter
                 {
                     if (rule.MatchDynamic(pathString, out var requestValues))
                     {
-                        if (!_indexByUrl.TryGetValue(baseUrl, out var items))
+                        var cookie = _syncLock.UpgradeToWriterLock(5000);
+                        try
                         {
-                            _indexByUrl[baseUrl] = items = new List<RoutingRule>();
-                        }
+                            if (!_indexByUrl.TryGetValue(baseUrl, out var items))
+                            {
+                                _indexByUrl[baseUrl] = items = new List<RoutingRule>();
+                            }
 
-                        if (!items.Contains(rule))
-                        {
-                            items.Add(rule);
+                            if (!items.Contains(rule))
+                            {
+                                items.Add(rule);
+                            }
                         }
-
+                        finally { _syncLock.DowngradeFromWriterLock(ref cookie); }
+                       
                         values = requestValues;
                         return rule;
                     }

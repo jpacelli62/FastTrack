@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,14 +13,13 @@ namespace Faaast.SeoRouter
 
         public RoutingRules Rules { get; set; }
 
+        public RoutingRules StaticRoutes { get; set; } = new RoutingRules();
+
         private ILogger Log { get; set; }
 
         public async Task<RoutingRules> GetRulesAsync(IServiceProvider services)
         {
-            if (this.Log is null)
-            {
-                this.Log = services.GetRequiredService<ILoggerFactory>().CreateLogger("SeoRouter");
-            }
+            this.Log ??= services.GetRequiredService<ILoggerFactory>().CreateLogger("SeoRouter");
 
             var provider = services.GetRequiredService<IRouteProvider>();
             if (this.Rules == null || await provider.RefreshNeededAsync(this.Rules))
@@ -81,9 +79,9 @@ namespace Faaast.SeoRouter
 
         public RoutingRule FindRouteRule(string url, IServiceProvider provider, out RouteValueDictionary routeValues)
         {
-            var rules = this.GetRulesAsync(provider).Result;
             var requestPath = url.NormalizeUrl();
-            return rules.Find(requestPath, out routeValues);
+            var rules = this.GetRulesAsync(provider).Result;
+            return this.StaticRoutes.Find(requestPath, out routeValues) ?? rules.Find(requestPath, out routeValues);
         }
 
         public RoutingRule FollowRoute(string url, IServiceProvider provider, out RoutingRule origin, out RouteValueDictionary values)
@@ -118,18 +116,21 @@ namespace Faaast.SeoRouter
         public async Task<VirtualPathData> GetVirtualPathAsync(VirtualPathContext context, IServiceProvider services, object sourceOject = null)
         {
             var rule = await this.GetVirtualPathRuleAsync(context.AmbientValues, context.Values, services, sourceOject);
-            if(rule != null)
-            {
-                return rule.GetVirtualPath(this, context.AmbientValues, context.Values);
-            }
-
-            return null;
+            return rule?.GetVirtualPath(this, context.AmbientValues, context.Values);
         }
 
         public async Task<RoutingRule> GetVirtualPathRuleAsync(RouteValueDictionary ambiantValues, RouteValueDictionary contextValues, IServiceProvider services, object sourceOject = null)
         {
             var routeProvider = services.GetRequiredService<IRouteProvider>();
             var rules = await this.GetRulesAsync(services);
+            await foreach (var rule in this.StaticRoutes.FindByRouteAsync(contextValues))
+            {
+                if (await routeProvider.ResolveUrlPartsAsync(rule, ambiantValues, contextValues, sourceOject))
+                {
+                    return rule;
+                }
+            }
+
             await foreach (var rule in rules.FindByRouteAsync(contextValues))
             {
                 if (await routeProvider.ResolveUrlPartsAsync(rule, ambiantValues, contextValues, sourceOject))

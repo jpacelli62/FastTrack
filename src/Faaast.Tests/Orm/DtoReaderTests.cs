@@ -26,7 +26,7 @@ namespace Faaast.Tests.Orm
         {
             var conn = new FakeDbConnection(data, rows);
             conn.Open();
-            var command = new FaaastCommand(this.Fixture.Db, conn, string.Empty);
+            var command = this.Fixture.Db.CreateCommand(string.Empty, null, conn);
             return command.ExecuteReader();
         }
 

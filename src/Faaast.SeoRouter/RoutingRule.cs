@@ -49,10 +49,7 @@ namespace Faaast.SeoRouter
 
         internal void InitConstraints(IServiceProvider services)
         {
-            if (this.Target == null)
-            {
-                this.Target = new MvcAction();
-            }
+            this.Target ??= new MvcAction();
 
             var vpdConstraints = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             var targetConstraints = this.Target.Value.Constraints.GetQueryDictionnary();
@@ -201,11 +198,6 @@ namespace Faaast.SeoRouter
         {
             if (this.Kind == RuleKind.Global)
             {
-                if (!this.IsDynamic)
-                {
-                    return new VirtualPathData(router, this.Url);
-                }
-
                 foreach (var parameter in _routeTemplate.Parameters)
                 {
                     if (!values.ContainsKey(parameter.Name) && !parameter.IsOptional)
@@ -237,7 +229,9 @@ namespace Faaast.SeoRouter
                 }
 
                 if (this.Url.EndsWith("/") && !virtualPath.EndsWith("/"))
+                {
                     virtualPath += "/";
+                }
 
                 var pathData = new VirtualPathData(router, virtualPath);
                 foreach (var dataToken in binderValues.CombinedValues)

@@ -10,6 +10,10 @@ namespace Faaast.Orm
         {
         }
 
+        public FaaastOrmException(string message, Exception inner) : base(message, inner)
+        {
+        }
+
         protected FaaastOrmException(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
