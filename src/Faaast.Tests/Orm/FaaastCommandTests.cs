@@ -126,10 +126,13 @@ namespace Faaast.Tests.Orm
         {
             var sql = "Faaast is awsome";
             using var command = this.Fixture.Db.CreateCommand(sql);
-            using var reader = command.ExecuteReader();
-            Assert.Equal(reader.Source, command);
-            Assert.True(reader.Read());
-            CheckReadValues(reader);
+            command.ExecuteReader(reader =>
+            {
+                Assert.Equal(reader.Source, command);
+                Assert.True(reader.Read());
+                CheckReadValues(reader);
+
+            });
         }
 
         [Fact]
@@ -137,10 +140,12 @@ namespace Faaast.Tests.Orm
         {
             var sql = "Faaast is awsome";
             await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
-            await using var reader = await command.ExecuteReaderAsync();
-            Assert.Equal(reader.Source, command);
-            Assert.True(await reader.ReadAsync());
-            CheckReadValues(reader);
+            await command.ExecuteReaderAsync(async reader =>
+            {
+                Assert.Equal(reader.Source, command);
+                Assert.True(await reader.ReadAsync());
+                CheckReadValues(reader);
+            });
         }
 
         //TODO

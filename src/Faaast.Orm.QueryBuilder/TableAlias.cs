@@ -16,15 +16,12 @@ namespace Faaast.Orm
         {
             get {
                 var body = property.Body;
-                switch (body.NodeType)
+                return body.NodeType switch
                 {
-                    case ExpressionType.Convert:
-                        return ((UnaryExpression)body).Operand is MemberExpression member ? this[member.Member.Name] : throw new ArgumentException("Cannot read property value");
-                    case ExpressionType.MemberAccess:
-                        return this[((MemberExpression)body).Member.Name];
-                }
-
-                throw new NotImplementedException();
+                    ExpressionType.Convert => ((UnaryExpression)body).Operand is MemberExpression member ? this[member.Member.Name] : throw new ArgumentException("Cannot read property value"),
+                    ExpressionType.MemberAccess => this[((MemberExpression)body).Member.Name],
+                    _ => throw new NotImplementedException(),
+                };
             }
         }
 

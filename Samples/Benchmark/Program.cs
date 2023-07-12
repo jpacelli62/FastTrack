@@ -7,9 +7,10 @@ namespace Benchmark
     {
         public static void Main()
         {
-            BenchmarkRunner.Run<BenchmarkInstanceCreation>();
-            BenchmarkRunner.Run<BenchmarkPropertySetter>();
-
+            //BenchmarkRunner.Run<BenchmarkInstanceCreation>();
+            //BenchmarkRunner.Run<BenchmarkPropertySetter>();
+            BenchmarkRunner.Run<BenchmarkMethodCall>();
+            
             Console.ReadLine();
         }
     }

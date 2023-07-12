@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
@@ -55,11 +56,11 @@ namespace Faaast.Orm.Reader
             return ex != null ? throw new FaaastOrmException(ex.Message, ex) : result;
         }
 
-        public FaaastRowReader ExecuteReader()
+        public void ExecuteReader(Action<FaaastRowReader> stuff)
         {
-            var reader = new FaaastRowReader(this);
+            using var reader = new FaaastRowReader(this);
             reader.Prepare();
-            return reader;
+            stuff(reader);
         }
 
         public async Task<int> ExecuteNonQueryAsync()
@@ -94,11 +95,11 @@ namespace Faaast.Orm.Reader
             return ex != null ? throw new FaaastOrmException(ex.Message, ex) : result;
         }
 
-        public async Task<AsyncFaaastRowReader> ExecuteReaderAsync()
+        public async Task ExecuteReaderAsync(Func<AsyncFaaastRowReader, Task> stuff)
         {
-            var reader = new AsyncFaaastRowReader(this);
+            await using var reader = new AsyncFaaastRowReader(this);
             await reader.PrepareAsync();
-            return reader;
+            await stuff(reader);
         }
 
         public void Dispose()
@@ -150,6 +151,66 @@ namespace Faaast.Orm.Reader
             }
 
             await Task.CompletedTask;
+        }
+
+        public async Task<T> FirstOrDefaultAsync<T>()
+        {
+            T result = default;
+            await this.ExecuteReaderAsync(async reader =>
+            {
+                var tReader = reader.AddReader<T>();
+                if (await reader.ReadAsync())
+                {
+                    result = tReader.Value;
+                }
+            });
+
+            return result;
+        }
+
+        public T FirstOrDefault<T>()
+        {
+            T result = default;
+            this.ExecuteReader(reader =>
+            {
+                var tReader = reader.AddReader<T>();
+                if (reader.Read())
+                {
+                    result = tReader.Value;
+                }
+            });
+
+            return result;
+        }
+
+        public async Task<ICollection<T>> ToListAsync<T>()
+        {
+            var result = new List<T>();
+            await this.ExecuteReaderAsync(async reader =>
+            {
+                var tReader = reader.AddReader<T>();
+                while (await reader.ReadAsync())
+                {
+                    result.Add(tReader.Value);
+                }
+            });
+
+            return result;
+        }
+
+        public ICollection<T> ToList<T>()
+        {
+            var result = new List<T>();
+            this.ExecuteReader(reader =>
+            {
+                var tReader = reader.AddReader<T>();
+                while (reader.Read())
+                {
+                    result.Add(tReader.Value);
+                }
+            });
+
+            return result;
         }
     }
 }
