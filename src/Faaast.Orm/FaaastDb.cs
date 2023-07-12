@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Faaast.Metadata;
@@ -53,7 +51,7 @@ namespace Faaast.Orm
                     this.DbStore[this.Connection.Name] = this.Database;
                 }
 
-                return this.Database.Get(Meta.Mapping);
+                return this.Database.Mapping;
             }
 
             throw new ArgumentException(nameof(this.Connection));
@@ -84,7 +82,7 @@ namespace Faaast.Orm
                 Mappings = tableMaps
             };
 
-            db.Set(Meta.Mapping, dbMap);
+            db.Mapping = dbMap;
             return db;
         }
 

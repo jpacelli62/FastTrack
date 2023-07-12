@@ -99,20 +99,20 @@ namespace Faaast.Orm.Reader
                 {
                     if (string.Equals(columnMapping.Column.Name, columnName, StringComparison.OrdinalIgnoreCase))
                     {
-                        var converterType = columnMapping.Column.Get(DbMeta.Converter);
-                        var converterInstance = columnMapping.Column.Get(DbMeta.ConverterInstance);
+                        var converterType = columnMapping.Column.ConverterType;
+                        var converterInstance = columnMapping.Column.ConverterInstance;
 
                         if (converterInstance is null && converterType != null)
                         {
                             converterInstance = (IValueConverter)Activator.CreateInstance(converterType);
-                            columnMapping.Column.Set(DbMeta.ConverterInstance, converterInstance);
+                            columnMapping.Column.ConverterInstance = converterInstance;
                         }
 
                         this.ColumnsToRead.AddLast(new ColumnMatch
                         {
                             Index = i,
                             Property = columnMapping.Property,
-                            Nullable = columnMapping.Column.Get(DbMeta.Nullable) ?? columnMapping.Property.Nullable,
+                            Nullable = columnMapping.Column.Nullable ?? columnMapping.Property.Nullable,
                             Converter = converterInstance,
                             ValueType = columnMapping.Property.NullableUnderlyingType ?? columnMapping.Property.Type,
                             IsKey = columnMapping.Column.PrimaryKey

@@ -19,13 +19,13 @@ namespace Faaast.Orm
             var property = mapping.ColumnToProperty[column];
             var value = property.Read(record);
 
-            var converterType = column.Get(DbMeta.Converter);
-            var converterInstance = column.Get(DbMeta.ConverterInstance);
+            var converterType = column.ConverterType;
+            var converterInstance = column.ConverterInstance;
 
             if (converterInstance is null && converterType != null)
             {
                 converterInstance = (IValueConverter)Activator.CreateInstance(converterType);
-                column.Set(DbMeta.ConverterInstance, converterInstance);
+                column.ConverterInstance = converterInstance;
             }
 
             if (converterInstance != null)
@@ -94,9 +94,10 @@ namespace Faaast.Orm
             var sql = new FaaastQuery(db, mapping.Table.Name);
 
             var update = new Dictionary<string, object>();
-            foreach (var column in mapping.ColumnMappings)
+            foreach (var (column, value) in from column in mapping.ColumnMappings
+                                            let value = ConvertValue(record, mapping, column.Column)
+                                            select (column, value))
             {
-                var value = ConvertValue(record, mapping, column.Column);
                 if (column.Column.PrimaryKey)
                 {
                     sql.Where(column.Column.Name, value);
@@ -217,13 +218,13 @@ namespace Faaast.Orm
                         }
                     });
 
-                    var converterType = identityColumn.Column.Get(DbMeta.Converter);
-                    var converterInstance = identityColumn.Column.Get(DbMeta.ConverterInstance);
+                    var converterType = identityColumn.Column.ConverterType;
+                    var converterInstance = identityColumn.Column.ConverterInstance;
 
                     if (converterInstance is null && converterType != null)
                     {
                         converterInstance = (IValueConverter)Activator.CreateInstance(converterType);
-                        identityColumn.Column.Set(DbMeta.ConverterInstance, converterInstance);
+                        identityColumn.Column.ConverterInstance = converterInstance;
                     }
 
                     if (converterInstance != null)
@@ -297,7 +298,7 @@ namespace Faaast.Orm
                 object value = null;
                 using (command)
                 {
-                    command.ExecuteReader(async reader =>
+                    command.ExecuteReader(reader =>
                     {
                         var tReader = reader.AddReader(identityColumn.Property.Type);
                         if (reader.Read())
@@ -306,13 +307,13 @@ namespace Faaast.Orm
                         }
                     });
 
-                    var converterType = identityColumn.Column.Get(DbMeta.Converter);
-                    var converterInstance = identityColumn.Column.Get(DbMeta.ConverterInstance);
+                    var converterType = identityColumn.Column.ConverterType;
+                    var converterInstance = identityColumn.Column.ConverterInstance;
 
                     if (converterInstance is null && converterType != null)
                     {
                         converterInstance = (IValueConverter)Activator.CreateInstance(converterType);
-                        identityColumn.Column.Set(DbMeta.ConverterInstance, converterInstance);
+                        identityColumn.Column.ConverterInstance = converterInstance;
                     }
 
                     if (converterInstance != null)

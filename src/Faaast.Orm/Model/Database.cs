@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
 using Faaast.Metadata;
+using Faaast.Orm.Mapping;
 
 namespace Faaast.Orm.Model
 {
@@ -10,6 +11,8 @@ namespace Faaast.Orm.Model
         public ConnectionSettings Connexion { get; set; }
 
         public ICollection<Table> Tables { get; set; }
+
+        public DatabaseMapping Mapping { get; set; }
 
         public Database(ConnectionSettings connexion)
         {

@@ -53,20 +53,6 @@ namespace Faaast.Orm.Reader
             this.ColumnsReaders.AddLast(reader);
             return reader;
         }
-
-        public DataReader<T> AddValueReader<T>()
-        {
-            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
-            var reader = new SingleValueReader<T>()
-            {
-                RowReader = this,
-                Start = last,
-                End = last + 1
-            };
-            this.ColumnsReaders.AddLast(reader);
-            return reader;
-        }
-
         public DataReader AddReader(Type type)
         {
             var last = this.ColumnsReaders.Last?.Value.End ?? 0;
@@ -84,6 +70,19 @@ namespace Faaast.Orm.Reader
                 reader = (DataReader)Activator.CreateInstance(typeof(DtoReader<>).MakeGenericType(type), this, last);
             }
 
+            this.ColumnsReaders.AddLast(reader);
+            return reader;
+        }
+
+        public DataReader<T> AddValueReader<T>()
+        {
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+            var reader = new SingleValueReader<T>()
+            {
+                RowReader = this,
+                Start = last,
+                End = last + 1
+            };
             this.ColumnsReaders.AddLast(reader);
             return reader;
         }

@@ -75,7 +75,8 @@ namespace Faaast.SeoRouter
                         }
 
                         break;
-                };
+                }
+
                 if (index != -1)
                 {
                     break;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +18,6 @@ namespace Faaast.Tests.Orm
 
         private static void CheckParameter(FaaastCommand com)
         {
-            //TODO
-
-            //com.CreateInternalCommand();
             Assert.Single(com.Command.Parameters);
             var param = com.Command.Parameters[0] as FakeDbParameter;
             Assert.Equal("id", param.ParameterName);

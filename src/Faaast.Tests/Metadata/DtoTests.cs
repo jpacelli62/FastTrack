@@ -40,9 +40,7 @@ namespace Faaast.Tests.Metadata
         public int PrivateSetProperty { get; private set; } = 345;
         public int PrivateGetProperty { private get;  set; } = 3456;
 
-#pragma warning disable IDE0051 // Supprimer les membres privés non utilisés
         private int PrivateProperty { get; set; } = 5445;
-#pragma warning restore IDE0051 // Supprimer les membres privés non utilisés
 
         protected DtoTests(ObjectMapper mapper)
         {

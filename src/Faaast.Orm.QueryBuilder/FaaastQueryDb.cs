@@ -12,6 +12,12 @@ namespace Faaast.Orm
         {
         }
 
+        public TableAlias<T> Alias<T>(string alias = null)
+        {
+            var mapping = this.Mapping<T>();
+            return mapping != null ? new TableAlias<T>(mapping, alias) : null;
+        }
+
         public Query Sql => new FaaastQuery(this);
 
         public virtual CompiledQuery Compile(Query query)

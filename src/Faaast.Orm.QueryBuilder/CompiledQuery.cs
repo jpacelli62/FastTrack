@@ -2,7 +2,7 @@
 
 namespace Faaast.Orm
 {
-    public class CompiledQuery
+    public struct CompiledQuery
     {
         public string Sql { get; set; }
 

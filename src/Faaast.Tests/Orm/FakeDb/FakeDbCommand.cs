@@ -10,10 +10,7 @@ namespace Faaast.Tests.Orm.FakeDb
         public Func<object> OnExecuteScalar { get; set; } = () => new();
         public Func<CommandBehavior, DbDataReader> OnExecuteDbDataReader { get; set; }
 
-        public FakeDbCommand()
-        {
-            this.OnExecuteDbDataReader = this.DefaultExecuteDbDataReader;
-        }
+        public FakeDbCommand() => this.OnExecuteDbDataReader = this.DefaultExecuteDbDataReader;
 
         private DbDataReader DefaultExecuteDbDataReader(CommandBehavior behavior) =>
             this.DbConnection.State != ConnectionState.Open ? throw new Exception("Connection is not open") : this.Reader;
@@ -37,7 +34,7 @@ namespace Faaast.Tests.Orm.FakeDb
 
         public override void Prepare() => this.Prepared = true;
 
-        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behaviour) => this.OnExecuteDbDataReader(behaviour);
+        protected override DbDataReader ExecuteDbDataReader(CommandBehavior behavior) => this.OnExecuteDbDataReader(behavior);
         public override void Cancel() => throw new NotImplementedException();
         protected override DbParameter CreateDbParameter() => new FakeDbParameter();
     }

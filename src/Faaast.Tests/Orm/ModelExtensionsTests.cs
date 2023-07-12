@@ -51,7 +51,6 @@ namespace Faaast.Tests.Orm
             test.Map(x => x.V1, "id").IsPrimaryKey();
             var columns = test.Table.Table.PrimaryKeyColumns();
             Assert.Single(columns);
-            Assert.Single(test.Table.Table.Get(DbMeta.PrimaryKeyColumns));
         }
     }
 }
