@@ -2,7 +2,7 @@
 
 namespace Faaast.Metadata
 {
-    public class MetaModel<TModel> : IMetaModel<TModel> where TModel : class
+    public class MetaModel<TModel> where TModel : class
     {
         private Dictionary<string, object> Metadata { get; } = new Dictionary<string, object>();
 

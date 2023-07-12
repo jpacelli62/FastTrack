@@ -16,11 +16,11 @@ namespace Faaast.Orm
 {
     public abstract class FaaastDb
     {
-        internal virtual IObjectMapper Mapper { get; set; }
+        internal virtual ObjectMapper Mapper { get; set; }
 
-        internal virtual IDatabaseStore DbStore { get; set; }
+        internal virtual DatabaseStore DbStore { get; set; }
 
-        internal virtual IDatabase Database{ get; set; }
+        internal virtual Database Database{ get; set; }
 
         internal virtual IServiceProvider Services { get; set; }
 
@@ -36,8 +36,8 @@ namespace Faaast.Orm
 
         protected FaaastDb(IServiceProvider services) : this()
         {
-            this.Mapper = services.GetRequiredService<IObjectMapper>();
-            this.DbStore = services.GetRequiredService<IDatabaseStore>();
+            this.Mapper = services.GetRequiredService<ObjectMapper>();
+            this.DbStore = services.GetRequiredService<DatabaseStore>();
             this.Mappings = new Lazy<DatabaseMapping>(this.InitMapping, true);
             this.Services = services;
         }
@@ -59,7 +59,7 @@ namespace Faaast.Orm
             throw new ArgumentException(nameof(this.Connection));
         }
 
-        internal static Database Initialize(ConnectionSettings connection, IObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
+        internal static Database Initialize(ConnectionSettings connection, ObjectMapper mapper, IEnumerable<SimpleTypeMapping> mappings)
         {
             var db = new Database(connection);
             var tableMaps = new List<TableMapping>();

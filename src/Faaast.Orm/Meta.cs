@@ -6,6 +6,6 @@ namespace Faaast.Orm
 {
     public static class Meta
     {
-        public static readonly Metadata<IDatabase, DatabaseMapping> Mapping = new(nameof(Mapping));
+        public static readonly Metadata<Database, DatabaseMapping> Mapping = new(nameof(Mapping));
     }
 }

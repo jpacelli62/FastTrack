@@ -4,7 +4,7 @@ using System.Diagnostics;
 namespace Faaast.Metadata
 {
     [DebuggerDisplay("{Name} ({Type.FullName})")]
-    public class DtoProperty : MetaModel<IDtoProperty>, IDtoProperty
+    public class DtoProperty : MetaModel<DtoProperty>
     {
         public virtual string Name { get; set; }
 

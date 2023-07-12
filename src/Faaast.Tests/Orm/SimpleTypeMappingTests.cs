@@ -44,7 +44,7 @@ namespace Faaast.Tests.Orm
         [Fact]
         public void Map()
         {
-            var mapper = this.Fixture.Services.GetRequiredService<IObjectMapper>();
+            var mapper = this.Fixture.Services.GetRequiredService<ObjectMapper>();
             var test = new SimpleTypeMapping<SimpleModel>();
             test.Map(x => x.V1, "id");
             test.Table.ObjectClass = mapper.Get(typeof(SimpleModel));

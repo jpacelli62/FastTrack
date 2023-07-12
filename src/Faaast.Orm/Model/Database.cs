@@ -5,7 +5,7 @@ using Faaast.Metadata;
 namespace Faaast.Orm.Model
 {
     [DebuggerDisplay("{Connexion.Name}")]
-    public class Database : MetaModel<IDatabase>, IDatabase
+    public class Database : MetaModel<Database>
     {
         public ConnectionSettings Connexion { get; set; }
 

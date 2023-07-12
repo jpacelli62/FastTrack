@@ -3,11 +3,11 @@ using System.Collections.Concurrent;
 
 namespace Faaast.Orm.Model
 {
-    public class DatabaseStore : IDatabaseStore
+    public class DatabaseStore
     {
-        private ConcurrentDictionary<string, IDatabase> Databases { get; } = new ConcurrentDictionary<string, IDatabase>(StringComparer.OrdinalIgnoreCase);
+        private ConcurrentDictionary<string, Database> Databases { get; } = new ConcurrentDictionary<string, Database>(StringComparer.OrdinalIgnoreCase);
 
-        public IDatabase this[string name]
+        public Database this[string name]
         {
             get
             {

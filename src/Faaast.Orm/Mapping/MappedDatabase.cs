@@ -8,7 +8,7 @@ namespace Faaast.Orm.Mapping
     {
         private ICollection<TableMapping> _mappings;
 
-        public IDatabase Source { get; set; }
+        public Database Source { get; set; }
 
         public ICollection<TableMapping> Mappings { get => _mappings; set => this.Init(value); }
 

@@ -10,7 +10,7 @@ namespace Faaast.Orm.Reader
     {
         internal struct ColumnMatch
         {
-            public IDtoProperty Property;
+            public DtoProperty Property;
             public int Index;
             public bool Nullable;
             public IValueConverter Converter;
@@ -21,9 +21,9 @@ namespace Faaast.Orm.Reader
 
         internal LinkedList<ColumnMatch> ColumnsToRead { get; set; }
 
-        public IDtoClass MembersDto { get; set; }
+        public DtoClass MembersDto { get; set; }
 
-        public IDtoClass InstanceDto { get; set; }
+        public DtoClass InstanceDto { get; set; }
         protected bool HasKey { get; set; }
 
         public DtoReader(BaseRowReader source, int start)

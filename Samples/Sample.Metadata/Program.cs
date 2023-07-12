@@ -6,9 +6,9 @@ namespace Sample.Metadata
 {
     public static class Program
     {
-        public static readonly Metadata<IDtoClass, bool?> IsAwesome = new(nameof(IsAwesome));
+        public static readonly Metadata<DtoClass, bool?> IsAwesome = new(nameof(IsAwesome));
 
-        private static IObjectMapper ObjectMapper { get; set; }
+        private static ObjectMapper ObjectMapper { get; set; }
 
         static void Main()
         {
@@ -18,7 +18,7 @@ namespace Sample.Metadata
             var services = servicesCollection.BuildServiceProvider();
 
             // Retrieve service from dependency injection
-            ObjectMapper = services.GetRequiredService<IObjectMapper>();
+            ObjectMapper = services.GetRequiredService<ObjectMapper>();
 
             // Load and caches the metadata for the type
             var typeMetadata = ObjectMapper.Get(typeof(Customer));

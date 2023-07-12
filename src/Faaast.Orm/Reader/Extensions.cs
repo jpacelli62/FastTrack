@@ -110,7 +110,7 @@ namespace Faaast.Orm.Reader
             return parameter;
         }
 
-        public static void AddParameters(this DbCommand command, object parameters, IObjectMapper mapper)
+        public static void AddParameters(this DbCommand command, object parameters, ObjectMapper mapper)
         {
             if (parameters != null)
             {

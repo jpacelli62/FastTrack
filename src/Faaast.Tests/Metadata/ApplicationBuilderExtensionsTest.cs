@@ -11,7 +11,7 @@ namespace Faaast.Tests.Metadata
         {
             var services = new ServiceCollection();
             services.AddMetadata();
-            Assert.NotNull(services.BuildServiceProvider().GetService<IObjectMapper>());
+            Assert.NotNull(services.BuildServiceProvider().GetService<ObjectMapper>());
         }
     }
 }

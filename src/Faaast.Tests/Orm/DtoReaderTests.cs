@@ -30,7 +30,7 @@ namespace Faaast.Tests.Orm
             return command.ExecuteReader();
         }
 
-        private TException CaptureException<TException>(Action call) where TException : Exception
+        private static TException CaptureException<TException>(Action call) where TException : Exception
         {
             try
             {
@@ -57,7 +57,7 @@ namespace Faaast.Tests.Orm
                 { "id", 123 }
             });
 
-            var ex = this.CaptureException<FaaastOrmException>(() => reader.AddReader<SimpleModel>());
+            var ex = CaptureException<FaaastOrmException>(() => reader.AddReader<SimpleModel>());
             Assert.Contains("Unexpected result column", ex.Message);
         }
 
@@ -69,7 +69,7 @@ namespace Faaast.Tests.Orm
                 { "V1", 123 }
             });
 
-            var ex = this.CaptureException<FaaastOrmException>(() => reader.AddReader<SimpleModel>());
+            var ex = CaptureException<FaaastOrmException>(() => reader.AddReader<SimpleModel>());
             Assert.Contains("Unexpected end of columns", ex.Message);
         }
 
@@ -109,7 +109,7 @@ namespace Faaast.Tests.Orm
                 { "mycolumn", 123 }
             });
 
-            var ex = this.CaptureException<FaaastOrmException>(() => reader.AddReader<NotMappedSampleClass>());
+            var ex = CaptureException<FaaastOrmException>(() => reader.AddReader<NotMappedSampleClass>());
             Assert.Contains("Unexpected result column", ex.Message);
         }
 
@@ -121,7 +121,7 @@ namespace Faaast.Tests.Orm
                 { "Id", 123 }
             });
 
-            var ex = this.CaptureException<FaaastOrmException>(() => reader.AddReader<NotMappedSampleClass>());
+            var ex = CaptureException<FaaastOrmException>(() => reader.AddReader<NotMappedSampleClass>());
             Assert.Contains("Unexpected end of columns", ex.Message);
         }
 

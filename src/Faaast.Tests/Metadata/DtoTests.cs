@@ -25,16 +25,14 @@ namespace Faaast.Tests.Metadata
             }
         }
 
-        private static readonly Metadata<IDtoProperty, bool?> IsAmazing = new(nameof(IsAmazing));
+        private static readonly Metadata<DtoProperty, bool?> IsAmazing = new(nameof(IsAmazing));
 
-        public IObjectMapper Mapper { get; set; }
+        public ObjectMapper Mapper { get; set; }
 
-        public IDtoClass Dto { get; set; }
-
+        public DtoClass Dto { get; set; }
 
         public int InfField = 234;
         public bool? NullableBoolProperty { get; set; } = true;
-
 
         public DateTime ReadOnlyValueTypeProperty { get; } = DateTime.Today;
         public ParameterlessContructorClass ClassField;
@@ -46,7 +44,7 @@ namespace Faaast.Tests.Metadata
         private int PrivateProperty { get; set; } = 5445;
 #pragma warning restore IDE0051 // Supprimer les membres privés non utilisés
 
-        protected DtoTests(IObjectMapper mapper)
+        protected DtoTests(ObjectMapper mapper)
         {
             this.Mapper = mapper;
             this.Dto = mapper.Get(typeof(DtoTests));
@@ -150,9 +148,7 @@ namespace Faaast.Tests.Metadata
             Assert.Null(property);
         }
 
-        void TestPropertiesCollection(ICollection<string> props)
-        {
-            Assert.All(new string[] {
+        void TestPropertiesCollection(ICollection<string> props) => Assert.All(new string[] {
                 nameof(InfField),
                 nameof(this.NullableBoolProperty),
                 nameof(this.ReadOnlyValueTypeProperty),
@@ -160,8 +156,7 @@ namespace Faaast.Tests.Metadata
                 nameof(this.PrivateSetProperty),
                 nameof(this.PrivateGetProperty)
             }, x => props.Contains(x));
-        }
-        
+
         [Fact]
         public void GetEnumerator()
         {
@@ -170,7 +165,8 @@ namespace Faaast.Tests.Metadata
             {
                 props.Add(prop.Name);
             }
-            TestPropertiesCollection(props);
+
+            this.TestPropertiesCollection(props);
         }
 
         [Fact]
@@ -179,23 +175,17 @@ namespace Faaast.Tests.Metadata
             List<string> props = new();
             foreach (var prop in (IEnumerable)this.Dto)
             {
-                props.Add(((IDtoProperty)prop).Name);
+                props.Add(((DtoProperty)prop).Name);
             }
 
-            TestPropertiesCollection(props);
+            this.TestPropertiesCollection(props);
         }
 
         [Fact]
-        public void Name()
-        {
-            Assert.Equal(nameof(DtoTests), this.Dto.Name);
-        }
+        public void Name() => Assert.Equal(nameof(DtoTests), this.Dto.Name);
 
         [Fact]
-        public void Type()
-        {
-            Assert.Equal(typeof(DtoTests), this.Dto.Type);
-        }
+        public void Type() => Assert.Equal(typeof(DtoTests), this.Dto.Type);
 
         [Fact]
         public void CreateInstance()
@@ -211,7 +201,5 @@ namespace Faaast.Tests.Metadata
             var dto = this.Mapper.Get(typeof(ParameterizedContructorClass));
             Assert.Throws<InvalidOperationException>(() => dto.CreateInstance());
         }
-
-
     }
 }

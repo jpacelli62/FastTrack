@@ -13,15 +13,14 @@ namespace Benchmark
     public class BenchmarkInstanceCreation
     {
         private readonly ConstructorInfo _ctor;
-        private IDtoClass LambdaDto { get; set; }
-        private IDtoClass EmitDto { get; set; }
+        private DtoClass LambdaDto { get; set; }
 
         private object _current;
         public BenchmarkInstanceCreation()
         {
             _ctor = typeof(Customer).GetConstructor(Type.EmptyTypes);
 
-            IObjectMapper lambdaMapper = new DefaultObjectMapper();
+            var lambdaMapper = new ObjectMapper();
             this.LambdaDto = lambdaMapper.Get(typeof(Customer));
 
             //IObjectMapper emitMapper = new EmitObjectMapper();

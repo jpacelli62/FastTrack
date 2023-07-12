@@ -11,8 +11,7 @@ namespace Benchmark
     public class BenchmarkPropertySetter
     {
         private readonly MethodInfo _reflexion;
-        private IDtoProperty Lambda { get; set; }
-        private IDtoProperty Emit { get; set; }
+        private DtoProperty Lambda { get; set; }
 
         private readonly Customer _current;
         public BenchmarkPropertySetter()
@@ -20,7 +19,7 @@ namespace Benchmark
             _current = new Customer();
             _reflexion = typeof(Customer).GetProperty(nameof(Customer.Id)).GetSetMethod();
 
-            IObjectMapper lambdaMapper = new DefaultObjectMapper();
+            var lambdaMapper = new ObjectMapper();
             var lambdaDto = lambdaMapper.Get(typeof(Customer));
             this.Lambda = lambdaDto[nameof(Customer.Id)];
 

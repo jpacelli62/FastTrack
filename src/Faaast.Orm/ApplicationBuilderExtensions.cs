@@ -8,7 +8,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddFaaastOrm(this IServiceCollection services)
         {
             services.AddMetadata();
-            services.TryAddSingleton<IDatabaseStore, DatabaseStore>();
+            services.TryAddSingleton<DatabaseStore, DatabaseStore>();
             return services;
         }
     }

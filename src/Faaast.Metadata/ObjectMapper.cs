@@ -5,13 +5,13 @@ using System.Reflection;
 
 namespace Faaast.Metadata
 {
-    public class DefaultObjectMapper : IObjectMapper
+    public class ObjectMapper
     {
-        private Dictionary<Type, IDtoClass> Definitions { get; } = new Dictionary<Type, IDtoClass>();
+        private Dictionary<Type, DtoClass> Definitions { get; } = new Dictionary<Type, DtoClass>();
 
         private readonly ReadWriteSync _sync = new();
 
-        public IDtoClass Get(Type type)
+        public DtoClass Get(Type type)
         {
             using (_sync.ReadAccess(10000))
             {
@@ -36,7 +36,7 @@ namespace Faaast.Metadata
             return nullableUnderlyingType != null || type.IsClass || type.IsInterface;
         }
 
-        public static IDtoClass Build(Type type)
+        public static DtoClass Build(Type type)
         {
             var result = new LambdaDto(type);
             var constructor = type.GetConstructor(Array.Empty<Type>());
