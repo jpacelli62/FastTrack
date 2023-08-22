@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Template;
@@ -24,6 +25,8 @@ namespace Faaast.SeoRouter
         public virtual bool CanGenerateUrl { get; private set; }
 
         public virtual bool IsDynamic { get; private set; }
+
+        public virtual RouteValueDictionary Values { get; private set; }
 
         private RouteTemplate _routeTemplate;
         private TemplateMatcher _templateMatcher;
@@ -53,7 +56,7 @@ namespace Faaast.SeoRouter
 
             var vpdConstraints = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             var targetConstraints = this.Target.Value.Constraints.GetQueryDictionnary();
-            var targetValues = this.Target.ToRouteValueDictionary();
+            this.Values = this.Target.ToRouteValueDictionary();
 
             var template = this.Url;
             var level = 0;
@@ -96,18 +99,25 @@ namespace Faaast.SeoRouter
             }
 
             _routeTemplate = TemplateParser.Parse(template);
-            _templateMatcher = new TemplateMatcher(_routeTemplate, targetValues);
+            _templateMatcher = new TemplateMatcher(_routeTemplate, this.Values);
 
             var binderFactory = services.GetRequiredService<SimpleTemplateBinderFactory>();
             _binder = binderFactory.Create(_routeTemplate, _templateMatcher.Defaults);
             _routeConstraints = this.BuildContraints(services, targetConstraints);
 
-            foreach (var item in targetValues)
+            foreach (var item in this.Values)
             {
                 if (!item.Key.Equals("controller", StringComparison.OrdinalIgnoreCase) &&
                    !item.Key.Equals("action", StringComparison.OrdinalIgnoreCase))
                 {
-                    vpdConstraints[item.Key] = item.Value;
+                    if (string.IsNullOrWhiteSpace(item.Value.ToString()) && _routeConstraints.TryGetValue(item.Key, out var constraint))
+                    {
+                        vpdConstraints[item.Key] = constraint;
+                    }
+                    else
+                    {
+                        vpdConstraints[item.Key] = item.Value;
+                    }
                 }
             }
 
@@ -147,7 +157,7 @@ namespace Faaast.SeoRouter
             values = null;
             if (this.Url.Equals(url))
             {
-                values = this.Target.ToRouteValueDictionary();
+                values = new RouteValueDictionary(this.Values);
                 return true;
             }
 
@@ -178,6 +188,11 @@ namespace Faaast.SeoRouter
                 {
                     return false;
                 }
+            }
+
+            if (this.Kind == RuleKind.Strict && !values.Keys.All(key => this.Values.ContainsKey(key)))
+            {
+                return false;
             }
 
             return true;

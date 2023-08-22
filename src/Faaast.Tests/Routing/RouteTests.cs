@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -234,8 +236,54 @@ namespace Faaast.Tests.Routing
             Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values2), services).Result);
 
             var values3 = new RouteValueDictionary(new { controller = "Category", action = "Details", foo = "bar", id = 5 });
-            Assert.NotNull(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values3), services).Result);
+            Assert.Null(router.GetVirtualPathAsync(new VirtualPathContext(services.GetService<IHttpContextAccessor>().HttpContext, new RouteValueDictionary(), values3), services).Result);
 
+        }
+
+        [Fact]
+        public void MatchStrictWithTooMuchParameters()
+        {
+            var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Strict, HandlerType.Auto, "actualites/chaud-devant/", new MvcAction("portal", "details", "id=123"));
+            var rules = new RoutingRules();
+            rules.Add(route);
+            Assert.Null(rules.Find("actualites/chaud-devant/?foo=bar", out _));
+            Assert.NotNull(rules.Find("actualites/chaud-devant/", out _));
+
+            Assert.NotEmpty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
+            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345" }))));
+            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = 2 }))));
+        }
+
+        [Fact]
+        public void MatchGlobalWithTooMuchParameters()
+        {
+            var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "actualites/chaud-devant/{page}/", new MvcAction("portal", "details", "Id=123&page=", "Id=^[0-9]+$&page=^[0-9]+$"));
+            var rules = new RoutingRules();
+            rules.Add(route);
+            Assert.NotNull(rules.Find("actualites/chaud-devant/3/", out _));
+            Assert.NotNull(rules.Find("actualites/chaud-devant/3/?utm=abc", out _));
+            Assert.Null(rules.Find("actualites/chaud-devant/", out _));
+            Assert.Null(rules.Find("actualites/chaud-devant/test", out _));
+
+            Assert.NotEmpty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = "2" }))));
+
+            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
+            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345", page = "2" }))));
+        }
+
+        private ICollection<T> Enumerate<T>(IAsyncEnumerable<T> task)
+        {
+            var result = new List<T>();
+            Task.Run(async () =>
+            {
+                await foreach (var item in task)
+                {
+                    result.Add(item);
+                }
+
+            }).ConfigureAwait(false).GetAwaiter().GetResult();
+
+            return result;
         }
     }
 }
