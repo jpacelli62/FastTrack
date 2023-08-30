@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
     <Description>A simple and extensible SQL query builder</Description>
     <RootNamespace>Faaast.Orm</RootNamespace>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
@@ -19,15 +19,22 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.56.0.67649">
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="6.0.0" />
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.8.0.76515">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="SqlKata" Version="2.3.7" />
+    <PackageReference Include="SqlKata" Version="2.4.0" />
   </ItemGroup>
   
   <ItemGroup>
     <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
 </Project>

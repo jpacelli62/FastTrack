@@ -123,7 +123,7 @@ namespace Faaast.SeoRouter
         {
             var routeProvider = services.GetRequiredService<IRouteProvider>();
             var rules = await this.GetRulesAsync(services);
-            await foreach (var rule in this.StaticRoutes.FindByRouteAsync(contextValues))
+            foreach (var rule in this.StaticRoutes.FindByRoute(contextValues))
             {
                 if (await routeProvider.ResolveUrlPartsAsync(rule, ambiantValues, contextValues, sourceOject))
                 {
@@ -131,7 +131,7 @@ namespace Faaast.SeoRouter
                 }
             }
 
-            await foreach (var rule in rules.FindByRouteAsync(contextValues))
+            foreach (var rule in rules.FindByRoute(contextValues))
             {
                 if (await routeProvider.ResolveUrlPartsAsync(rule, ambiantValues, contextValues, sourceOject))
                 {

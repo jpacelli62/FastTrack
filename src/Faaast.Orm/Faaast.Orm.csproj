@@ -1,46 +1,56 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
-    <LangVersion>9</LangVersion>
-    <Description>A simple and extensible high performance Micro-ORM supporting SQL Server, PostgreSQL, SQLite, MySQL etc..</Description>
-    <PackageTags>database;db;sql;orm</PackageTags>
-    <EnableNETAnalyzers>true</EnableNETAnalyzers>
-    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
-	  <LangVersion>9.0</LangVersion>
+	<PropertyGroup>
+		<TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
+		<LangVersion>9</LangVersion>
+		<Description>A simple and extensible high performance Micro-ORM supporting SQL Server, PostgreSQL, SQLite, MySQL etc..</Description>
+		<PackageTags>database;db;sql;orm</PackageTags>
+		<EnableNETAnalyzers>true</EnableNETAnalyzers>
+		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+		<LangVersion>9.0</LangVersion>
 
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-  </ItemGroup>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
-    <PackageReference Include="SonarAnalyzer.CSharp" Version="8.56.0.67649">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Update="GenericsQueryExtensions.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>GenericsQueryExtensions.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
+		<PackageReference Include="SonarAnalyzer.CSharp" Version="9.8.0.76515">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="GenericsQueryExtensions.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>GenericsQueryExtensions.tt</DependentUpon>
-    </Compile>
-  </ItemGroup>
+	<ItemGroup>
+		<None Update="GenericsQueryExtensions.tt">
+			<Generator>TextTemplatingFileGenerator</Generator>
+			<LastGenOutput>GenericsQueryExtensions.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Update="GenericsQueryExtensions.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>GenericsQueryExtensions.tt</DependentUpon>
+		</Compile>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
+		<PackageReference Include="System.Reflection.Emit.Lightweight" Version="4.7.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.1">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
 
 
 </Project>

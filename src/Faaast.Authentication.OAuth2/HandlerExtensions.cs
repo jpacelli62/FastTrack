@@ -57,7 +57,7 @@ namespace Faaast.Authentication.OAuth2
         internal static OAuthTokenResponse Parse(string json) =>
 #if NETSTANDARD2_0 || NET461
                 OAuthTokenResponse.Success(JObject.Parse(json));
-#elif NET5_0
+#elif NET5_0 || NET6_0
                 OAuthTokenResponse.Success(JsonDocument.Parse(json));
 #endif
 

@@ -2,13 +2,11 @@
 
 namespace Faaast.Orm.Reader
 {
-    public sealed class FaaastRowReader : BaseRowReader, IDisposable
+    public sealed class FaaastRowReader : BaseRowReader
     {
         public FaaastRowReader(FaaastCommand source) : base(source)
         {
         }
-
-        public void Dispose() => this.Reader.Dispose();
 
         internal void Prepare()
         {

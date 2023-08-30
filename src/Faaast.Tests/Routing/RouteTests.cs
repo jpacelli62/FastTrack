@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Http;
@@ -101,7 +102,7 @@ namespace Faaast.Tests.Routing
             Assert.NotNull(rules.Find("recettes/fiche_recette_v3.aspx?foo=bar", out _));
             Assert.NotNull(rules.Find("/recettes/fiche_recette_v3.aspx?foo=bar", out _));
             var values = route.Target.ToRouteValueDictionary();
-            Assert.NotNull(rules.FindByRouteAsync(values));
+            Assert.NotNull(rules.FindByRoute(values));
             var virtualpath = route.GetVirtualPath(this.Router, new RouteValueDictionary(), values);
             Assert.Equal("recettes/fiche_recette_v3.aspx", virtualpath.VirtualPath.NormalizeUrl());
         }
@@ -249,9 +250,9 @@ namespace Faaast.Tests.Routing
             Assert.Null(rules.Find("actualites/chaud-devant/?foo=bar", out _));
             Assert.NotNull(rules.Find("actualites/chaud-devant/", out _));
 
-            Assert.NotEmpty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
-            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345" }))));
-            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = 2 }))));
+            Assert.NotEmpty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
+            Assert.Empty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345" }))));
+            Assert.Empty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = 2 }))));
         }
 
         [Fact]
@@ -265,25 +266,15 @@ namespace Faaast.Tests.Routing
             Assert.Null(rules.Find("actualites/chaud-devant/", out _));
             Assert.Null(rules.Find("actualites/chaud-devant/test", out _));
 
-            Assert.NotEmpty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = "2" }))));
+            Assert.NotEmpty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123", page = "2" }))));
 
-            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
-            Assert.Empty(Enumerate(rules.FindByRouteAsync(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345", page = "2" }))));
+            Assert.Empty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "123" }))));
+            Assert.Empty(Enumerate(rules.FindByRoute(new RouteValueDictionary(new { controller = "portal", action = "details", id = "345", page = "2" }))));
         }
 
-        private ICollection<T> Enumerate<T>(IAsyncEnumerable<T> task)
+        private ICollection<T> Enumerate<T>(IEnumerable<T> task)
         {
-            var result = new List<T>();
-            Task.Run(async () =>
-            {
-                await foreach (var item in task)
-                {
-                    result.Add(item);
-                }
-
-            }).ConfigureAwait(false).GetAwaiter().GetResult();
-
-            return result;
+            return task.ToList();
         }
     }
 }

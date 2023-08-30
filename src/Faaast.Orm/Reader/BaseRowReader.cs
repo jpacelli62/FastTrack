@@ -4,7 +4,7 @@ using System.Data.Common;
 
 namespace Faaast.Orm.Reader
 {
-    public class BaseRowReader
+    public class BaseRowReader: IDisposable
     {
         public FaaastCommand Source { get; private set; }
 
@@ -25,6 +25,8 @@ namespace Faaast.Orm.Reader
             this.Buffer = null;
             this.ColumnsReaders = new();
         }
+
+        public void Dispose() => this.Reader.Dispose();
 
         protected void InitFields()
         {
@@ -54,19 +56,6 @@ namespace Faaast.Orm.Reader
             return reader;
         }
 
-        public DataReader<T> AddValueReader<T>()
-        {
-            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
-            var reader = new SingleValueReader<T>()
-            {
-                RowReader = this,
-                Start = last,
-                End = last + 1
-            };
-            this.ColumnsReaders.AddLast(reader);
-            return reader;
-        }
-
         public DataReader AddReader(Type type)
         {
             var last = this.ColumnsReaders.Last?.Value.End ?? 0;
@@ -87,6 +76,20 @@ namespace Faaast.Orm.Reader
             this.ColumnsReaders.AddLast(reader);
             return reader;
         }
+
+        public DataReader<T> AddValueReader<T>()
+        {
+            var last = this.ColumnsReaders.Last?.Value.End ?? 0;
+            var reader = new SingleValueReader<T>()
+            {
+                RowReader = this,
+                Start = last,
+                End = last + 1
+            };
+            this.ColumnsReaders.AddLast(reader);
+            return reader;
+        }
+
 
         //public DataReader<T> AddValue<T>() where T : struct
         //{

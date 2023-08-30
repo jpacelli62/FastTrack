@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <TargetFrameworks>net461;netstandard2.0;net5.0</TargetFrameworks>
+    <TargetFrameworks>net461;netstandard2.0;net5.0;net6.0</TargetFrameworks>
     <OutputType>Library</OutputType>
     <Configurations>Debug;Release;Publish</Configurations>
     <Authors>Jérôme Pacelli</Authors>
@@ -9,7 +9,7 @@
     <Company />
     <LangVersion>9</LangVersion>
 
-    <Version>0.0.35-alpha</Version>
+    <Version>6.0.36-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>

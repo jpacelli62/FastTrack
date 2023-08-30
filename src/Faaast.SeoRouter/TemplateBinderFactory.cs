@@ -17,7 +17,9 @@ namespace Faaast.SeoRouter
 
         public TemplateBinder Create(RouteTemplate template, RouteValueDictionary defaults) => new(UrlEncoder.Default, _pool, template, defaults);
 
-#elif NET5_0
+#endif
+
+#if NET5_0 || NET6_0
 
         private readonly TemplateBinderFactory _factory;
 
