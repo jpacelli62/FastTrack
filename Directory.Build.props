@@ -8,8 +8,10 @@
     <Copyright>Jérôme Pacelli</Copyright>
     <Company />
     <LangVersion>9</LangVersion>
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
 
-    <Version>6.0.37-alpha</Version>
+
+	  <Version>6.0.38-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>

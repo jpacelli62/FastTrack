@@ -1,61 +1,63 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <IsPackable>false</IsPackable>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<IsPackable>false</IsPackable>
+		<CheckEolTargetFramework>false</CheckEolTargetFramework>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Metadata\MappingEmitTests.cs" />
-  </ItemGroup>
+	<ItemGroup>
+		<Compile Remove="Metadata\MappingEmitTests.cs" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+	<ItemGroup>
+		<PackageReference Include="Dapper.FluentMap.Dommel" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.1.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.2" />
-    
-    
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
-    <PackageReference Include="Moq" Version="4.16.1" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
-    <PackageReference Include="xunit" Version="2.4.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="3.1.0">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="coverlet.msbuild" Version="3.1.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+		<PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj" />
-    <ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
-    <ProjectReference Include="..\Faaast.OAuth2Server\Faaast.OAuth2Server.csproj" />
-    <ProjectReference Include="..\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj" />
-    <ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
-    <ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
-  </ItemGroup>
 
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+		<PackageReference Include="Moq" Version="4.16.1" />
+		<PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+		<PackageReference Include="xunit" Version="2.4.1" />
+		<PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.collector" Version="3.1.0">
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+			<PrivateAssets>all</PrivateAssets>
+		</PackageReference>
+		<PackageReference Include="coverlet.msbuild" Version="3.1.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Faaast.Authentication.OAuth2\Faaast.Authentication.OAuth2.csproj" />
+		<ProjectReference Include="..\Faaast.Metadata\Faaast.Metadata.csproj" />
+		<ProjectReference Include="..\Faaast.OAuth2Server\Faaast.OAuth2Server.csproj" />
+		<ProjectReference Include="..\Faaast.Orm.QueryBuilder\Faaast.Orm.QueryBuilder.csproj" />
+		<ProjectReference Include="..\Faaast.Orm\Faaast.Orm.csproj" />
+		<ProjectReference Include="..\Faaast.SeoRouter\Faaast.SeoRouter.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="appsettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
 </Project>
