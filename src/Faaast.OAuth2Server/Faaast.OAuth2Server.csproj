@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<LangVersion>9</LangVersion>
 		<Description>A simple and efficient framework agnostic Oauth2 server</Description>
 		<PackageTags>aspnetcore;authentication;security;oauth</PackageTags>
