@@ -9,7 +9,7 @@
     <Company />
     <LangVersion>9</LangVersion>
 
-    <Version>6.0.36-alpha</Version>
+    <Version>6.0.37-alpha</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 
     <PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
