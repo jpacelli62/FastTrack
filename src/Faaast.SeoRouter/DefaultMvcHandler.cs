@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ namespace Faaast.SeoRouter
             {
                 var routeData = c.GetRouteData();
 
-                var actionContext = new Microsoft.AspNetCore.Mvc.ActionContext(context.HttpContext, routeData, actionDescriptor);
+                var actionContext = new ActionContext(context.HttpContext, routeData, actionDescriptor);
                 var invoker = _actionInvokerFactory.CreateInvoker(actionContext);
                 return invoker == null
                     ? throw new InvalidOperationException("Could not create invoker for " + actionDescriptor.DisplayName)

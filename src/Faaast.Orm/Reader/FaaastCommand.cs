@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Faaast.Orm.Reader
 {
-    public sealed class FaaastCommand : IDisposable
+    public sealed class FaaastCommand : IAsyncDisposable, IDisposable
     {
         public FaaastDb Db { get; set; }
 
@@ -82,7 +82,12 @@ namespace Faaast.Orm.Reader
             {
                 if (this.AutoClose)
                 {
+
+#if NET_5
+                    await command.Connection.CloseAsync().ConfigureAwait(false);
+#else
                     command.Connection.Close();
+#endif
                 }
             }
 
@@ -114,6 +119,37 @@ namespace Faaast.Orm.Reader
                 this.Command.Dispose();
                 this.Command = null;
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await this.DisposeAsyncCore().ConfigureAwait(false);
+            this.Dispose(disposing: false);
+            GC.SuppressFinalize(this);
+        }
+
+        internal async ValueTask DisposeAsyncCore()
+        {
+            if (this.Command != null)
+            {
+#if NET_5
+                if (this.AutoClose)
+                {
+                    await this.Command.Connection.CloseAsync().ConfigureAwait(false);
+                }
+                await this.Command.DisposeAsync().ConfigureAwait(false);
+                this.Command = null;
+#else
+                if (this.AutoClose)
+                {
+                    this.Command.Connection.Close();
+                }
+
+                this.Dispose();
+#endif
+            }
+
+            await Task.CompletedTask;
         }
     }
 }

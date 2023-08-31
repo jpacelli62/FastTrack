@@ -73,7 +73,7 @@ namespace Faaast.Orm
         public static async Task<int> DeleteAsync<T>(this FaaastQueryDb db, T record, DbConnection connection)
         {
             var sql = BuildDeleteQuery(db, record);
-            using var command = await sql.CreateCommandAsync(connection);
+            await using var command = await sql.CreateCommandAsync(connection);
             var result = await command.ExecuteNonQueryAsync();
             return result;
         }
@@ -129,7 +129,7 @@ namespace Faaast.Orm
                 return 0;
             }
 
-            using var command = await sql.CreateCommandAsync(connection);
+            await using var command = await sql.CreateCommandAsync(connection);
             var result = await command.ExecuteNonQueryAsync();
             return result;
         }
@@ -198,7 +198,7 @@ namespace Faaast.Orm
 
             if (identityColumn == null)
             {
-                using (command)
+                await using (command)
                 {
                     return await command.ExecuteNonQueryAsync();
                 }
@@ -206,7 +206,7 @@ namespace Faaast.Orm
             else
             {
                 object value = null;
-                using (command)
+                await using (command)
                 {
                     await command.ExecuteReaderAsync(async reader =>
                     {
@@ -297,7 +297,7 @@ namespace Faaast.Orm
                 object value = null;
                 using (command)
                 {
-                    command.ExecuteReader(reader =>
+                    command.ExecuteReader(async reader =>
                     {
                         var tReader = reader.AddReader(identityColumn.Property.Type);
                         if (reader.Read())

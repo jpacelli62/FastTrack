@@ -32,13 +32,18 @@ namespace Faaast.Orm
 
         public static async Task ExecuteReaderAsync(this FaaastCommand command, Func<AsyncFaaastRowReader, Task> stuff)
         {
-            using var reader = await command.ExecuteReaderAsync();
+            await using var reader = await command.ExecuteReaderAsync();
             await stuff(reader);
         }
 
-        public static async Task ExecuteNonQueryAsync(this Task<FaaastCommand> commandTask)
+        public static async Task ExecuteNonQueryAsync(this Task<FaaastCommand> commandTask, DbConnection dbConnection = null)
         {
             using var command = await commandTask;
+            await ExecuteNonQueryAsync(command, dbConnection);
+        }
+
+        public static async Task ExecuteNonQueryAsync(this FaaastCommand command, DbConnection dbConnection = null)
+        {
             await command.ExecuteNonQueryAsync();
         }
 
@@ -54,7 +59,10 @@ namespace Faaast.Orm
             return await command.ToListAsync<T>();
         }
 
-        public static async Task<ICollection<T>> ToListAsync<T>(this Task<FaaastCommand> command) => await ToListAsync<T>(await command);
+        public static async Task<ICollection<T>> ToListAsync<T>(this Task<FaaastCommand> command)
+        {
+            return await ToListAsync<T>(await command);
+        }
 
         public static async Task<ICollection<T>> ToListAsync<T>(this FaaastCommand command)
         {

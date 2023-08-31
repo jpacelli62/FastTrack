@@ -119,8 +119,9 @@ namespace Faaast.SeoRouter
             }
         }
 
-        public IEnumerable<RoutingRule> FindByRoute(RouteValueDictionary values)
+        public async IAsyncEnumerable<RoutingRule> FindByRouteAsync(RouteValueDictionary values)
         {
+            await Task.CompletedTask;
             if (values.TryGetValue("controller", out var controller) &&
                 values.TryGetValue("action", out var action) &&
                 _indexByControllerAction.TryGetValue(controller.ToString(), out var actions) &&

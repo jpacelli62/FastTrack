@@ -73,7 +73,7 @@ namespace Faaast.Tests.Orm
         {
             var sql = "Faaast is awsome";
             var called = false;
-            using var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
             Assert.Equal(ConnectionState.Open, command.Command.Connection.State);
             var con = (FakeDbConnection)command.Command.Connection;
             con.Command.OnExecuteNonQuery = () =>
@@ -112,7 +112,7 @@ namespace Faaast.Tests.Orm
         public async Task ExecuteNonQueryAsync_WithException()
         {
             var sql = "Faaast is awsome";
-            using var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
             Assert.Equal(ConnectionState.Open, command.Command.Connection.State);
             var con = (FakeDbConnection)command.Command.Connection;
             con.Command.OnExecuteNonQuery = () =>
@@ -140,8 +140,8 @@ namespace Faaast.Tests.Orm
         public async Task ExecuteReaderAsync()
         {
             var sql = "Faaast is awsome";
-            using var command = await this.Fixture.Db.CreateCommandAsync(sql);
-            using var reader = await command.ExecuteReaderAsync();
+            await using var command = await this.Fixture.Db.CreateCommandAsync(sql);
+            await using var reader = await command.ExecuteReaderAsync();
             Assert.Equal(reader.Source, command);
             Assert.True(await reader.ReadAsync());
             CheckReadValues(reader);

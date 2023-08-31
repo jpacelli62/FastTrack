@@ -16,15 +16,14 @@
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="2.1.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
 		<PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 
 		<PackageReference Include="Microsoft.AspNetCore" Version="2.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
 		<PackageReference Include="Microsoft.AspNetCore.HttpsPolicy" Version="2.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="2.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.1" />
 		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="5.0.2" />
-		<PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.2.2" />
 
 
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.7.1" />

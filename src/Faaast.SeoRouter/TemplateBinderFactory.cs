@@ -9,7 +9,7 @@ namespace Faaast.SeoRouter
     internal sealed class SimpleTemplateBinderFactory
     {
 
-#if NETSTANDARD2_0 || NET461
+#if NETSTANDARD2_0 || NET461|| NET6_0
 
         private readonly ObjectPool<UriBuildingContext> _pool;
 
@@ -17,9 +17,7 @@ namespace Faaast.SeoRouter
 
         public TemplateBinder Create(RouteTemplate template, RouteValueDictionary defaults) => new(UrlEncoder.Default, _pool, template, defaults);
 
-#endif
-
-#if NET5_0 || NET6_0
+#elif NET5_0
 
         private readonly TemplateBinderFactory _factory;
 

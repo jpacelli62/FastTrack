@@ -1,6 +1,7 @@
 ﻿using System;
 using Faaast.SeoRouter;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.ObjectPool;
@@ -11,10 +12,10 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static IServiceCollection AddFaaastRouter(this IServiceCollection services)
         {
-            services.Configure<AspNetCore.Routing.RouteOptions>(options => options.LowercaseUrls = true);
+            services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
 
             services.AddRouting();
-            services.TryAddTransient<AspNetCore.Routing.IInlineConstraintResolver, AspNetCore.Routing.DefaultInlineConstraintResolver>();
+            services.TryAddTransient<IInlineConstraintResolver, DefaultInlineConstraintResolver>();
             services.AddHttpContextAccessor();
 
 #if NETSTANDARD2_0
@@ -33,7 +34,7 @@ namespace Microsoft.Extensions.DependencyInjection
             return services;
         }
 
-        public static AspNetCore.Builder.IApplicationBuilder UseFaaastRouter(this AspNetCore.Builder.IApplicationBuilder app, Action<ISeoRouteBuilder> routes = null)
+        public static IApplicationBuilder UseFaaastRouter(this IApplicationBuilder app, Action<ISeoRouteBuilder> routes = null)
         {
             var router = app.ApplicationServices.GetRequiredService<Router>();
             app.ApplicationServices.GetRequiredService<IRouteProvider>();
@@ -48,7 +49,7 @@ namespace Microsoft.Extensions.DependencyInjection
                 router.StaticRoutes = new RoutingRules();
             }
 
-            Microsoft.AspNetCore.Builder.RoutingBuilderExtensions.UseRouter(app, router);
+            app.UseRouter(router);
             return app;
         }
     }
