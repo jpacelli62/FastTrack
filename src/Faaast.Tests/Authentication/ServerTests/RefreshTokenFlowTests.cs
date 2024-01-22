@@ -112,7 +112,7 @@ namespace Faaast.Tests.Authentication.ServerTests
         {
             var fixture = new ServerFixture();
             var server = fixture.CreateServer(builder => builder.AddRefreshTokenFlow());
-            CreateToken(fixture, jwt => jwt.SigningCredentials = new(new SymmetricSecurityKey(Encoding.Default.GetBytes("wrongsecuritykey")), SecurityAlgorithms.HmacSha256));
+            CreateToken(fixture, jwt => jwt.SigningCredentials = new(new SymmetricSecurityKey(Encoding.Default.GetBytes("wrongsecuritykey0000000000000000")), SecurityAlgorithms.HmacSha256));
             Assert.NotNull(fixture.Token);
 
             var transaction = await this.QueryAsync(server, fixture.Client.ClientId, fixture.Token.RefreshToken);
