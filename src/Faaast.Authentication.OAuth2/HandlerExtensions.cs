@@ -35,7 +35,11 @@ namespace Faaast.Authentication.OAuth2
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var keybytes = Encoding.ASCII.GetBytes(options.ClientSecret);
-            SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
+            SecurityKey securityKey = new SymmetricSecurityKey(keybytes)
+            {
+                KeyId = "JWTSignKey"
+            };
+
             var validationParams = new TokenValidationParameters
             {
                 RequireAudience = true,
@@ -48,7 +52,8 @@ namespace Faaast.Authentication.OAuth2
                 ValidateLifetime = true,
                 RequireSignedTokens = true,
                 IssuerSigningKey = securityKey,
-                ValidateIssuerSigningKey = true
+                ValidateIssuerSigningKey = true,
+                
             };
             var principal = tokenHandler.ValidateToken(accessToken, validationParams, out _);
             return principal;

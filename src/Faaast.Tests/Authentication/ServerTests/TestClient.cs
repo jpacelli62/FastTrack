@@ -17,7 +17,9 @@ namespace Faaast.Tests.Authentication.ServerTests
         public string Scope { get; set; }
 
         public SigningCredentials GetSigninCredentials(RequestContext context) => 
-            new(new SymmetricSecurityKey(Encoding.Default.GetBytes(this.ClientSecret)), SecurityAlgorithms.HmacSha256);
+            new(new SymmetricSecurityKey(Encoding.Default.GetBytes(this.ClientSecret)) {
+                KeyId = "JWTSignKey"
+            }, SecurityAlgorithms.HmacSha256);
 
         public bool IsAllowedAudience(string audience, RequestContext context) =>
             audience == null || audience == this.Audience;
