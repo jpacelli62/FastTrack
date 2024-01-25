@@ -34,11 +34,8 @@ namespace Faaast.Authentication.OAuth2
         internal static ClaimsPrincipal ReadPrincipalFromToken(string accessToken, FaaastOauthOptions options)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var keybytes = Encoding.ASCII.GetBytes(options.ClientSecret);
-            SecurityKey securityKey = new SymmetricSecurityKey(keybytes)
-            {
-                KeyId = "JWTSignKey"
-            };
+            var keybytes = Encoding.Default.GetBytes(options.ClientSecret);
+            SecurityKey securityKey = new SymmetricSecurityKey(keybytes);
 
             var validationParams = new TokenValidationParameters
             {
