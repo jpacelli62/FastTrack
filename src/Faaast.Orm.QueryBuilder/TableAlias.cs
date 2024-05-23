@@ -36,7 +36,7 @@ namespace Faaast.Orm
 
         private string WithoutAlias(string value) => string.IsNullOrWhiteSpace(this.Alias) ? string.Format(this.Quotes, value) : null;
 
-        private string FormatPrefix(string value) => this.WithoutAlias(value) ?? string.Concat(this.Alias, '.', string.Format(this.Quotes, value));
+        private string FormatPrefix(string value) => this.WithoutAlias(value) ?? string.Concat(this.Alias, '.', value);
 
         private string FormatSuffix(string value) => this.WithoutAlias(value) ?? string.Concat(string.Format(this.Quotes, value), " as ", this.Alias);
 
