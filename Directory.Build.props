@@ -10,7 +10,7 @@
 		<LangVersion>9</LangVersion>
 		<CheckEolTargetFramework>false</CheckEolTargetFramework>
 
-		<Version>0.0.48-alpha</Version>
+		<Version>0.0.49-alpha</Version>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
 		<PackageProjectUrl>https://github.com/jpacelli62/Faaast</PackageProjectUrl>
