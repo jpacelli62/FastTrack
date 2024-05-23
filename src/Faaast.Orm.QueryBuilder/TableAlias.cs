@@ -12,6 +12,8 @@ namespace Faaast.Orm
 
         public string Alias { get; private set; }
 
+        public string Quotes { get; private set; }
+
         public string this[Expression<Func<T, object>> property]
         {
             get {
@@ -32,20 +34,25 @@ namespace Faaast.Orm
                     this.FormatPrefix(column.Name) :
                     throw new ArgumentException($"Property \"{this.Mapping.ObjectClass.Name}.{property}\" is not mapped to a database column");
 
-        private string FormatPrefix(string value) => string.IsNullOrWhiteSpace(this.Alias) ? value : string.Concat(this.Alias, '.', value);
+        private string WithoutAlias(string value) => string.IsNullOrWhiteSpace(this.Alias) ? string.Format(this.Quotes, value) : null;
 
-        private string FormatSuffix(string value) => string.IsNullOrWhiteSpace(this.Alias) ? value : string.Concat(value, " as ", this.Alias);
+        private string FormatPrefix(string value) => this.WithoutAlias(value) ?? string.Concat(this.Alias, '.', string.Format(this.Quotes, value));
 
-        public TableAlias(TableMapping mapping, string alias = null)
+        private string FormatSuffix(string value) => this.WithoutAlias(value) ?? string.Concat(string.Format(this.Quotes, value), " as ", this.Alias);
+
+        public TableAlias(TableMapping mapping, string alias = null, string quotes = "{0}")
         {
             this.Mapping = mapping;
             this.Alias = alias;
+            this.Quotes = quotes;
             _allColumns = new string[mapping.Table.Columns.Count];
             var i = 0;
             foreach (var column in mapping.Table.Columns)
             {
                 _allColumns[i++] = this.FormatPrefix(column.Name);
             }
+
+            this.Quotes = quotes;
         }
 
         public string[] AllColumns => _allColumns;

@@ -8,6 +8,8 @@ namespace Faaast.Orm
     {
         public abstract Compiler Compiler { get; }
 
+        public virtual string Quotes { get; } = "{0}";
+
         protected FaaastQueryDb(IServiceProvider services) : base(services)
         {
         }
