@@ -140,7 +140,7 @@ namespace Faaast.Authentication.OAuth2
 
             userInfos = await response.Content.ReadAsStringAsync();
 
-#if NETSTANDARD2_0 || NET461 || NET6_0
+#if NETSTANDARD2_0_OR_GREATER ||NET461 || NET6_0_OR_GREATER
             var payload = JObject.Parse(userInfos);
             var context = new OAuthCreatingTicketContext(new ClaimsPrincipal(identity), properties, this.Context, this.Scheme, this.Options, this.Backchannel, tokens, payload);
             await this.Events.CreatingTicket(context);

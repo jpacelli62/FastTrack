@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>netstandard2.0</TargetFrameworks>
+		<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
 		<LangVersion>9</LangVersion>
 		<Description>A simple and extensible high performance Micro-ORM supporting SQL Server, PostgreSQL, SQLite, MySQL etc..</Description>
 		<PackageTags>database;db;sql;orm</PackageTags>
