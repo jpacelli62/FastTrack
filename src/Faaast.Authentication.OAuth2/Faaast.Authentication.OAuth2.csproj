@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net461;netstandard2.0;netstandard2.1;net5.0;net6.0</TargetFrameworks>
+		<TargetFrameworks>net5.0;net6.0;net7.0;net8.0;</TargetFrameworks>
 		<LangVersion>9</LangVersion>
 		<Description>A simple and efficient Oauth2 authentication</Description>
 		<PackageTags>aspnetcore;authentication;security;oauth</PackageTags>
@@ -11,20 +11,15 @@
 
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="2.2.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OAuth" Version="2.2.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
 		<PackageReference Include="SonarAnalyzer.CSharp" Version="8.56.0.67649">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.34.0" />
 		<PackageReference Include="System.Text.Json" Version="5.0.2" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net5.0'">
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
 
 	<ItemGroup>

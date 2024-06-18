@@ -56,12 +56,10 @@ namespace Faaast.Authentication.OAuth2
             return principal;
         }
 
-        internal static OAuthTokenResponse Parse(string json) =>
-#if NETSTANDARD2_0_OR_GREATER || NET461 || NET6_0_OR_GREATER
-                OAuthTokenResponse.Success(JObject.Parse(json));
-#elif NET5_0
-                OAuthTokenResponse.Success(JsonDocument.Parse(json));
+#if NET5_0 || NET6_0 || NET7_0 || NET8_0
+        internal static OAuthTokenResponse Parse(string json) => OAuthTokenResponse.Success(JsonDocument.Parse(json));
+#else
+        internal static OAuthTokenResponse Parse(string json) => OAuthTokenResponse.Success(JObject.Parse(json));
 #endif
-
     }
 }
