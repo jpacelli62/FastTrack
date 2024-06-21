@@ -30,12 +30,6 @@ namespace Faaast.Metadata
             }
         }
 
-        internal static bool IsNullableType(Type type, out Type nullableUnderlyingType)
-        {
-            nullableUnderlyingType = Nullable.GetUnderlyingType(type);
-            return nullableUnderlyingType != null || type.IsClass || type.IsInterface;
-        }
-
         public static IDtoClass Build(Type type)
         {
             var result = new LambdaDto(type);
@@ -45,7 +39,7 @@ namespace Faaast.Metadata
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 var propertyType = property.PropertyType;
-                var newProp = new DtoProperty(property.Name, propertyType);
+                var newProp = new DtoProperty(property.Name, propertyType, false, false);
                 var get = property.GetGetMethod();
                 if (property.CanRead && get != null && !get.IsPrivate)
                 {
@@ -68,19 +62,15 @@ namespace Faaast.Metadata
                     newProp.WriteFunc = (x, y) => throw new InvalidOperationException();
                 }
 
-                newProp.Nullable = IsNullableType(propertyType, out var nullType);
-                newProp.NullableUnderlyingType = nullType;
                 result[property.Name] = newProp;
             }
 
             foreach (var field in type.GetFields(BindingFlags.Public | BindingFlags.Instance))
             {
-                result[field.Name] = new DtoProperty(field.Name, field.FieldType)
+                result[field.Name] = new DtoProperty(field.Name, field.FieldType, true, true)
                 {
                     ReadFunc = GenerateGetter(type, field),
                     WriteFunc = GenerateSetter(type, field),
-                    CanRead = true,
-                    CanWrite = true
                 };
             }
 
