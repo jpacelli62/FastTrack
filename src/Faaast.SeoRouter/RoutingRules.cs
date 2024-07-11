@@ -104,7 +104,27 @@ namespace Faaast.SeoRouter
                             }
                         }
                         finally { _syncLock.DowngradeFromWriterLock(ref cookie); }
-                       
+
+                        if (rule.Target.HasValue)
+                        {
+                            var newValues = new RouteValueDictionary();
+                            newValues[Router.ControllerKey] = rule.Target.Value.Controller;
+                            newValues[Router.ActionKey] = rule.Target.Value.Action;
+                            var constraintsQueryDictionnary = rule.Target.Value.Constraints.GetQueryDictionnary();
+
+                            foreach (var key in constraintsQueryDictionnary.Keys)
+                            {
+                                newValues[key] = requestValues[key];
+                            }
+
+                            foreach (var kvp in rule.Target.Value.DefaultValues)
+                            {
+                                newValues[kvp.Key] = requestValues.ContainsKey(kvp.Key) ? requestValues[kvp.Key] : kvp.Value;
+                            }
+
+                            requestValues = newValues;
+                        }
+
                         values = requestValues;
                         return rule;
                     }

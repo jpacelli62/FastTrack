@@ -109,18 +109,20 @@ namespace Faaast.Tests.Routing
         [Fact]
         public void MatchGlobalWithConstraints()
         {
-            var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "{name}-REC{id}", new MvcAction("recipe", "details", string.Empty, "id=^[0-9]+$&name=^[abcd-]+$"));
+            var route = new RoutingRule(this.ServiceProvider, "test", RuleKind.Global, HandlerType.Auto, "{parent}/{name}-REC{id}", new MvcAction("recipe", "details", string.Empty, "id=^[0-9]+$&name=^[abcd-]+$"));
             var rules = new RoutingRules();
             rules.Add(route);
             Assert.Null(rules.Find("recettes/fiche_recette_v3.aspx", out _));
             Assert.Null(rules.Find("/tesst-recdsdfsdfdsf", out _));
             Assert.Null(rules.Find("/abcd-recdsdfsdfdsf", out _));
-            Assert.NotNull(rules.Find("/abcd-aaa-rec3", out _));
-            Assert.NotNull(rules.Find("/a-b-rec3", out var values));
+            Assert.Null(rules.Find("abcd-aaa-rec3", out _));
+            Assert.NotNull(rules.Find("test/abcd-aaa-rec3", out _));
+            Assert.NotNull(rules.Find("test/a-b-rec3", out var values));
             Assert.Equal("recipe", values["controller"]);
             Assert.Equal("details", values["action"]);
             Assert.Equal("a-b", values["name"]);
             Assert.Equal("3", values["id"]);
+            Assert.False(values.ContainsKey("parent"));
         }
 
         [Fact]
