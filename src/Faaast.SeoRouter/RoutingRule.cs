@@ -211,6 +211,7 @@ namespace Faaast.SeoRouter
 
         public virtual VirtualPathData GetVirtualPath(IRouter router, RouteValueDictionary ambiantValues, RouteValueDictionary values)
         {
+            var pathData = new VirtualPathData(router, this.Url);
             if (this.Kind == RuleKind.Global)
             {
                 foreach (var parameter in _routeTemplate.Parameters)
@@ -230,38 +231,44 @@ namespace Faaast.SeoRouter
                     }
                 }
 
-                var binderValues = _binder.GetValues(ambiantValues, values);
-                if (binderValues == null)
+                string virtualPath;
+                if (this.IsDynamic)
                 {
-                    // We're missing one of the required values for this route.
-                    return null;
-                }
-
-                var virtualPath = _binder.BindValues(binderValues.AcceptedValues);
-                if (virtualPath == null)
-                {
-                    return null;
-                }
-
-                if (this.Url.EndsWith("/") && !virtualPath.EndsWith("/"))
-                {
-                    virtualPath += "/";
-                }
-
-                var pathData = new VirtualPathData(router, virtualPath);
-                foreach (var dataToken in binderValues.CombinedValues)
-                {
-                    if (!binderValues.AcceptedValues.ContainsKey(dataToken.Key))
+                    var binderValues = _binder.GetValues(ambiantValues, values);
+                    if (binderValues == null)
                     {
-                        pathData.DataTokens.Add(dataToken.Key, dataToken.Value);
+                        // We're missing one of the required values for this route.
+                        return null;
                     }
+
+                    virtualPath = _binder.BindValues(binderValues.AcceptedValues);
+                    if (virtualPath == null)
+                    {
+                        return null;
+                    }
+                    if (this.Url.EndsWith("/") && !virtualPath.EndsWith("/"))
+                    {
+                        virtualPath += "/";
+                    }
+
+                    pathData = new VirtualPathData(router, virtualPath);
+                    foreach (var dataToken in binderValues.CombinedValues)
+                    {
+                        if (!binderValues.AcceptedValues.ContainsKey(dataToken.Key))
+                        {
+                            pathData.DataTokens.Add(dataToken.Key, dataToken.Value);
+                        }
+                    }
+                }
+                else
+                {
+                    return pathData;
                 }
 
                 return pathData;
             }
             else
             {
-                var pathData = new VirtualPathData(router, this.Url);
                 return pathData;
             }
         }

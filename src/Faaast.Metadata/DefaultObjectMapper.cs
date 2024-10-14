@@ -9,6 +9,10 @@ namespace Faaast.Metadata
     {
         private Dictionary<Type, IDtoClass> Definitions { get; } = new Dictionary<Type, IDtoClass>();
 
+        public DefaultObjectMapper() { }
+
+        public DefaultObjectMapper(Dictionary<Type, IDtoClass> definitions) => this.Definitions = definitions;
+
         private readonly ReadWriteSync _sync = new();
 
         public IDtoClass Get(Type type)
